@@ -8,6 +8,7 @@
 void Cpu::fetch_opcode()
 {
     opcode = bus.read(PC);
+    opcodeReady = true;
     PC++;
 }
 
@@ -19,6 +20,7 @@ void Cpu::fetch_address()
 void Cpu::execute_instruction()
 {
     ops::pointerTable[opcode].execute(*this);
+    PC++;
 }
 
 void Cpu::clock_cpu()
@@ -26,18 +28,31 @@ void Cpu::clock_cpu()
     if (opcodeReady != true)
     {
         fetch_opcode();
+        masterClock++;
+        return;
     }
     else if (addressReady != true)
     {
+        if (ops::pointerTable[opcode].mode == ops::AddressingMode::UNQ) {
+            addressReady == true;
+            execute_instruction();
+            masterClock++;
+            return;
+        }
         fetch_address();
+        masterClock++;
+        return;
     }
     else
     {
         execute_instruction();
+        masterClock++;
+        return;
     }
+    
 }
 
-// Clears the state of the cpu to reset for the next loop
+// Clears the state of the cpu to reset for the next instruction
 void Cpu::clear_state()
 {
     opcode = 0;

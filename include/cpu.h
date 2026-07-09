@@ -25,12 +25,13 @@ class Cpu
         
         // PROGRAM VARIABLES
         // Temporary Values
+        uint8_t temp8; // general purpose 8-bit temporary variable
+        uint16_t temp16; // general purpose 16-bit temporary variable
         uint8_t opcode;
         bool opcodeReady;
         uint8_t value;
         uint16_t address;
         bool addressReady;
-        uint8_t immediateValue;
         // Cycle Counters
         int cyclesSincePower;
         int masterClock;

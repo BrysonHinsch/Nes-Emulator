@@ -51,51 +51,180 @@ namespace ops
     // ADDRESSING MODE FUNCTIONS
     void mode_imp(Cpu& cpu)
     {
-
+        // Value isn't used in any way so it's thrown away.
+        // On hardware, theres a read here, so it needs to be read here for the data bus.
+        cpu.bus.read(cpu.PC);
+        cpu.addressReady = true;
+        cpu.clock_cpu();
     }
     void mode_acc(Cpu& cpu)
     {
-
+        // Value isn't used in any way so it's thrown away.
+        // On hardware, theres a read here, so it needs to be read here for the data bus.
+        cpu.bus.read(cpu.PC);
+        cpu.addressReady = true;
+        cpu.clock_cpu();
     }
     void mode_imm(Cpu& cpu)
     {
-
+        cpu.value = cpu.bus.read(cpu.PC);
+        cpu.PC++;
+        cpu.addressReady = true;
+        cpu.clock_cpu();
     }
     void mode_zpg(Cpu& cpu)
     {
-
+        cpu.address = cpu.bus.read(cpu.PC);
+        cpu.PC++;
+        cpu.addressReady = true;
     }
     void mode_zpx(Cpu& cpu)
     {
-
+        switch(cpu.localClock)
+        {
+            case 0:
+                cpu.address = cpu.bus.read(cpu.PC);
+                cpu.PC++;
+            case 1:
+                cpu.address %= (cpu.address + cpu.X);
+                cpu.localClock = 0;
+                cpu.addressReady = true;
+        }
     }
     void mode_zpy(Cpu& cpu)
     {
-
+        switch(cpu.localClock)
+        {
+            case 0:
+                cpu.address = cpu.bus.read(cpu.PC);
+                cpu.PC++;
+            case 1:
+                cpu.address %= (cpu.address + cpu.Y);
+                cpu.localClock = 0;
+                cpu.addressReady = true;
+        }
     }
     void mode_abs(Cpu& cpu)
     {
-
+        switch(cpu.localClock)
+        {
+            case 0:
+                cpu.address = cpu.bus.read(cpu.PC);
+                cpu.PC++;
+            case 1:
+                cpu.address += (cpu.bus.read(cpu.PC) << 8);
+                cpu.localClock = 0;
+                cpu.addressReady = true;
+        }
     }
     void mode_abx(Cpu& cpu)
     {
-
+        switch(cpu.localClock)
+        {
+            case 0:
+                cpu.address = cpu.bus.read(cpu.PC);
+                cpu.PC++;
+            case 1:
+                uint8_t lowByte = cpu.address;
+                uint8_t wrap = lowByte+cpu.X;
+                cpu.address = wrap;
+                cpu.address += (cpu.bus.read(cpu.PC) << 8);
+                if (wrap >= lowByte) { // if it doesn't wrap (no extra cycle)
+                    cpu.localClock = 0;
+                    cpu.addressReady = true;
+                }
+            case 2:
+                cpu.address += 0x100;
+                cpu.localClock = 0;
+                cpu.addressReady = true;
+        }
     }
     void mode_aby(Cpu& cpu)
     {
-
+        switch(cpu.localClock)
+        {
+            case 0:
+                cpu.address = cpu.bus.read(cpu.PC);
+                cpu.PC++;
+            case 1:
+                uint8_t lowByte = cpu.address;
+                uint8_t wrap = lowByte+cpu.Y;
+                cpu.address = wrap;
+                cpu.address += (cpu.bus.read(cpu.PC) << 8);
+                if (wrap >= lowByte) { // if it doesn't wrap (no extra cycle)
+                    cpu.localClock = 0;
+                    cpu.addressReady = true;
+                }
+            case 2:
+                cpu.address += 0x100;
+                cpu.localClock = 0;
+                cpu.addressReady = true;
+        }
     }
     void mode_ind(Cpu& cpu)
     {
-
+        switch(cpu.localClock)
+        {
+            case 0:
+                cpu.address = cpu.bus.read(cpu.PC);
+                cpu.PC++;
+            case 1:
+                cpu.address += (cpu.bus.read(cpu.PC) << 8);
+                cpu.PC++;
+            case 2:
+                cpu.temp8 = cpu.bus.read(cpu.address);
+            case 3:
+                if (static_cast<uint8_t>(cpu.address) + 1 == 0) 
+                {
+                    cpu.PC = cpu.bus.read(cpu.address & 0xFF00) << 8;
+                }
+                else 
+                {
+                    cpu.PC = cpu.bus.read(cpu.address + 1) << 8;
+                }
+                cpu.PC += cpu.temp8;
+        }
     }
     void mode_inx(Cpu& cpu)
     {
-
+        switch(cpu.localClock)
+        {
+            case 0:
+                cpu.temp8 = cpu.bus.read(cpu.PC);
+                cpu.PC++;
+            case 1:
+                cpu.temp8 = (cpu.bus.read(cpu.temp8) + cpu.X);
+            case 2:
+                cpu.address = cpu.bus.read(cpu.temp8);
+            case 3:
+                cpu.address += (cpu.bus.read(cpu.temp8 + 1) << 8);
+                cpu.localClock = 0;
+                cpu.addressReady = true;
+        }
     }
     void mode_iny(Cpu& cpu)
     {
-
+        switch(cpu.localClock)
+        {
+            case 0:
+                cpu.temp8 = cpu.bus.read(cpu.PC);
+                cpu.PC++;
+            case 1:
+                cpu.address = cpu.bus.read(cpu.temp8);
+            case 2:
+                uint8_t lowByte = cpu.address;
+                uint8_t wrap = lowByte+cpu.Y;
+                cpu.address = wrap;
+                cpu.address += (cpu.bus.read(cpu.temp8 + 1) << 8);
+                if (wrap >= lowByte) { // if it doesn't wrap (no extra cycle)
+                    cpu.localClock = 0;
+                    cpu.addressReady = true;
+                }
+            case 3:
+                cpu.address += 0x100;
+                cpu.localClock = 0;
+                cpu.addressReady = true;
+        }
     }
 
     // OPCODE FUNCTIONS

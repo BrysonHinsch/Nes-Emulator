@@ -20,7 +20,14 @@ namespace ops
         IND, //Indirect
         INX, //Indirect Indexed X
         INY, //Indirect Indexed Y
-        REL  //Relative
+        REL, //Relative
+        UNQ, //Unique
+            // Unique isnt a real addressing mode on hardware.
+            // Its purpose is to keep the code modular while allowing instructions 
+            // that dont follow the normal op -> address -> execute control flow.
+            // If an opcode has the unique addressing mode, it will just skip the
+            // address retreival step and jump to the execution which is where the
+            // retreival will be implemented instead
     };
 
     enum class Instruction {
