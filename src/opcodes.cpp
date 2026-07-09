@@ -528,7 +528,21 @@ namespace ops
     // Branch
     void op_bcc(Cpu& cpu)
     {
+        // Unfinished
+        switch(cpu.localClock)
+        {
+            case 0:
+                cpu.value = cpu.bus.read(cpu.PC++);
+                if (cpu.P & 0x01 == 0x01) 
+                {
+                    cpu.clear_state();
+                }
+            case 1:
 
+            case 2:
+            
+        }
+        
     }
     void op_bcs(Cpu& cpu)
     {

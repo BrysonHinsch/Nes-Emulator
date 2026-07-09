@@ -26,7 +26,7 @@ namespace ops
             // Its purpose is to keep the code modular while allowing instructions 
             // that dont follow the normal op -> address -> execute control flow.
             // If an opcode has the unique addressing mode, it will just skip the
-            // address retreival step and jump to the execution which is where the
+            // address retrieval step and jump to the execution which is where the
             // retreival will be implemented instead
     };
 
@@ -42,8 +42,8 @@ namespace ops
 
     struct Opcode
     {
-        void (*fetchAddress)(Cpu& cpu); // Addressing Mode Function
-        void (*execute)(Cpu& cpu); // Opcode Function
+        void (*fetchAddress)(Cpu&); // Addressing Mode Function
+        void (*execute)(Cpu&); // Opcode Function
         AddressingMode mode; // Addressing Mode
         Instruction op; // Opcode
     };
