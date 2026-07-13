@@ -120,6 +120,7 @@ namespace ops
     void op_bvs(Cpu& cpu); // Official
     // Jump
     void op_jmp(Cpu& cpu); // Official
+    void op_jmp_ind(Cpu& cpu); // Official
     void op_jsr(Cpu& cpu); // Official
     void op_rts(Cpu& cpu); // Official
     void op_brk(Cpu& cpu); // Official

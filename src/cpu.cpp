@@ -5,6 +5,8 @@
 #include "bus.h"
 #include "opcodes.h"
 
+Cpu::Cpu(Bus& bus): bus(bus) {}
+
 void Cpu::fetch_opcode()
 {
     opcode = bus.read(PC);
@@ -20,7 +22,6 @@ void Cpu::fetch_address()
 void Cpu::execute_instruction()
 {
     ops::pointerTable[opcode].execute(*this);
-    PC++;
 }
 
 void Cpu::clock_cpu()
@@ -49,7 +50,6 @@ void Cpu::clock_cpu()
         masterClock++;
         return;
     }
-    
 }
 
 // Clears the state of the cpu to reset for the next instruction

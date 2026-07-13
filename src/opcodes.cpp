@@ -122,7 +122,7 @@ namespace ops
     /* 69 */ {mode_imm, op_adc, AddressingMode::IMM, Instruction::ADC},
     /* 6A */ {mode_acc, op_ror, AddressingMode::ACC, Instruction::ROR},
     /* 6B */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* 6C */ {mode_ind, op_jmp, AddressingMode::IND, Instruction::JMP},
+    /* 6C */ {mode_ind, op_jmp_ind, AddressingMode::IND, Instruction::JMP}, // this makes me so sad
     /* 6D */ {mode_abs, op_adc, AddressingMode::ABS, Instruction::ADC},
     /* 6E */ {mode_abs, op_ror, AddressingMode::ABS, Instruction::ROR},
     /* 6F */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
@@ -355,10 +355,12 @@ namespace ops
             case 0:
                 cpu.address = cpu.bus.read(cpu.PC);
                 cpu.PC++;
+                break;
             case 1:
                 cpu.address %= (cpu.address + cpu.X);
                 cpu.localClock = 0;
                 cpu.addressReady = true;
+                break;
         }
     }
     void mode_zpy(Cpu& cpu)
@@ -368,10 +370,12 @@ namespace ops
             case 0:
                 cpu.address = cpu.bus.read(cpu.PC);
                 cpu.PC++;
+                break;
             case 1:
                 cpu.address %= (cpu.address + cpu.Y);
                 cpu.localClock = 0;
                 cpu.addressReady = true;
+                break;
         }
     }
     void mode_abs(Cpu& cpu)
@@ -381,10 +385,12 @@ namespace ops
             case 0:
                 cpu.address = cpu.bus.read(cpu.PC);
                 cpu.PC++;
+                break;
             case 1:
                 cpu.address += (cpu.bus.read(cpu.PC) << 8);
                 cpu.localClock = 0;
                 cpu.addressReady = true;
+                break;
         }
     }
     void mode_abx(Cpu& cpu)
@@ -394,6 +400,7 @@ namespace ops
             case 0:
                 cpu.address = cpu.bus.read(cpu.PC);
                 cpu.PC++;
+                break;
             case 1:
                 uint8_t lowByte = cpu.address;
                 uint8_t wrap = lowByte+cpu.X;
@@ -403,10 +410,12 @@ namespace ops
                     cpu.localClock = 0;
                     cpu.addressReady = true;
                 }
+                break;
             case 2:
                 cpu.address += 0x100;
                 cpu.localClock = 0;
                 cpu.addressReady = true;
+                break;
         }
     }
     void mode_aby(Cpu& cpu)
@@ -416,6 +425,7 @@ namespace ops
             case 0:
                 cpu.address = cpu.bus.read(cpu.PC);
                 cpu.PC++;
+                break;
             case 1:
                 uint8_t lowByte = cpu.address;
                 uint8_t wrap = lowByte+cpu.Y;
@@ -425,10 +435,12 @@ namespace ops
                     cpu.localClock = 0;
                     cpu.addressReady = true;
                 }
+                break;
             case 2:
                 cpu.address += 0x100;
                 cpu.localClock = 0;
                 cpu.addressReady = true;
+                break;
         }
     }
     void mode_ind(Cpu& cpu)
@@ -438,11 +450,14 @@ namespace ops
             case 0:
                 cpu.address = cpu.bus.read(cpu.PC);
                 cpu.PC++;
+                break;
             case 1:
                 cpu.address += (cpu.bus.read(cpu.PC) << 8);
                 cpu.PC++;
+                break;
             case 2:
                 cpu.temp8 = cpu.bus.read(cpu.address);
+                break;
             case 3:
                 if (static_cast<uint8_t>(cpu.address) + 1 == 0) 
                 {
@@ -453,6 +468,7 @@ namespace ops
                     cpu.PC = cpu.bus.read(cpu.address + 1) << 8;
                 }
                 cpu.PC += cpu.temp8;
+                break;
         }
     }
     void mode_inx(Cpu& cpu)
@@ -462,14 +478,18 @@ namespace ops
             case 0:
                 cpu.temp8 = cpu.bus.read(cpu.PC);
                 cpu.PC++;
+                break;
             case 1:
                 cpu.temp8 = (cpu.bus.read(cpu.temp8) + cpu.X);
+                break;
             case 2:
                 cpu.address = cpu.bus.read(cpu.temp8);
+                break;
             case 3:
                 cpu.address += (cpu.bus.read(cpu.temp8 + 1) << 8);
                 cpu.localClock = 0;
                 cpu.addressReady = true;
+                break;
         }
     }
     void mode_iny(Cpu& cpu)
@@ -479,8 +499,10 @@ namespace ops
             case 0:
                 cpu.temp8 = cpu.bus.read(cpu.PC);
                 cpu.PC++;
+                break;
             case 1:
                 cpu.address = cpu.bus.read(cpu.temp8);
+                break;
             case 2:
                 uint8_t lowByte = cpu.address;
                 uint8_t wrap = lowByte+cpu.Y;
@@ -490,10 +512,12 @@ namespace ops
                     cpu.localClock = 0;
                     cpu.addressReady = true;
                 }
+                break;
             case 3:
                 cpu.address += 0x100;
                 cpu.localClock = 0;
                 cpu.addressReady = true;
+                break;
         }
     }
 
@@ -798,7 +822,6 @@ namespace ops
     // Branch
     void op_bcc(Cpu& cpu)
     {
-        // Unfinished
         switch(cpu.localClock)
         {
             case 0:
@@ -807,61 +830,322 @@ namespace ops
                 {
                     cpu.clear_state();
                 }
+                break;
             case 1:
-
+                uint16_t temp = cpu.PC + cpu.value;
+                if (cpu.PC & 0xFF00 == temp & 0xFF00) 
+                {
+                    cpu.PC = temp;
+                    cpu.clear_state();
+                }
+                cpu.PC = temp;
+                break;
             case 2:
-            
+                // Fix PCH
+                break;
         }
-        
     }
     void op_bcs(Cpu& cpu)
     {
-
+        switch(cpu.localClock)
+        {
+            case 0:
+                cpu.value = cpu.bus.read(cpu.PC++);
+                if (cpu.P & 0x01 == 0x00) 
+                {
+                    cpu.clear_state();
+                }
+                break;
+            case 1:
+                uint16_t temp = cpu.PC + cpu.value;
+                if (cpu.PC & 0xFF00 == temp & 0xFF00) {
+                    cpu.PC = temp;
+                    cpu.clear_state();
+                }
+                cpu.PC = temp;
+                break;
+            case 2:
+                // Fix PCH
+                break;
+        }
     }
     void op_beq(Cpu& cpu)
     {
-
+        switch(cpu.localClock)
+        {
+            case 0:
+                cpu.value = cpu.bus.read(cpu.PC++);
+                if (cpu.P & 0x02 == 0x00) 
+                {
+                    cpu.clear_state();
+                }
+                break;
+            case 1:
+                uint16_t temp = cpu.PC + cpu.value;
+                if (cpu.PC & 0xFF00 == temp & 0xFF00) {
+                    cpu.PC = temp;
+                    cpu.clear_state();
+                }
+                cpu.PC = temp;
+                break;
+            case 2:
+                // Fix PCH
+                break;
+        }
     }
     void op_bne(Cpu& cpu)
     {
-
+        switch(cpu.localClock)
+        {
+            case 0:
+                cpu.value = cpu.bus.read(cpu.PC++);
+                if (cpu.P & 0x02 == 0x02) 
+                {
+                    cpu.clear_state();
+                }
+                break;
+            case 1:
+                uint16_t temp = cpu.PC + cpu.value;
+                if (cpu.PC & 0xFF00 == temp & 0xFF00) {
+                    cpu.PC = temp;
+                    cpu.clear_state();
+                }
+                cpu.PC = temp;
+                break;
+            case 2:
+                // Fix PCH
+                break;
+        }
     }
     void op_bpl(Cpu& cpu)
     {
-
+        switch(cpu.localClock)
+        {
+            case 0:
+                cpu.value = cpu.bus.read(cpu.PC++);
+                if (cpu.P & 0x80 == 0x80) 
+                {
+                    cpu.clear_state();
+                }
+                break;
+            case 1:
+                uint16_t temp = cpu.PC + cpu.value;
+                if (cpu.PC & 0xFF00 == temp & 0xFF00) {
+                    cpu.PC = temp;
+                    cpu.clear_state();
+                }
+                cpu.PC = temp;
+                break;
+            case 2:
+                // Fix PCH
+                break;
+        }
     }
     void op_bmi(Cpu& cpu)
     {
-
+        switch(cpu.localClock)
+        {
+            case 0:
+                cpu.value = cpu.bus.read(cpu.PC++);
+                if (cpu.P & 0x80 == 0x00) 
+                {
+                    cpu.clear_state();
+                }
+                break;
+            case 1:
+                uint16_t temp = cpu.PC + cpu.value;
+                if (cpu.PC & 0xFF00 == temp & 0xFF00) {
+                    cpu.PC = temp;
+                    cpu.clear_state();
+                }
+                cpu.PC = temp;
+                break;
+            case 2:
+                // Fix PCH
+                break;
+        }
     }
     void op_bvc(Cpu& cpu)
     {
-
+        switch(cpu.localClock)
+        {
+            case 0:
+                cpu.value = cpu.bus.read(cpu.PC++);
+                if (cpu.P & 0x40 == 0x40) 
+                {
+                    cpu.clear_state();
+                }
+                break;
+            case 1:
+                uint16_t temp = cpu.PC + cpu.value;
+                if (cpu.PC & 0xFF00 == temp & 0xFF00) {
+                    cpu.PC = temp;
+                    cpu.clear_state();
+                }
+                cpu.PC = temp;
+                break;
+            case 2:
+                // Fix PCH
+                break;
+        }
     }
     void op_bvs(Cpu& cpu)
     {
-
+        switch(cpu.localClock)
+        {
+            case 0:
+                cpu.value = cpu.bus.read(cpu.PC++);
+                if (cpu.P & 0x40 == 0x00) 
+                {
+                    cpu.clear_state();
+                }
+                break;
+            case 1:
+                uint16_t temp = cpu.PC + cpu.value;
+                if (cpu.PC & 0xFF00 == temp & 0xFF00) {
+                    cpu.PC = temp;
+                    cpu.clear_state();
+                }
+                cpu.PC = temp;
+                break;
+            case 2:
+                // Fix PCH
+                break;
+        }
     }
     // Jump
     void op_jmp(Cpu& cpu)
     {
-
+        switch(cpu.localClock)
+        {
+            case 0:
+                cpu.temp8 = cpu.bus.read(cpu.PC++);
+                break;
+            case 1:
+                cpu.PC = cpu.bus.read(cpu.PC) << 8;
+                cpu.PC += cpu.temp8;
+                break;
+        }
+    }
+    void op_jmp_ind(Cpu& cpu)
+    {
+        switch(cpu.localClock)
+        {
+            case 0:
+                cpu.address = cpu.bus.read(cpu.PC++);
+                break;
+            case 1:
+                cpu.address += cpu.bus.read(cpu.PC++) << 8;
+                break;
+            case 2:
+                cpu.temp8 = cpu.bus.read(cpu.address);
+                break;
+            case 3:
+                if (cpu.address & 0x00FF == 0x00FF)
+                {
+                    // can't cross a page so we decrement the page number
+                    // when adding one it will go to the next page at address 0x00
+                    cpu.address -= 0x0100;
+                }
+                cpu.PC = cpu.bus.read(cpu.address+1) << 8;
+                cpu.PC += cpu.temp8;
+                break;
+        }
     }
     void op_jsr(Cpu& cpu)
     {
-
+        switch(cpu.localClock)
+        {
+            case 0:
+                cpu.temp8 = cpu.bus.read(cpu.PC++);
+                break;
+            case 1:
+                // I have no idea what happens here but something does
+                // Ill fix it later when I run tests
+                break;
+            case 2:
+                uint8_t PCH = static_cast<uint8_t>(cpu.PC >> 8);
+                cpu.bus.write(0x100 + cpu.SP--, PCH);
+                break;
+            case 3:
+                uint8_t PCL = static_cast<uint8_t>(cpu.PC >> 8);
+                cpu.bus.write(0x100 + cpu.SP--, PCL);
+                break;
+            case 4:
+                cpu.PC = static_cast<uint16_t>(cpu.bus.read(cpu.PC)) << 8;
+                cpu.PC += cpu.temp8;
+                break;
+        }
     }
     void op_rts(Cpu& cpu)
     {
-
+        switch(cpu.localClock)
+        {
+            case 0:
+                cpu.bus.read(cpu.PC); // open bus
+                break;
+            case 1:
+                cpu.SP++;
+                break;
+            case 2:
+                cpu.PC = static_cast<uint16_t>(cpu.bus.read(0x100 + cpu.SP++));
+                break;
+            case 3:
+                cpu.PC += static_cast<uint16_t>(cpu.bus.read(0x100 + cpu.SP) << 8);
+                break;
+            case 4:
+                cpu.PC++;
+                break;
+        }
     }
     void op_brk(Cpu& cpu)
     {
-
+        switch(cpu.localClock)
+        {
+            case 0:
+                cpu.bus.read(cpu.PC); // open bus
+                cpu.PC++;
+                break;
+            case 1:
+                uint8_t PCH = static_cast<uint8_t>(cpu.PC >> 8);
+                cpu.bus.write(0x100 + cpu.SP--, PCH);
+                break;
+            case 2:
+                uint8_t PCL = static_cast<uint8_t>(cpu.PC);
+                cpu.bus.write(0x100 + cpu.SP--, PCL);
+                break;
+            case 3:
+                cpu.bus.write(0x100 + cpu.SP--, cpu.P & 0x10);
+                set_flag_interrupt_disable(cpu, true);
+                break;
+            case 4:
+                cpu.PC = static_cast<uint16_t>(cpu.bus.read(0xFFFE));
+                break;
+            case 5:
+                cpu.PC += static_cast<uint16_t>(cpu.bus.read(0xFFFE)) << 8;
+                break;
+        }
     }
     void op_rti(Cpu& cpu)
     {
-
+        switch(cpu.localClock)
+        {
+            case 0:
+                cpu.bus.read(cpu.PC); // open bus
+                break;
+            case 1:
+                cpu.SP++;
+                break;
+            case 2:
+                cpu.P = cpu.bus.read(0x100 + cpu.SP++);
+                break;
+            case 3:
+                cpu.PC = static_cast<uint16_t>(cpu.bus.read(0x100 + cpu.SP++));
+                break;
+            case 4:
+                cpu.PC += static_cast<uint16_t>(cpu.bus.read(0x100 + cpu.SP) << 8);
+                break;
+        }
     }
     // Stack
     void op_pha(Cpu& cpu)
