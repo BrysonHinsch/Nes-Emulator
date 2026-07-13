@@ -12,6 +12,7 @@ class Cpu
         Cpu(Bus &bus);
 
         // Member Functions
+        
         // fetches opcode and updates opcode variable and opcodeReady variable
         void fetch_opcode();
         // fetches 1 byte of address
@@ -20,6 +21,8 @@ class Cpu
         void execute_instruction();
         // clocks the cpu for one cycle
         void clock_cpu();
+        // prints the current state of the cpu
+        void print_state();
         // clears opcode, addresss, and cycle variable to reset state
         void clear_state();
         

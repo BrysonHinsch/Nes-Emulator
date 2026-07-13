@@ -1,5 +1,7 @@
 
 #include <cstdint>
+#include <bitset>
+#include <iostream>
 
 #include "cpu.h"
 #include "bus.h"
@@ -50,6 +52,16 @@ void Cpu::clock_cpu()
         masterClock++;
         return;
     }
+}
+
+void Cpu::print_state()
+{
+    std::cout << "A: " << std::hex << A << " ";
+    std::cout << "X: " << std::hex << X << " ";
+    std::cout << "Y: " << std::hex << Y << " ";
+    std::cout << "PC: " << std::hex << PC << " ";
+    std::cout << "SP: " << std::hex << SP << " ";
+    std::cout << "P: " << std::bitset<8>(P) << " ";
 }
 
 // Clears the state of the cpu to reset for the next instruction

@@ -10,7 +10,7 @@ int main()
     Bus bus;
     Cpu cpu(bus);
 
+    cpu.print_state();
 
     return 0;
-
 }

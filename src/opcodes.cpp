@@ -866,6 +866,7 @@ namespace ops
                 break;
             case 2:
                 // Fix PCH
+                cpu.clear_state();
                 break;
         }
     }
@@ -890,6 +891,7 @@ namespace ops
                 break;
             case 2:
                 // Fix PCH
+                cpu.clear_state();
                 break;
         }
     }
@@ -914,6 +916,7 @@ namespace ops
                 break;
             case 2:
                 // Fix PCH
+                cpu.clear_state();
                 break;
         }
     }
@@ -938,6 +941,7 @@ namespace ops
                 break;
             case 2:
                 // Fix PCH
+                cpu.clear_state();
                 break;
         }
     }
@@ -962,6 +966,7 @@ namespace ops
                 break;
             case 2:
                 // Fix PCH
+                cpu.clear_state();
                 break;
         }
     }
@@ -986,6 +991,7 @@ namespace ops
                 break;
             case 2:
                 // Fix PCH
+                cpu.clear_state();
                 break;
         }
     }
@@ -1010,6 +1016,7 @@ namespace ops
                 break;
             case 2:
                 // Fix PCH
+                cpu.clear_state();
                 break;
         }
     }
@@ -1024,6 +1031,7 @@ namespace ops
             case 1:
                 cpu.PC = cpu.bus.read(cpu.PC) << 8;
                 cpu.PC += cpu.temp8;
+                cpu.clear_state();
                 break;
         }
     }
@@ -1049,6 +1057,7 @@ namespace ops
                 }
                 cpu.PC = cpu.bus.read(cpu.address+1) << 8;
                 cpu.PC += cpu.temp8;
+                cpu.clear_state();
                 break;
         }
     }
@@ -1074,6 +1083,7 @@ namespace ops
             case 4:
                 cpu.PC = static_cast<uint16_t>(cpu.bus.read(cpu.PC)) << 8;
                 cpu.PC += cpu.temp8;
+                cpu.clear_state();
                 break;
         }
     }
@@ -1095,6 +1105,7 @@ namespace ops
                 break;
             case 4:
                 cpu.PC++;
+                cpu.clear_state();
                 break;
         }
     }
@@ -1123,6 +1134,7 @@ namespace ops
                 break;
             case 5:
                 cpu.PC += static_cast<uint16_t>(cpu.bus.read(0xFFFE)) << 8;
+                cpu.clear_state();
                 break;
         }
     }
@@ -1144,6 +1156,7 @@ namespace ops
                 break;
             case 4:
                 cpu.PC += static_cast<uint16_t>(cpu.bus.read(0x100 + cpu.SP) << 8);
+                cpu.clear_state();
                 break;
         }
     }
