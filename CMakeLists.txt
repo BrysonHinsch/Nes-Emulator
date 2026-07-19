@@ -9,7 +9,7 @@ add_executable(NesEmulator
     src/bus.cpp
     src/cartridge.cpp
     src/cpu.cpp
+    src/emulator.cpp
     src/main.cpp
-    src/mapper.cpp
     src/opcodes.cpp
 )

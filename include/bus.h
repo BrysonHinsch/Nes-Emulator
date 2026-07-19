@@ -9,7 +9,7 @@ class Bus
 {
     public:
         // Constructors
-        Bus();
+        Bus(Cartridge& cart);
         // Member Functions
         // Reads and returns value from address determined by mapper (eventually)
         uint8_t read(uint16_t address);
@@ -23,5 +23,5 @@ class Bus
         // 2KB Internal RAM
         std::array<uint8_t, 2048> ram;
         // Cartridge
-        Cartridge cartridge;
+        Cartridge& cartridge;
 };

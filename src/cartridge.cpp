@@ -3,34 +3,42 @@
 #include <fstream>
 
 #include "cartridge.h"
+#include "mappers/mapperNROM.h"
 
 Cartridge::Cartridge(std::string filename)
 {
     std::ifstream file(filename, std::ios::binary);
     // read file header
-    file.read((char*)header, sizeof(header));
+    file.read(reinterpret_cast<char*>(header), sizeof(header));
     // read trainer data
     if (header[6] &= 0x04)
     {
-        // TODO
         // will eventually read trainer data
-        // always 512 bytes long
+        // either 0 or 512 bytes
     }
     // read PRG_ROM
-    if (header[4] == 1)
+    PRG_ROM.resize(header[4] * 0x4000);
+    for (int i = 0; i < header[4]; i++)
     {
-        file.read((char*)PRG_ROM, sizeof(PRG_ROM));
+        file.read(reinterpret_cast<char*>(PRG_ROM.data()), 0x4000);
     }
     // read CHR_ROM
-    if (header[5] == 1)
+    CHR_ROM.resize(header[5] * 0x2000);
+    for (int i = 0; i < header[5]; i++) 
     {
-        // TODO
+        file.read(reinterpret_cast<char*>(CHR_ROM.data()), 0x2000);
+    }
+    // set mapper
+    switch (((header[6] & 0xF0) >> 4) + (header[7] & 0xF0))
+    {
+        case 0:
+            mapper = new MapperNROM(PRG_ROM);
     }
 }
 
 uint8_t Cartridge::read(uint16_t address)
 {
-    return 0;
+    return mapper->read(address);
 }
 
 // DEBUGGING #################################################

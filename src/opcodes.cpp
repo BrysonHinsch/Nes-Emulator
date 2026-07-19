@@ -17,7 +17,7 @@ namespace ops
     /* 06 */ {mode_zpg, op_asl, AddressingMode::ZPG, Instruction::ASL},
     /* 07 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* 08 */ {mode_imp, op_php, AddressingMode::IMP, Instruction::PHP},
-    /* 09 */ {mode_imm, op_ora, AddressingMode::IMM, Instruction::ORA},
+    /* 09 */ {mode_imm, op_ora_imm, AddressingMode::IMM, Instruction::ORA},
     /* 0A */ {mode_acc, op_asl, AddressingMode::ACC, Instruction::ASL},
     /* 0B */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* 0C */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
@@ -51,7 +51,7 @@ namespace ops
     /* 26 */ {mode_zpg, op_rol, AddressingMode::ZPG, Instruction::ROL},
     /* 27 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* 28 */ {mode_imp, op_plp, AddressingMode::IMP, Instruction::PLP},
-    /* 29 */ {mode_imm, op_and, AddressingMode::IMM, Instruction::AND},
+    /* 29 */ {mode_imm, op_and_imm, AddressingMode::IMM, Instruction::AND},
     /* 2A */ {mode_acc, op_rol, AddressingMode::ACC, Instruction::ROL},
     /* 2B */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* 2C */ {mode_abs, op_bit, AddressingMode::ABS, Instruction::BIT},
@@ -85,10 +85,10 @@ namespace ops
     /* 46 */ {mode_zpg, op_lsr, AddressingMode::ZPG, Instruction::LSR},
     /* 47 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* 48 */ {mode_imp, op_pha, AddressingMode::IMP, Instruction::PHA},
-    /* 49 */ {mode_imm, op_eor, AddressingMode::IMM, Instruction::EOR},
+    /* 49 */ {mode_imm, op_eor_imm, AddressingMode::IMM, Instruction::EOR},
     /* 4A */ {mode_acc, op_lsr, AddressingMode::ACC, Instruction::LSR},
     /* 4B */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* 4C */ {mode_abs, op_jmp, AddressingMode::ABS, Instruction::JMP},
+    /* 4C */ {mode_abs, op_jmp, AddressingMode::UNQ, Instruction::JMP},
     /* 4D */ {mode_abs, op_eor, AddressingMode::ABS, Instruction::EOR},
     /* 4E */ {mode_abs, op_lsr, AddressingMode::ABS, Instruction::LSR},
     /* 4F */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
@@ -119,7 +119,7 @@ namespace ops
     /* 66 */ {mode_zpg, op_ror, AddressingMode::ZPG, Instruction::ROR},
     /* 67 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* 68 */ {mode_imp, op_pla, AddressingMode::IMP, Instruction::PLA},
-    /* 69 */ {mode_imm, op_adc, AddressingMode::IMM, Instruction::ADC},
+    /* 69 */ {mode_imm, op_adc_imm, AddressingMode::IMM, Instruction::ADC},
     /* 6A */ {mode_acc, op_ror, AddressingMode::ACC, Instruction::ROR},
     /* 6B */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* 6C */ {mode_ind, op_jmp_ind, AddressingMode::IND, Instruction::JMP}, // this makes me so sad
@@ -178,16 +178,16 @@ namespace ops
     /* 9E */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* 9F */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
 
-    /* A0 */ {mode_imm, op_ldy, AddressingMode::IMM, Instruction::LDY},
+    /* A0 */ {mode_imm, op_ldy_imm, AddressingMode::IMM, Instruction::LDY},
     /* A1 */ {mode_inx, op_lda, AddressingMode::INX, Instruction::LDA},
-    /* A2 */ {mode_imm, op_ldx, AddressingMode::IMM, Instruction::LDX},
+    /* A2 */ {mode_imm, op_ldx_imm, AddressingMode::IMM, Instruction::LDX},
     /* A3 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* A4 */ {mode_zpg, op_ldy, AddressingMode::ZPG, Instruction::LDY},
     /* A5 */ {mode_zpg, op_lda, AddressingMode::ZPG, Instruction::LDA},
     /* A6 */ {mode_zpg, op_ldx, AddressingMode::ZPG, Instruction::LDX},
     /* A7 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* A8 */ {mode_imp, op_tay, AddressingMode::IMP, Instruction::TAY},
-    /* A9 */ {mode_imm, op_lda, AddressingMode::IMM, Instruction::LDA},
+    /* A9 */ {mode_imm, op_lda_imm, AddressingMode::IMM, Instruction::LDA},
     /* AA */ {mode_imp, op_tax, AddressingMode::IMP, Instruction::TAX},
     /* AB */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* AC */ {mode_abs, op_ldy, AddressingMode::ABS, Instruction::LDY},
@@ -212,7 +212,7 @@ namespace ops
     /* BE */ {mode_aby, op_ldx, AddressingMode::ABY, Instruction::LDX},
     /* BF */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
 
-    /* C0 */ {mode_imm, op_cpy, AddressingMode::IMM, Instruction::CPY},
+    /* C0 */ {mode_imm, op_cpy_imm, AddressingMode::IMM, Instruction::CPY},
     /* C1 */ {mode_inx, op_cmp, AddressingMode::INX, Instruction::CMP},
     /* C2 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* C3 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
@@ -221,7 +221,7 @@ namespace ops
     /* C6 */ {mode_zpg, op_dec, AddressingMode::ZPG, Instruction::DEC},
     /* C7 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* C8 */ {mode_imp, op_iny, AddressingMode::IMP, Instruction::INY},
-    /* C9 */ {mode_imm, op_cmp, AddressingMode::IMM, Instruction::CMP},
+    /* C9 */ {mode_imm, op_cmp_imm, AddressingMode::IMM, Instruction::CMP},
     /* CA */ {mode_imp, op_dex, AddressingMode::IMP, Instruction::DEX},
     /* CB */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* CC */ {mode_abs, op_cpy, AddressingMode::ABS, Instruction::CPY},
@@ -246,7 +246,7 @@ namespace ops
     /* DE */ {mode_abx, op_dec, AddressingMode::ABX, Instruction::DEC},
     /* DF */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
 
-    /* E0 */ {mode_imm, op_cpx, AddressingMode::IMM, Instruction::CPX},
+    /* E0 */ {mode_imm, op_cpx_imm, AddressingMode::IMM, Instruction::CPX},
     /* E1 */ {mode_inx, op_sbc, AddressingMode::INX, Instruction::SBC},
     /* E2 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* E3 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
@@ -255,7 +255,7 @@ namespace ops
     /* E6 */ {mode_zpg, op_inc, AddressingMode::ZPG, Instruction::INC},
     /* E7 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* E8 */ {mode_imp, op_inx, AddressingMode::IMP, Instruction::INX},
-    /* E9 */ {mode_imm, op_sbc, AddressingMode::IMM, Instruction::SBC},
+    /* E9 */ {mode_imm, op_sbc_imm, AddressingMode::IMM, Instruction::SBC},
     /* EA */ {mode_imp, op_nop, AddressingMode::IMP, Instruction::NOP},
     /* EB */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* EC */ {mode_abs, op_cpx, AddressingMode::ABS, Instruction::CPX},
@@ -325,7 +325,6 @@ namespace ops
         // On hardware, theres a read here, so it needs to be read here for the data bus.
         cpu.bus.read(cpu.PC);
         cpu.addressReady = true;
-        cpu.clock_cpu();
     }
     void mode_acc(Cpu& cpu)
     {
@@ -333,14 +332,12 @@ namespace ops
         // On hardware, theres a read here, so it needs to be read here for the data bus.
         cpu.bus.read(cpu.PC);
         cpu.addressReady = true;
-        cpu.clock_cpu();
     }
     void mode_imm(Cpu& cpu)
     {
         cpu.value = cpu.bus.read(cpu.PC);
         cpu.PC++;
         cpu.addressReady = true;
-        cpu.clock_cpu();
     }
     void mode_zpg(Cpu& cpu)
     {
@@ -383,11 +380,10 @@ namespace ops
         switch(cpu.localClock)
         {
             case 0:
-                cpu.address = cpu.bus.read(cpu.PC);
-                cpu.PC++;
+                cpu.address = cpu.bus.read(cpu.PC++);
                 break;
             case 1:
-                cpu.address += (cpu.bus.read(cpu.PC) << 8);
+                cpu.address += (cpu.bus.read(cpu.PC++) << 8);
                 cpu.localClock = 0;
                 cpu.addressReady = true;
                 break;
@@ -398,19 +394,18 @@ namespace ops
         switch(cpu.localClock)
         {
             case 0:
-                cpu.address = cpu.bus.read(cpu.PC);
-                cpu.PC++;
+                cpu.address = cpu.bus.read(cpu.PC++);
                 break;
-            case 1:
-                uint8_t lowByte = cpu.address;
+            case 1: {
+                uint8_t lowByte = static_cast<uint8_t>(cpu.address);
                 uint8_t wrap = lowByte+cpu.X;
                 cpu.address = wrap;
-                cpu.address += (cpu.bus.read(cpu.PC) << 8);
+                cpu.address += (cpu.bus.read(cpu.PC++) << 8);
                 if (wrap >= lowByte) { // if it doesn't wrap (no extra cycle)
                     cpu.localClock = 0;
                     cpu.addressReady = true;
                 }
-                break;
+                break; }
             case 2:
                 cpu.address += 0x100;
                 cpu.localClock = 0;
@@ -423,19 +418,18 @@ namespace ops
         switch(cpu.localClock)
         {
             case 0:
-                cpu.address = cpu.bus.read(cpu.PC);
-                cpu.PC++;
+                cpu.address = cpu.bus.read(cpu.PC++);
                 break;
-            case 1:
-                uint8_t lowByte = cpu.address;
+            case 1: {
+                uint8_t lowByte = static_cast<uint8_t>(cpu.address);
                 uint8_t wrap = lowByte+cpu.Y;
                 cpu.address = wrap;
-                cpu.address += (cpu.bus.read(cpu.PC) << 8);
+                cpu.address += (cpu.bus.read(cpu.PC++) << 8);
                 if (wrap >= lowByte) { // if it doesn't wrap (no extra cycle)
                     cpu.localClock = 0;
                     cpu.addressReady = true;
                 }
-                break;
+                break; }
             case 2:
                 cpu.address += 0x100;
                 cpu.localClock = 0;
@@ -503,8 +497,8 @@ namespace ops
             case 1:
                 cpu.address = cpu.bus.read(cpu.temp8);
                 break;
-            case 2:
-                uint8_t lowByte = cpu.address;
+            case 2: {
+                uint8_t lowByte = static_cast<uint8_t>(cpu.address);
                 uint8_t wrap = lowByte+cpu.Y;
                 cpu.address = wrap;
                 cpu.address += (cpu.bus.read(cpu.temp8 + 1) << 8);
@@ -512,7 +506,7 @@ namespace ops
                     cpu.localClock = 0;
                     cpu.addressReady = true;
                 }
-                break;
+                break; }
             case 3:
                 cpu.address += 0x100;
                 cpu.localClock = 0;
@@ -530,6 +524,13 @@ namespace ops
         set_flag_negative(cpu, cpu.A);
         cpu.clear_state();
     }
+    void op_lda_imm(Cpu& cpu)
+    {
+        cpu.A = cpu.value;
+        set_flag_zero(cpu, cpu.A);
+        set_flag_negative(cpu, cpu.A);
+        cpu.clear_state();
+    }
     void op_sta(Cpu& cpu)
     {
         cpu.bus.write(cpu.address, cpu.A);
@@ -542,6 +543,13 @@ namespace ops
         set_flag_negative(cpu, cpu.X);
         cpu.clear_state();
     }
+    void op_ldx_imm(Cpu& cpu)
+    {
+        cpu.X = cpu.value;
+        set_flag_zero(cpu, cpu.X);
+        set_flag_negative(cpu, cpu.X);
+        cpu.clear_state();
+    }
     void op_stx(Cpu& cpu)
     {
         cpu.bus.write(cpu.address, cpu.X);
@@ -550,6 +558,13 @@ namespace ops
     void op_ldy(Cpu& cpu)
     {
         cpu.Y = cpu.bus.read(cpu.address);
+        set_flag_zero(cpu, cpu.Y);
+        set_flag_negative(cpu, cpu.Y);
+        cpu.clear_state();
+    }
+    void op_ldy_imm(Cpu& cpu)
+    {
+        cpu.Y = cpu.value;
         set_flag_zero(cpu, cpu.Y);
         set_flag_negative(cpu, cpu.Y);
         cpu.clear_state();
@@ -600,9 +615,29 @@ namespace ops
         cpu.A = (result % 256);
         cpu.clear_state();
     }
+    void op_adc_imm(Cpu& cpu)
+    {
+        uint16_t result = cpu.A + cpu.value + (cpu.P & 0x01);
+        set_flag_carry(cpu, result > 0xFF);
+        set_flag_zero(cpu, result);
+        set_flag_overflow(cpu, ((result ^ cpu.A) & (result ^ cpu.value) & 0x80));
+        set_flag_negative(cpu, result);
+        cpu.A = (result % 256);
+        cpu.clear_state();
+    }
     void op_sbc(Cpu& cpu)
     {
         cpu.value = cpu.bus.read(cpu.address);
+        uint16_t result = cpu.A - cpu.value - (~cpu.P & 0x01);
+        set_flag_carry(cpu, result > 0xFF);
+        set_flag_zero(cpu, result);
+        set_flag_overflow(cpu, ((result ^ cpu.A) & (result ^ ~cpu.value) & 0x80));
+        set_flag_negative(cpu, result);
+        cpu.A = (result % 256);
+        cpu.clear_state();
+    }
+    void op_sbc_imm(Cpu& cpu)
+    {
         uint16_t result = cpu.A - cpu.value - (~cpu.P & 0x01);
         set_flag_carry(cpu, result > 0xFF);
         set_flag_zero(cpu, result);
@@ -768,6 +803,13 @@ namespace ops
         set_flag_negative(cpu, cpu.A);
         cpu.clear_state();
     }
+    void op_and_imm(Cpu& cpu)
+    {
+        cpu.A &= cpu.value;
+        set_flag_zero(cpu, cpu.A);
+        set_flag_negative(cpu, cpu.A);
+        cpu.clear_state();
+    }
     void op_ora(Cpu& cpu)
     {
         cpu.A |= cpu.bus.read(cpu.address);
@@ -775,9 +817,23 @@ namespace ops
         set_flag_negative(cpu, cpu.A);
         cpu.clear_state();
     }
+    void op_ora_imm(Cpu& cpu)
+    {
+        cpu.A |= cpu.value;
+        set_flag_zero(cpu, cpu.A);
+        set_flag_negative(cpu, cpu.A);
+        cpu.clear_state();
+    }
     void op_eor(Cpu& cpu)
     {
         cpu.A ^= cpu.bus.read(cpu.address);
+        set_flag_zero(cpu, cpu.A);
+        set_flag_negative(cpu, cpu.A);
+        cpu.clear_state();
+    }
+    void op_eor_imm(Cpu& cpu)
+    {
+        cpu.A ^= cpu.value;
         set_flag_zero(cpu, cpu.A);
         set_flag_negative(cpu, cpu.A);
         cpu.clear_state();
@@ -801,9 +857,27 @@ namespace ops
         set_flag_negative(cpu, result);
         cpu.clear_state();
     }
+    void op_cmp_imm(Cpu& cpu)
+    {
+        uint8_t memory = cpu.value;
+        set_flag_carry(cpu, cpu.A>=memory);
+        set_flag_zero(cpu, cpu.A==memory);
+        uint8_t result = (cpu.A - memory);
+        set_flag_negative(cpu, result);
+        cpu.clear_state();
+    }
     void op_cpx(Cpu& cpu)
     {
         uint8_t memory = cpu.bus.read(cpu.address);
+        set_flag_carry(cpu, cpu.X>=memory);
+        set_flag_zero(cpu, cpu.X==memory);
+        uint8_t result = (cpu.X - memory);
+        set_flag_negative(cpu, result);
+        cpu.clear_state();
+    }
+    void op_cpx_imm(Cpu& cpu)
+    {
+        uint8_t memory = cpu.value;
         set_flag_carry(cpu, cpu.X>=memory);
         set_flag_zero(cpu, cpu.X==memory);
         uint8_t result = (cpu.X - memory);
@@ -819,6 +893,15 @@ namespace ops
         set_flag_negative(cpu, result);
         cpu.clear_state();
     }
+    void op_cpy_imm(Cpu& cpu)
+    {
+        uint8_t memory = cpu.value;
+        set_flag_carry(cpu, cpu.Y>=memory);
+        set_flag_zero(cpu, cpu.Y==memory);
+        uint8_t result = (cpu.Y - memory);
+        set_flag_negative(cpu, result);
+        cpu.clear_state();
+    }
     // Branch
     void op_bcc(Cpu& cpu)
     {
@@ -826,22 +909,23 @@ namespace ops
         {
             case 0:
                 cpu.value = cpu.bus.read(cpu.PC++);
-                if (cpu.P & 0x01 == 0x01) 
+                if ((cpu.P & 0x01) == 0x01) 
                 {
                     cpu.clear_state();
                 }
                 break;
-            case 1:
+            case 1: {
                 uint16_t temp = cpu.PC + cpu.value;
-                if (cpu.PC & 0xFF00 == temp & 0xFF00) 
+                if ((cpu.PC & 0xFF00) == (temp & 0xFF00)) 
                 {
                     cpu.PC = temp;
                     cpu.clear_state();
                 }
                 cpu.PC = temp;
-                break;
+                break; }
             case 2:
                 // Fix PCH
+                cpu.clear_state();
                 break;
         }
     }
@@ -851,19 +935,19 @@ namespace ops
         {
             case 0:
                 cpu.value = cpu.bus.read(cpu.PC++);
-                if (cpu.P & 0x01 == 0x00) 
+                if ((cpu.P & 0x01) == 0x00) 
                 {
                     cpu.clear_state();
                 }
                 break;
-            case 1:
+            case 1: {
                 uint16_t temp = cpu.PC + cpu.value;
-                if (cpu.PC & 0xFF00 == temp & 0xFF00) {
+                if ((cpu.PC & 0xFF00) == (temp & 0xFF00)) {
                     cpu.PC = temp;
                     cpu.clear_state();
                 }
                 cpu.PC = temp;
-                break;
+                break; }
             case 2:
                 // Fix PCH
                 cpu.clear_state();
@@ -876,19 +960,19 @@ namespace ops
         {
             case 0:
                 cpu.value = cpu.bus.read(cpu.PC++);
-                if (cpu.P & 0x02 == 0x00) 
+                if ((cpu.P & 0x02) == 0x00) 
                 {
                     cpu.clear_state();
                 }
                 break;
-            case 1:
+            case 1: {
                 uint16_t temp = cpu.PC + cpu.value;
-                if (cpu.PC & 0xFF00 == temp & 0xFF00) {
+                if ((cpu.PC & 0xFF00) == (temp & 0xFF00)) {
                     cpu.PC = temp;
                     cpu.clear_state();
                 }
                 cpu.PC = temp;
-                break;
+                break; }
             case 2:
                 // Fix PCH
                 cpu.clear_state();
@@ -901,19 +985,19 @@ namespace ops
         {
             case 0:
                 cpu.value = cpu.bus.read(cpu.PC++);
-                if (cpu.P & 0x02 == 0x02) 
+                if ((cpu.P & 0x02) == 0x02) 
                 {
                     cpu.clear_state();
                 }
                 break;
-            case 1:
+            case 1: {
                 uint16_t temp = cpu.PC + cpu.value;
-                if (cpu.PC & 0xFF00 == temp & 0xFF00) {
+                if ((cpu.PC & 0xFF00) == (temp & 0xFF00)) {
                     cpu.PC = temp;
                     cpu.clear_state();
                 }
                 cpu.PC = temp;
-                break;
+                break; }
             case 2:
                 // Fix PCH
                 cpu.clear_state();
@@ -926,19 +1010,19 @@ namespace ops
         {
             case 0:
                 cpu.value = cpu.bus.read(cpu.PC++);
-                if (cpu.P & 0x80 == 0x80) 
+                if ((cpu.P & 0x80) == 0x80) 
                 {
                     cpu.clear_state();
                 }
                 break;
-            case 1:
+            case 1: {
                 uint16_t temp = cpu.PC + cpu.value;
-                if (cpu.PC & 0xFF00 == temp & 0xFF00) {
+                if ((cpu.PC & 0xFF00) == (temp & 0xFF00)) {
                     cpu.PC = temp;
                     cpu.clear_state();
                 }
                 cpu.PC = temp;
-                break;
+                break; }
             case 2:
                 // Fix PCH
                 cpu.clear_state();
@@ -951,19 +1035,19 @@ namespace ops
         {
             case 0:
                 cpu.value = cpu.bus.read(cpu.PC++);
-                if (cpu.P & 0x80 == 0x00) 
+                if ((cpu.P & 0x80) == 0x00) 
                 {
                     cpu.clear_state();
                 }
                 break;
-            case 1:
+            case 1: {
                 uint16_t temp = cpu.PC + cpu.value;
-                if (cpu.PC & 0xFF00 == temp & 0xFF00) {
+                if ((cpu.PC & 0xFF00) == (temp & 0xFF00)) {
                     cpu.PC = temp;
                     cpu.clear_state();
                 }
                 cpu.PC = temp;
-                break;
+                break; }
             case 2:
                 // Fix PCH
                 cpu.clear_state();
@@ -976,19 +1060,19 @@ namespace ops
         {
             case 0:
                 cpu.value = cpu.bus.read(cpu.PC++);
-                if (cpu.P & 0x40 == 0x40) 
+                if ((cpu.P & 0x40) == 0x40) 
                 {
                     cpu.clear_state();
                 }
                 break;
-            case 1:
+            case 1: {
                 uint16_t temp = cpu.PC + cpu.value;
-                if (cpu.PC & 0xFF00 == temp & 0xFF00) {
+                if ((cpu.PC & 0xFF00) == (temp & 0xFF00)) {
                     cpu.PC = temp;
                     cpu.clear_state();
                 }
                 cpu.PC = temp;
-                break;
+                break; }
             case 2:
                 // Fix PCH
                 cpu.clear_state();
@@ -1001,19 +1085,19 @@ namespace ops
         {
             case 0:
                 cpu.value = cpu.bus.read(cpu.PC++);
-                if (cpu.P & 0x40 == 0x00) 
+                if ((cpu.P & 0x40) == 0x00) 
                 {
                     cpu.clear_state();
                 }
                 break;
-            case 1:
+            case 1: {
                 uint16_t temp = cpu.PC + cpu.value;
-                if (cpu.PC & 0xFF00 == temp & 0xFF00) {
+                if ((cpu.PC & 0xFF00) == (temp & 0xFF00)) {
                     cpu.PC = temp;
                     cpu.clear_state();
                 }
                 cpu.PC = temp;
-                break;
+                break; }
             case 2:
                 // Fix PCH
                 cpu.clear_state();
@@ -1030,7 +1114,7 @@ namespace ops
                 break;
             case 1:
                 cpu.PC = cpu.bus.read(cpu.PC) << 8;
-                cpu.PC += cpu.temp8;
+                cpu.PC |= cpu.temp8;
                 cpu.clear_state();
                 break;
         }
@@ -1049,7 +1133,7 @@ namespace ops
                 cpu.temp8 = cpu.bus.read(cpu.address);
                 break;
             case 3:
-                if (cpu.address & 0x00FF == 0x00FF)
+                if ((cpu.address & 0x00FF) == 0x00FF)
                 {
                     // can't cross a page so we decrement the page number
                     // when adding one it will go to the next page at address 0x00
@@ -1069,20 +1153,19 @@ namespace ops
                 cpu.temp8 = cpu.bus.read(cpu.PC++);
                 break;
             case 1:
-                // I have no idea what happens here but something does
-                // Ill fix it later when I run tests
+                cpu.bus.read(cpu.PC); // dummy read
                 break;
-            case 2:
-                uint8_t PCH = static_cast<uint8_t>(cpu.PC >> 8);
+            case 2: {
+                uint8_t PCH = static_cast<uint8_t>((cpu.PC - 1) >> 8);
                 cpu.bus.write(0x100 + cpu.SP--, PCH);
-                break;
-            case 3:
-                uint8_t PCL = static_cast<uint8_t>(cpu.PC >> 8);
+                break; }
+            case 3: {
+                uint8_t PCL = static_cast<uint8_t>((cpu.PC - 1) & 0xFF);
                 cpu.bus.write(0x100 + cpu.SP--, PCL);
-                break;
+                break; }
             case 4:
                 cpu.PC = static_cast<uint16_t>(cpu.bus.read(cpu.PC)) << 8;
-                cpu.PC += cpu.temp8;
+                cpu.PC |= cpu.temp8;
                 cpu.clear_state();
                 break;
         }
@@ -1117,14 +1200,14 @@ namespace ops
                 cpu.bus.read(cpu.PC); // open bus
                 cpu.PC++;
                 break;
-            case 1:
+            case 1: {
                 uint8_t PCH = static_cast<uint8_t>(cpu.PC >> 8);
                 cpu.bus.write(0x100 + cpu.SP--, PCH);
-                break;
-            case 2:
+                break; }
+            case 2: {
                 uint8_t PCL = static_cast<uint8_t>(cpu.PC);
                 cpu.bus.write(0x100 + cpu.SP--, PCL);
-                break;
+                break; }
             case 3:
                 cpu.bus.write(0x100 + cpu.SP--, cpu.P & 0x10);
                 set_flag_interrupt_disable(cpu, true);

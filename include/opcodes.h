@@ -76,10 +76,13 @@ namespace ops
     // OPCODE FUNCTIONS
     // Access
     void op_lda(Cpu& cpu); // Official
+    void op_lda_imm(Cpu& cpu); // Official
     void op_sta(Cpu& cpu); // Official
     void op_ldx(Cpu& cpu); // Official
+    void op_ldx_imm(Cpu& cpu); // Official
     void op_stx(Cpu& cpu); // Official
     void op_ldy(Cpu& cpu); // Official
+    void op_ldy_imm(Cpu& cpu); // Official
     void op_sty(Cpu& cpu); // Official
     // Transfer
     void op_tax(Cpu& cpu); // Official
@@ -88,7 +91,9 @@ namespace ops
     void op_tya(Cpu& cpu); // Official
     // Arithmetic
     void op_adc(Cpu& cpu); // Official
+    void op_adc_imm(Cpu& cpu); // Official
     void op_sbc(Cpu& cpu); // Official
+    void op_sbc_imm(Cpu& cpu); // Official
     void op_inc(Cpu& cpu); // Official
     void op_dec(Cpu& cpu); // Official
     void op_inx(Cpu& cpu); // Official
@@ -102,13 +107,19 @@ namespace ops
     void op_ror(Cpu& cpu); // Official
     // Bitwise
     void op_and(Cpu& cpu); // Official
+    void op_and_imm(Cpu& cpu); // Official
     void op_ora(Cpu& cpu); // Official
+    void op_ora_imm(Cpu& cpu); // Official
     void op_eor(Cpu& cpu); // Official
+    void op_eor_imm(Cpu& cpu); // Official
     void op_bit(Cpu& cpu); // Official
     // Compare
     void op_cmp(Cpu& cpu); // Official
+    void op_cmp_imm(Cpu& cpu); // Official
     void op_cpx(Cpu& cpu); // Official
+    void op_cpx_imm(Cpu& cpu); // Official
     void op_cpy(Cpu& cpu); // Official
+    void op_cpy_imm(Cpu& cpu); // Official
     // Branch
     void op_bcc(Cpu& cpu); // Official
     void op_bcs(Cpu& cpu); // Official

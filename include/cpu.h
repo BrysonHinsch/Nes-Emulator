@@ -25,31 +25,33 @@ class Cpu
         void print_state();
         // clears opcode, addresss, and cycle variable to reset state
         void clear_state();
+        // sets default state for console power on
+        void power_on();
         
         // PROGRAM VARIABLES
         // Temporary Values
-        uint8_t temp8; // general purpose 8-bit temporary variable
-        uint16_t temp16; // general purpose 16-bit temporary variable
-        uint8_t opcode;
-        bool opcodeReady;
-        uint8_t value;
-        uint16_t address;
-        bool addressReady;
+        uint8_t temp8 = 0; // general purpose 8-bit temporary variable
+        uint16_t temp16 = 0; // general purpose 16-bit temporary variable
+        uint8_t opcode = 0;
+        bool opcodeReady = false;
+        uint8_t value = 0;
+        uint16_t address = 0;
+        bool addressReady = false;
         // Cycle Counters
-        int cyclesSincePower;
-        int masterClock;
-        int localClock;
+        int cyclesSincePower = 0;
+        int masterClock = 0;
+        int localClock = 0;
         // SYSTEM VARIABLES
         // Registers
-        uint8_t A;
-        uint8_t X;
-        uint8_t Y;
+        uint8_t A = 0;
+        uint8_t X = 0;
+        uint8_t Y = 0;
         // Program Counter
-        uint16_t PC;
+        uint16_t PC = 0;
         // Stack Pointer
-        uint8_t SP;
+        uint8_t SP = 0;
         // Status Register
-        uint8_t P;
+        uint8_t P = 0;
         // System Bus
         Bus &bus;
 
