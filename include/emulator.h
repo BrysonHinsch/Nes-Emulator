@@ -1,6 +1,8 @@
 #pragma once
 
 #include "cpu.h"
+#include "ppu.h"
+#include "renderer.h"
 
 class Emulator
 {

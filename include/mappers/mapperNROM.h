@@ -8,7 +8,8 @@ class MapperNROM: public Mapper
 {
     public:
 
-        MapperNROM(std::vector<uint8_t>& PRG_ROM): Mapper(PRG_ROM) {}
+        MapperNROM(std::vector<uint8_t>& PRG_ROM, std::vector<uint8_t>& CHR_ROM):
+        Mapper(PRG_ROM, CHR_ROM) {}
 
         uint8_t read(uint16_t address) override
         {

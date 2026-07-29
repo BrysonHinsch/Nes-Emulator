@@ -9,6 +9,14 @@ class Ppu {
     public:
         Ppu();
 
+        // V register functions
+        uint8_t get_coarse_x(int reg);
+        uint8_t get_coarse_y(int reg);
+        uint8_t get_nametable(int reg);
+        uint8_t get_fine_y(int reg);
+
+        // executes a read from the ppu
+        uint8_t read(uint16_t address);
         // Clocks the ppu for one cycle
         void clock_ppu();
         // sets default state for console power on
@@ -32,8 +40,9 @@ class Ppu {
         uint8_t x;
         uint8_t w;
 
-        // OAM
+        // Ppu internal memory
         uint8_t OAM[256];
+        uint8_t palette_ram[0x20];
 
         // Rendering Latches
         uint8_t nametable_byte;
@@ -42,7 +51,10 @@ class Ppu {
         uint8_t pattern_high;
 
         // Shift Registers
-
+        uint16_t pattern_shift_low;
+        uint16_t pattern_shift_high;
+        uint8_t attribute_shift_one;
+        uint8_t attribute_shift_two;
 
         // Pixel indices
         int scanline;
@@ -51,7 +63,12 @@ class Ppu {
         // State trackers
         bool address_ready;
         uint8_t local_clock;
+        bool even_frame;
 
-        // PPU sends pixel data here to be rendered
+        // Rendering Information
+        int buffer[256*240];
         Renderer& renderer;
+
+        // Bus for reading and writing to memory
+        Bus& bus;
 };

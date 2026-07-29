@@ -32,7 +32,7 @@ Cartridge::Cartridge(std::string filename)
     switch (((header[6] & 0xF0) >> 4) + (header[7] & 0xF0))
     {
         case 0:
-            mapper = new MapperNROM(PRG_ROM);
+            mapper = new MapperNROM(PRG_ROM, CHR_ROM);
     }
 }
 
@@ -49,4 +49,9 @@ void Cartridge::PrintHeader()
     { 
         std::cout << (int)header[i] << std::endl;
     }
+}
+
+uint8_t Cartridge::read_ppu(uint16_t address)
+{
+    return CHR_ROM[address % 0x2000];
 }

@@ -18,6 +18,8 @@ add_executable(NesEmulator
     src/emulator.cpp
     src/main.cpp
     src/opcodes.cpp
+    src/ppu.cpp
+    src/renderer.cpp
 )
 
 target_link_libraries(NesEmulator PRIVATE SDL3::SDL3)

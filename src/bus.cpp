@@ -59,3 +59,24 @@ uint8_t Bus::write(uint16_t address, uint8_t value)
         return 0;
     }
 }
+
+uint8_t Bus::read_ppu(uint16_t address)
+{
+    if (address < 0x2000) // CHR ROM
+    {
+        return cartridge.read_ppu(address);
+    }
+    else if (address < 0x3000) // Nametables in VRAM
+    {
+        return vram[(address - 0x2000) % 0x800];
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+uint8_t Bus::write_ppu(uint16_t address, uint8_t value)
+{
+    return 0;
+}
