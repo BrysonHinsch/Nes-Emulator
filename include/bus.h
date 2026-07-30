@@ -5,6 +5,8 @@
 
 #include "cartridge.h"
 
+class Ppu; // forward declaration
+
 class Bus
 {
     public:
@@ -30,4 +32,7 @@ class Bus
         std::array<uint8_t, 2048> vram;
         // Cartridge
         Cartridge& cartridge;
+
+        // PPU pointer for accessing registers
+        Ppu* PPU;
 };

@@ -18,6 +18,88 @@ uint8_t Ppu::get_fine_y(int reg)
     return (reg & 0x7000) >> 12;
 }
 
+
+uint8_t Ppu::register_read(uint16_t address)
+{
+    int reg = (address - 0x2000) % 8;
+    if (reg == 2)
+    {
+        uint8_t temp = PPUSTATUS;
+        PPUSTATUS = 0;
+        return temp;
+    }
+    else if (reg == 4)
+    {
+        return OAM[OAMADDR];
+    }
+    else if (reg == 7)
+    {
+
+    }
+    return 0;
+}
+
+uint8_t Ppu::register_write(uint16_t address, uint8_t value)
+{
+    int reg = (address - 0x2000) % 8;
+    if (reg == 0)
+    {
+        PPUCTRL = value;
+        return PPUCTRL;
+    }
+    else if (reg == 1)
+    {
+        PPUMASK = value;
+        return PPUMASK;
+    }
+    else if (reg == 3)
+    {
+        OAMADDR = value;
+        return OAMADDR;
+    }
+    else if (reg == 4)
+    {
+        if (scanline <= 239) {return 0;}
+        OAM[OAMADDR++] = value;
+        return value;
+    }
+    else if (reg == 5)
+    {
+        if (!w) // write 1
+        {
+            PPUSCROLL = (PPUSCROLL & 0x00FF) | (value << 8);
+            w = true;
+            return PPUSCROLL;
+        }
+        else // write 2
+        {
+            PPUSCROLL = (PPUSCROLL & 0xFF00) | value;
+            w = false;
+            return PPUSCROLL;
+        }
+    }
+    else if (reg == 6)
+    {
+        if (!w) // write 1
+        {
+            PPUADDR = (PPUADDR & 0x00FF) | ((value & 0x3F) << 8);
+            w = true;
+            return PPUADDR;
+        }
+        else // write 2
+        {
+            PPUADDR = (PPUADDR & 0xFF00) | value;
+            w = false;
+            return PPUADDR;
+        }
+    }
+    else if (reg == 7)
+    {
+
+    }
+    return 0;
+}
+
 uint8_t Ppu::read(uint16_t address)
 {
     if (address >= 0x3F00 && address <= 0x3FFF) // Palette Ram
@@ -91,10 +173,10 @@ void Ppu::clock_ppu() {
             int index = scanline*256 + dot;
             switch(color)
             {
-                case 0: buffer[index] = 0x000000FF;
-                case 1: buffer[index] = 0x555555FF;
-                case 2: buffer[index] = 0xAAAAAAFF;
-                case 3: buffer[index] = 0xFFFFFFFF;
+                case 0: buffer[index] = 0x000000FF; break;
+                case 1: buffer[index] = 0x555555FF; break;
+                case 2: buffer[index] = 0xAAAAAAFF; break;
+                case 3: buffer[index] = 0xFFFFFFFF; break;
             }
         }
         else if (dot <= 320)

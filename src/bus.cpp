@@ -3,6 +3,7 @@
 
 #include "bus.h"
 #include "cartridge.h"
+#include "ppu.h"
 
 Bus::Bus(Cartridge& cart) : cartridge(cart) {}
 
@@ -16,7 +17,7 @@ uint8_t Bus::read(uint16_t address)
     }
     else if (address < 0x4000) // PPU Registers
     {
-        return 0;
+        return PPU->register_read(address);
     }
     else if (address < 0x4018) // APU and IO Registers
     {
@@ -44,7 +45,7 @@ uint8_t Bus::write(uint16_t address, uint8_t value)
     }
     else if (address < 0x4000) // PPU Registers
     {
-        return 0;
+        return PPU->register_write(address, value);
     }
     else if (address < 0x4018) // APU and IO Registers
     {
@@ -56,7 +57,7 @@ uint8_t Bus::write(uint16_t address, uint8_t value)
     }
     else // Unmapped memory. Functionality determined by mapper
     {
-        return 0;
+        return cartridge.write(address, value);
     }
 }
 

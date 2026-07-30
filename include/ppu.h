@@ -15,9 +15,14 @@ class Ppu {
         uint8_t get_nametable(int reg);
         uint8_t get_fine_y(int reg);
 
+        // lets cpu read from registers
+        uint8_t register_read(uint16_t address);
+        // lets cpu write to registers
+        uint8_t register_write(uint16_t address, uint8_t value);
         // executes a read from the ppu
         uint8_t read(uint16_t address);
-        // Clocks the ppu for one cycle
+
+        // clocks the ppu for one cycle
         void clock_ppu();
         // sets default state for console power on
         void power_on();
@@ -38,7 +43,7 @@ class Ppu {
         uint16_t v;
         uint16_t t;
         uint8_t x;
-        uint8_t w;
+        bool w;
 
         // Ppu internal memory
         uint8_t OAM[256];
