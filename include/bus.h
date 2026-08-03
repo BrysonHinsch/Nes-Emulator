@@ -21,11 +21,13 @@ class Bus
         uint8_t read_ppu(uint16_t address);
         // Writes to address for ppu
         uint8_t write_ppu(uint16_t address, uint8_t value);
+        // Sets PPU pointer (janky but had to)
+        void set_ppu(Ppu* ppu);
 
     private:
         // Busses
-        uint8_t dataBus;
-        uint16_t addressBus;
+        uint8_t dataBus = 0;
+        uint16_t addressBus = 0;
         // 2KB Internal RAM
         std::array<uint8_t, 2048> ram;
         // 2KB Internal VRAM
