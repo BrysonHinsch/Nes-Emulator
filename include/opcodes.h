@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 
 class Cpu;
 
@@ -39,7 +40,7 @@ namespace ops
         ROR, RTI, RTS, SBC, SEC, SED, SEI, STA,
         STX, STY, TAX, TAY, TSX, TXA, TXS, TYA
     };
-
+    
     struct Opcode
     {
         void (*fetchAddress)(Cpu&); // Addressing Mode Function
@@ -49,6 +50,9 @@ namespace ops
     };
 
     extern const Opcode pointerTable [256];
+
+    // DEBUGGING FUNCTIONS
+    std::string op_to_string(Instruction op);
 
     // FLAG FUNCTIONS
     void set_flag_carry(Cpu& cpu, bool set);
@@ -102,9 +106,13 @@ namespace ops
     void op_dey(Cpu& cpu); // Official
     // Shift
     void op_asl(Cpu& cpu); // Official
+    void op_asl_acc(Cpu& cpu); // Official
     void op_lsr(Cpu& cpu); // Official
+    void op_lsr_acc(Cpu& cpu); // Official
     void op_rol(Cpu& cpu); // Official
+    void op_rol_acc(Cpu& cpu); // Official
     void op_ror(Cpu& cpu); // Official
+    void op_ror_acc(Cpu& cpu); // Official
     // Bitwise
     void op_and(Cpu& cpu); // Official
     void op_and_imm(Cpu& cpu); // Official

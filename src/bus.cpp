@@ -81,3 +81,8 @@ uint8_t Bus::write_ppu(uint16_t address, uint8_t value)
 {
     return 0;
 }
+
+void Bus::set_ppu(Ppu* ppu)
+{
+    PPU = ppu;
+}

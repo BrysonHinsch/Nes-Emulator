@@ -18,7 +18,7 @@ namespace ops
     /* 07 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* 08 */ {mode_imp, op_php, AddressingMode::IMP, Instruction::PHP},
     /* 09 */ {mode_imm, op_ora_imm, AddressingMode::IMM, Instruction::ORA},
-    /* 0A */ {mode_acc, op_asl, AddressingMode::ACC, Instruction::ASL},
+    /* 0A */ {mode_acc, op_asl_acc, AddressingMode::ACC, Instruction::ASL},
     /* 0B */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* 0C */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* 0D */ {mode_abs, op_ora, AddressingMode::ABS, Instruction::ORA},
@@ -52,7 +52,7 @@ namespace ops
     /* 27 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* 28 */ {mode_imp, op_plp, AddressingMode::IMP, Instruction::PLP},
     /* 29 */ {mode_imm, op_and_imm, AddressingMode::IMM, Instruction::AND},
-    /* 2A */ {mode_acc, op_rol, AddressingMode::ACC, Instruction::ROL},
+    /* 2A */ {mode_acc, op_rol_acc, AddressingMode::ACC, Instruction::ROL},
     /* 2B */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* 2C */ {mode_abs, op_bit, AddressingMode::ABS, Instruction::BIT},
     /* 2D */ {mode_abs, op_and, AddressingMode::ABS, Instruction::AND},
@@ -86,7 +86,7 @@ namespace ops
     /* 47 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* 48 */ {mode_imp, op_pha, AddressingMode::IMP, Instruction::PHA},
     /* 49 */ {mode_imm, op_eor_imm, AddressingMode::IMM, Instruction::EOR},
-    /* 4A */ {mode_acc, op_lsr, AddressingMode::ACC, Instruction::LSR},
+    /* 4A */ {mode_acc, op_lsr_acc, AddressingMode::ACC, Instruction::LSR},
     /* 4B */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* 4C */ {mode_abs, op_jmp, AddressingMode::UNQ, Instruction::JMP},
     /* 4D */ {mode_abs, op_eor, AddressingMode::ABS, Instruction::EOR},
@@ -120,7 +120,7 @@ namespace ops
     /* 67 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* 68 */ {mode_imp, op_pla, AddressingMode::IMP, Instruction::PLA},
     /* 69 */ {mode_imm, op_adc_imm, AddressingMode::IMM, Instruction::ADC},
-    /* 6A */ {mode_acc, op_ror, AddressingMode::ACC, Instruction::ROR},
+    /* 6A */ {mode_acc, op_ror_acc, AddressingMode::ACC, Instruction::ROR},
     /* 6B */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* 6C */ {mode_ind, op_jmp_ind, AddressingMode::IND, Instruction::JMP}, // this makes me so sad
     /* 6D */ {mode_abs, op_adc, AddressingMode::ABS, Instruction::ADC},
@@ -280,6 +280,71 @@ namespace ops
     /* FE */ {mode_abx, op_inc, AddressingMode::ABX, Instruction::INC},
     /* FF */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP}
     };
+
+    // opcode enum to string for debugging
+    std::string op_to_string(Instruction op)
+    {
+        switch(op)
+        {
+            case Instruction::ADC: return "ADC";
+            case Instruction::AND: return "AND";
+            case Instruction::ASL: return "ASL";
+            case Instruction::BCC: return "BCC";
+            case Instruction::BCS: return "BCS";
+            case Instruction::BEQ: return "BEQ";
+            case Instruction::BIT: return "BIT";
+            case Instruction::BMI: return "BMI";
+            case Instruction::BNE: return "BNE";
+            case Instruction::BPL: return "BPL";
+            case Instruction::BRK: return "BRK";
+            case Instruction::BVC: return "BVC";
+            case Instruction::BVS: return "BVS";
+            case Instruction::CLC: return "CLC";
+            case Instruction::CLD: return "CLD";
+            case Instruction::CLI: return "CLI";
+            case Instruction::CLV: return "CLV";
+            case Instruction::CMP: return "CMP";
+            case Instruction::CPX: return "CPX";
+            case Instruction::CPY: return "CPY";
+            case Instruction::DEC: return "DEC";
+            case Instruction::DEX: return "DEX";
+            case Instruction::DEY: return "DEY";
+            case Instruction::EOR: return "EOR";
+            case Instruction::INC: return "INC";
+            case Instruction::INX: return "INX";
+            case Instruction::INY: return "INY";
+            case Instruction::JMP: return "JMP";
+            case Instruction::JSR: return "JSR";
+            case Instruction::LDA: return "LDA";
+            case Instruction::LDX: return "LDX";
+            case Instruction::LDY: return "LDY";
+            case Instruction::LSR: return "LSR";
+            case Instruction::NOP: return "NOP";
+            case Instruction::ORA: return "ORA";
+            case Instruction::PHA: return "PHA";
+            case Instruction::PHP: return "PHP";
+            case Instruction::PLA: return "PLA";
+            case Instruction::PLP: return "PLP";
+            case Instruction::ROL: return "ROL";
+            case Instruction::ROR: return "ROR";
+            case Instruction::RTI: return "RTI";
+            case Instruction::RTS: return "RTS";
+            case Instruction::SBC: return "SBC";
+            case Instruction::SEC: return "SEC";
+            case Instruction::SED: return "SED";
+            case Instruction::SEI: return "SEI";
+            case Instruction::STA: return "STA";
+            case Instruction::STX: return "STX";
+            case Instruction::STY: return "STY";
+            case Instruction::TAX: return "TAX";
+            case Instruction::TAY: return "TAY";
+            case Instruction::TSX: return "TSX";
+            case Instruction::TXA: return "TXA";
+            case Instruction::TXS: return "TXS";
+            case Instruction::TYA: return "TYA";
+        }
+        return "UNKNOWN";
+    }
 
     // FLAG FUNCTIONS
     void set_flag_carry(Cpu& cpu, bool set) // bit 0
@@ -733,6 +798,13 @@ namespace ops
                 break;
         }
     }
+    void op_asl_acc(Cpu& cpu)
+    {
+        set_flag_carry(cpu, (cpu.A & 0x80) == 0x80);
+        cpu.A<<=1;
+        set_flag_zero(cpu, cpu.value);
+        set_flag_negative(cpu, cpu.value);
+    }
     void op_lsr(Cpu& cpu)
     {
         switch(cpu.localClock)
@@ -745,13 +817,20 @@ namespace ops
                 set_flag_carry(cpu, ((cpu.value & 0b00000001) == 0b00000001));
                 cpu.value>>=1;
                 set_flag_zero(cpu, cpu.value);
-                set_flag_negative(cpu, cpu.value);
+                set_flag_negative(cpu, 0);
                 break;
             case 2:
                 cpu.bus.write(cpu.address, cpu.value);
                 cpu.clear_state();
                 break;
         }
+    }
+    void op_lsr_acc(Cpu& cpu)
+    {
+        set_flag_carry(cpu, (cpu.A & 0x01) == 0x01);
+        cpu.A<<=1;
+        set_flag_zero(cpu, cpu.value);
+        set_flag_negative(cpu, 0);
     }
     void op_rol(Cpu& cpu)
     {
@@ -764,7 +843,7 @@ namespace ops
                 cpu.bus.write(cpu.address, cpu.value);
                 set_flag_carry(cpu, ((cpu.value & 0b10000000) == 0b10000000));
                 cpu.value<<=1;
-                cpu.value |= cpu.P;
+                cpu.value |= (cpu.P & 0x01);
                 set_flag_zero(cpu, cpu.value);
                 set_flag_negative(cpu, cpu.value);
                 break;
@@ -773,6 +852,14 @@ namespace ops
                 cpu.clear_state();
                 break;
         }
+    }
+    void op_rol_acc(Cpu& cpu)
+    {
+        set_flag_carry(cpu, (cpu.A & 0x80) == 0x80);
+        cpu.A<<=1;
+        cpu.A |= (cpu.P << 7);
+        set_flag_zero(cpu, cpu.A);
+        set_flag_negative(cpu, cpu.A);
     }
     void op_ror(Cpu& cpu)
     {
@@ -794,6 +881,14 @@ namespace ops
                 cpu.clear_state();
                 break;
         }
+    }
+    void op_ror_acc(Cpu& cpu)
+    {
+        set_flag_carry(cpu, (cpu.A & 0x01) == 0x01);
+        cpu.A>>=1;
+        cpu.A |= (cpu.P << 7);
+        set_flag_zero(cpu, cpu.A);
+        set_flag_negative(cpu, cpu.A);
     }
     // Bitwise
     void op_and(Cpu& cpu)
@@ -844,7 +939,7 @@ namespace ops
         uint8_t result = cpu.A & memory;
         set_flag_zero(cpu, result);
         set_flag_overflow(cpu, ((memory & 0b01000000) == 0b01000000));
-        set_flag_negative(cpu, ((memory & 0b10000000) == 0b10000000));
+        set_flag_negative(cpu, memory);
         cpu.clear_state();
     }
     // Compare
@@ -852,7 +947,7 @@ namespace ops
     {
         uint8_t memory = cpu.bus.read(cpu.address);
         set_flag_carry(cpu, cpu.A>=memory);
-        set_flag_zero(cpu, cpu.A==memory);
+        set_flag_zero(cpu, cpu.A - memory);
         uint8_t result = (cpu.A - memory);
         set_flag_negative(cpu, result);
         cpu.clear_state();
@@ -861,7 +956,7 @@ namespace ops
     {
         uint8_t memory = cpu.value;
         set_flag_carry(cpu, cpu.A>=memory);
-        set_flag_zero(cpu, cpu.A==memory);
+        set_flag_zero(cpu, cpu.A - memory);
         uint8_t result = (cpu.A - memory);
         set_flag_negative(cpu, result);
         cpu.clear_state();
@@ -870,7 +965,7 @@ namespace ops
     {
         uint8_t memory = cpu.bus.read(cpu.address);
         set_flag_carry(cpu, cpu.X>=memory);
-        set_flag_zero(cpu, cpu.X==memory);
+        set_flag_zero(cpu, cpu.X - memory);
         uint8_t result = (cpu.X - memory);
         set_flag_negative(cpu, result);
         cpu.clear_state();
@@ -879,7 +974,7 @@ namespace ops
     {
         uint8_t memory = cpu.value;
         set_flag_carry(cpu, cpu.X>=memory);
-        set_flag_zero(cpu, cpu.X==memory);
+        set_flag_zero(cpu, cpu.X - memory);
         uint8_t result = (cpu.X - memory);
         set_flag_negative(cpu, result);
         cpu.clear_state();
@@ -888,7 +983,7 @@ namespace ops
     {
         uint8_t memory = cpu.bus.read(cpu.address);
         set_flag_carry(cpu, cpu.Y>=memory);
-        set_flag_zero(cpu, cpu.Y==memory);
+        set_flag_zero(cpu, cpu.Y - memory);
         uint8_t result = (cpu.Y - memory);
         set_flag_negative(cpu, result);
         cpu.clear_state();
@@ -897,7 +992,7 @@ namespace ops
     {
         uint8_t memory = cpu.value;
         set_flag_carry(cpu, cpu.Y>=memory);
-        set_flag_zero(cpu, cpu.Y==memory);
+        set_flag_zero(cpu, cpu.Y - memory);
         uint8_t result = (cpu.Y - memory);
         set_flag_negative(cpu, result);
         cpu.clear_state();
@@ -1156,11 +1251,11 @@ namespace ops
                 cpu.bus.read(cpu.PC); // dummy read
                 break;
             case 2: {
-                uint8_t PCH = static_cast<uint8_t>((cpu.PC - 1) >> 8);
+                uint8_t PCH = static_cast<uint8_t>(cpu.PC >> 8);
                 cpu.bus.write(0x100 + cpu.SP--, PCH);
                 break; }
             case 3: {
-                uint8_t PCL = static_cast<uint8_t>((cpu.PC - 1) & 0xFF);
+                uint8_t PCL = static_cast<uint8_t>(cpu.PC & 0xFF);
                 cpu.bus.write(0x100 + cpu.SP--, PCL);
                 break; }
             case 4:
@@ -1189,8 +1284,9 @@ namespace ops
             case 4:
                 cpu.PC++;
                 cpu.clear_state();
-                break;
+                return;
         }
+        cpu.localClock++;
     }
     void op_brk(Cpu& cpu)
     {
@@ -1246,9 +1342,17 @@ namespace ops
     // Stack
     void op_pha(Cpu& cpu)
     {
-        cpu.bus.write(0x0100 + cpu.SP, cpu.A);
-        cpu.SP--;
-        cpu.clear_state();
+        switch(cpu.localClock)
+        {
+            case 0:
+                cpu.bus.read(cpu.PC); // dummy read
+                break;
+            case 1:
+                cpu.bus.write(0x0100 + cpu.SP--, cpu.A);
+                cpu.clear_state();
+                return;
+        }
+        cpu.localClock++;
     }
     void op_pla(Cpu& cpu)
     {
@@ -1262,13 +1366,23 @@ namespace ops
                 set_flag_zero(cpu, cpu.A);
                 set_flag_negative(cpu, cpu.A);
                 cpu.clear_state();
-                break;
+                return;
         }
+        cpu.localClock++;
     }
     void op_php(Cpu& cpu)
     {
-        cpu.bus.write(0x0100 + cpu.SP, cpu.P | 0b00110000);
-        cpu.SP--;
+        switch(cpu.localClock)
+        {
+            case 0:
+                cpu.bus.read(cpu.PC); // dummy read
+                break;
+            case 1:
+                cpu.bus.write(0x0100 + cpu.SP--, cpu.P | 0b00110000);
+                cpu.clear_state();
+                return;
+        }
+        cpu.localClock++;
     }
     void op_plp(Cpu& cpu)
     {
@@ -1282,8 +1396,9 @@ namespace ops
                 set_flag_zero(cpu, cpu.A);
                 set_flag_negative(cpu, cpu.A);
                 cpu.clear_state();
-                break;
+                return;
         }
+        cpu.localClock++;
     }
     void op_txs(Cpu& cpu)
     {

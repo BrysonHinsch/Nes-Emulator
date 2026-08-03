@@ -7,10 +7,7 @@
 #include "bus.h"
 #include "opcodes.h"
 
-Cpu::Cpu(Bus& bus): bus(bus) 
-{
-    
-}
+Cpu::Cpu(Bus& bus): bus(bus) {}
 
 void Cpu::fetch_opcode()
 {
@@ -88,13 +85,14 @@ void Cpu::clock_cpu()
 
 void Cpu::print_state()
 {
-    std::cout << "OP: " << std::hex << (int)opcode << " ";
+    std::cout << std::hex << PC-1 << "  ";
+    std::cout << ops::op_to_string(ops::pointerTable[opcode].op) << "                       ";
     std::cout << "A: " << std::hex << (int)A << " ";
     std::cout << "X: " << std::hex << (int)X << " ";
     std::cout << "Y: " << std::hex << (int)Y << " ";
-    std::cout << "PC: " << std::hex << (int)PC << " ";
-    std::cout << "SP: " << std::hex << (int)SP << " ";
-    std::cout << "P: " << std::hex << (int)P << "\n";
+    std::cout << "P: " << std::hex << (int)P << " ";
+    std::cout << "SP: " << std::hex << (int)SP << "     ";
+    std::cout << "CYC: " << std::dec << (int)masterClock+7 << "\n";
 }
 
 // Clears the state of the cpu to reset for the next instruction

@@ -41,6 +41,10 @@ uint8_t Cartridge::read(uint16_t address)
     return mapper->read(address);
 }
 
+uint8_t Cartridge::write(uint16_t address, uint8_t value)
+{
+    return 0;
+}
 // DEBUGGING #################################################
 
 void Cartridge::PrintHeader()

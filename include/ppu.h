@@ -7,13 +7,15 @@
 
 class Ppu {
     public:
-        Ppu();
+        Ppu(Renderer& renderer, Bus& bus);
 
         // V register functions
         uint8_t get_coarse_x(int reg);
         uint8_t get_coarse_y(int reg);
         uint8_t get_nametable(int reg);
         uint8_t get_fine_y(int reg);
+
+        void fetch_background(int local_clock);
 
         // lets cpu read from registers
         uint8_t register_read(uint16_t address);
@@ -27,52 +29,54 @@ class Ppu {
         // sets default state for console power on
         void power_on();
 
+        // Rendering Information
+        int buffer[256*240] = {0};
+        Renderer& renderer;
+
     private:
         // PPU Registers
-        uint8_t PPUCTRL;
-        uint8_t PPUMASK;
-        uint8_t PPUSTATUS;
-        uint8_t OAMADDR;
-        uint8_t OAMDATA;
-        uint16_t PPUSCROLL;
-        uint16_t PPUADDR;
-        uint8_t PPUDATA;
-        uint8_t OAMDMA;
+        uint8_t PPUCTRL = 0;
+        uint8_t PPUMASK = 0;
+        uint8_t PPUSTATUS = 0;
+        uint8_t OAMADDR = 0;
+        uint8_t OAMDATA = 0;
+        uint16_t PPUSCROLL = 0;
+        uint16_t PPUADDR = 0;
+        uint8_t PPUDATA = 0;
+        uint8_t OAMDMA = 0;
+
+        uint16_t read_buffer = 0;
 
         // Internal Registers
-        uint16_t v;
-        uint16_t t;
-        uint8_t x;
-        bool w;
+        uint16_t v = 0;
+        uint16_t t = 0;
+        uint8_t x = 0;
+        bool w = false;
 
         // Ppu internal memory
         uint8_t OAM[256];
         uint8_t palette_ram[0x20];
 
         // Rendering Latches
-        uint8_t nametable_byte;
-        uint8_t attribute_byte;
-        uint8_t pattern_low;
-        uint8_t pattern_high;
+        uint8_t nametable_byte = 0;
+        uint8_t attribute_byte = 0;
+        uint8_t pattern_low = 0;
+        uint8_t pattern_high = 0;
 
         // Shift Registers
-        uint16_t pattern_shift_low;
-        uint16_t pattern_shift_high;
-        uint8_t attribute_shift_one;
-        uint8_t attribute_shift_two;
+        uint16_t pattern_shift_low = 0;
+        uint16_t pattern_shift_high = 0;
+        uint8_t attribute_shift_one = 0;
+        uint8_t attribute_shift_two = 0;
 
         // Pixel indices
-        int scanline;
-        int dot;
+        int scanline = 0;
+        int dot = 0;
 
         // State trackers
-        bool address_ready;
-        uint8_t local_clock;
-        bool even_frame;
-
-        // Rendering Information
-        int buffer[256*240];
-        Renderer& renderer;
+        bool address_ready = false;
+        uint8_t local_clock = 0;
+        bool even_frame = true;
 
         // Bus for reading and writing to memory
         Bus& bus;

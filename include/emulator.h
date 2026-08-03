@@ -9,14 +9,18 @@ class Emulator
     public:
 
     // Constructor
-    Emulator(Cpu& cpu);
+    Emulator(Cpu& cpu, Ppu& ppu, Renderer& renderer);
 
     // Member functions
     void swap_cartridge(std::string filename);
     void step();
+    void frame();
 
     // Member variables
     Cpu& cpu;
+    Ppu& ppu;
+    Renderer& renderer;
 
+    // Debugging
     bool debug;
 };
