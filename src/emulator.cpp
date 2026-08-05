@@ -14,11 +14,11 @@ void Emulator::swap_cartridge(std::string filename)
 
 void Emulator::step() 
 {
+    cpu.clock_cpu();
     if (debug == true) 
     {
         cpu.print_state();
     }
-    cpu.clock_cpu();
     // 3 PPU clocks per CPU clock
     //ppu.clock_ppu();
     //ppu.clock_ppu();

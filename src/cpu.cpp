@@ -40,45 +40,27 @@ void Cpu::clock_cpu()
     {
         switch(ops::pointerTable[opcode].mode)
         {
-            case ops::AddressingMode::IMP:
-                execute_instruction();
-                masterClock++;
-                return;
-            case ops::AddressingMode::ACC:
-                execute_instruction();
-                masterClock++;
-                return;
             case ops::AddressingMode::IMM:
                 fetch_address();
                 execute_instruction();
                 masterClock++;
                 return;
+            case ops::AddressingMode::IMP:
+            case ops::AddressingMode::ACC:
             case ops::AddressingMode::REL:
-                execute_instruction();
-                masterClock++;
-                if (!opcodeReady) {return;}
-                addressReady = true;
-                localClock++;
-                return;
             case ops::AddressingMode::UNQ:
                 execute_instruction();
                 masterClock++;
-                if (!opcodeReady) {return;}
-                addressReady = true;
-                localClock++;
                 return;
         }
         fetch_address();
         masterClock++;
-        if (!addressReady) {localClock++;}
         return;
     }
     else
     {
         execute_instruction();
         masterClock++;
-        if (!opcodeReady) {return;}
-        localClock++;
         return;
     }
 }
@@ -86,13 +68,15 @@ void Cpu::clock_cpu()
 void Cpu::print_state()
 {
     std::cout << std::hex << PC-1 << "  ";
-    std::cout << ops::op_to_string(ops::pointerTable[opcode].op) << "                       ";
+    std::cout << std::uppercase << ops::op_to_string(ops::pointerTable[opcode].op) << "                       ";
     std::cout << "A: " << std::hex << (int)A << " ";
     std::cout << "X: " << std::hex << (int)X << " ";
     std::cout << "Y: " << std::hex << (int)Y << " ";
     std::cout << "P: " << std::hex << (int)P << " ";
     std::cout << "SP: " << std::hex << (int)SP << "     ";
-    std::cout << "CYC: " << std::dec << (int)masterClock+7 << "\n";
+    std::cout << "CYC: " << std::dec << (int)masterClock+6 << "     ";
+    std::cout << "ADDRESS: " << std::dec << (int)address << "\n";
+
 }
 
 // Clears the state of the cpu to reset for the next instruction
@@ -102,6 +86,7 @@ void Cpu::clear_state()
     localClock = 0;
     opcodeReady = false;
     addressReady = false;
+    wrapped = false;
 }
 
 void Cpu::power_on()
@@ -112,14 +97,8 @@ void Cpu::power_on()
     SP = 0xFD;
     P = 0b00100100;
 
-    // Set program counter
-    // Eventually make this take cycles and not be instant
-    // we're going for accuracy here!
-
-    // It's currently being set to the nestest reset vector.
-    // I can't seem to figure out why it doesn't work normally
     PC = 0;
     PC = 0xc000;
-    //PC = bus.read(0xFFFC);
-    //PC |= bus.read(0xFFFD) << 8;
+    // PC = bus.read(0xFFFC);
+    // PC |= bus.read(0xFFFD) << 8;
 }

@@ -122,7 +122,7 @@ namespace ops
     /* 69 */ {mode_imm, op_adc_imm, AddressingMode::IMM, Instruction::ADC},
     /* 6A */ {mode_acc, op_ror_acc, AddressingMode::ACC, Instruction::ROR},
     /* 6B */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* 6C */ {mode_ind, op_jmp_ind, AddressingMode::IND, Instruction::JMP}, // this makes me so sad
+    /* 6C */ {nullptr, op_jmp_ind, AddressingMode::UNQ, Instruction::JMP}, // this makes me so sad
     /* 6D */ {mode_abs, op_adc, AddressingMode::ABS, Instruction::ADC},
     /* 6E */ {mode_abs, op_ror, AddressingMode::ABS, Instruction::ROR},
     /* 6F */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
@@ -346,6 +346,26 @@ namespace ops
         return "UNKNOWN";
     }
 
+    bool is_read_instruction(Instruction op)
+    {
+        switch (op)
+        {
+            case Instruction::LDA:
+            case Instruction::LDX:
+            case Instruction::LDY:
+            case Instruction::EOR:
+            case Instruction::AND:
+            case Instruction::ORA:
+            case Instruction::ADC:
+            case Instruction::SBC:
+            case Instruction::CMP:
+            case Instruction::BIT:
+            case Instruction::NOP:
+                return true;
+        }
+        return false;
+    }
+
     // FLAG FUNCTIONS
     void set_flag_carry(Cpu& cpu, bool set) // bit 0
     {
@@ -419,11 +439,13 @@ namespace ops
                 cpu.PC++;
                 break;
             case 1:
-                cpu.address %= (cpu.address + cpu.X);
+                cpu.bus.read(cpu.address); // dummy read
+                cpu.address = (cpu.address + cpu.X) & 0xFF;
                 cpu.localClock = 0;
                 cpu.addressReady = true;
-                break;
+                return;
         }
+        cpu.localClock++;
     }
     void mode_zpy(Cpu& cpu)
     {
@@ -434,11 +456,13 @@ namespace ops
                 cpu.PC++;
                 break;
             case 1:
-                cpu.address %= (cpu.address + cpu.Y);
+                cpu.bus.read(cpu.address); // dummy read
+                cpu.address = (cpu.address + cpu.Y) & 0xFF;
                 cpu.localClock = 0;
                 cpu.addressReady = true;
-                break;
+                return;
         }
+        cpu.localClock++;
     }
     void mode_abs(Cpu& cpu)
     {
@@ -451,8 +475,9 @@ namespace ops
                 cpu.address += (cpu.bus.read(cpu.PC++) << 8);
                 cpu.localClock = 0;
                 cpu.addressReady = true;
-                break;
+                return;
         }
+        cpu.localClock++;
     }
     void mode_abx(Cpu& cpu)
     {
@@ -465,18 +490,22 @@ namespace ops
                 uint8_t lowByte = static_cast<uint8_t>(cpu.address);
                 uint8_t wrap = lowByte+cpu.X;
                 cpu.address = wrap;
-                cpu.address += (cpu.bus.read(cpu.PC++) << 8);
-                if (wrap >= lowByte) { // if it doesn't wrap (no extra cycle)
+                cpu.address |= (cpu.bus.read(cpu.PC++) << 8);
+                cpu.wrapped = (wrap < lowByte);
+                if (!cpu.wrapped && is_read_instruction(pointerTable[cpu.opcode].op)) { // if it doesn't wrap (no extra cycle)
                     cpu.localClock = 0;
                     cpu.addressReady = true;
+                    return;
                 }
                 break; }
             case 2:
-                cpu.address += 0x100;
+                cpu.bus.read(cpu.address); // dummy read
+                if (cpu.wrapped) {cpu.address += 0x100;}
                 cpu.localClock = 0;
                 cpu.addressReady = true;
-                break;
+                return;
         }
+        cpu.localClock++;
     }
     void mode_aby(Cpu& cpu)
     {
@@ -490,17 +519,21 @@ namespace ops
                 uint8_t wrap = lowByte+cpu.Y;
                 cpu.address = wrap;
                 cpu.address += (cpu.bus.read(cpu.PC++) << 8);
-                if (wrap >= lowByte) { // if it doesn't wrap (no extra cycle)
+                cpu.wrapped = (wrap < lowByte);
+                if (!cpu.wrapped && is_read_instruction(pointerTable[cpu.opcode].op)) { // if it doesn't wrap (no extra cycle)
                     cpu.localClock = 0;
                     cpu.addressReady = true;
+                    return;
                 }
                 break; }
             case 2:
-                cpu.address += 0x100;
+                cpu.bus.read(cpu.address); // dummy read
+                if (cpu.wrapped) {cpu.address += 0x100;}
                 cpu.localClock = 0;
                 cpu.addressReady = true;
-                break;
+                return;
         }
+        cpu.localClock++;
     }
     void mode_ind(Cpu& cpu)
     {
@@ -527,8 +560,9 @@ namespace ops
                     cpu.PC = cpu.bus.read(cpu.address + 1) << 8;
                 }
                 cpu.PC += cpu.temp8;
-                break;
+                return;
         }
+        cpu.localClock++;
     }
     void mode_inx(Cpu& cpu)
     {
@@ -539,17 +573,19 @@ namespace ops
                 cpu.PC++;
                 break;
             case 1:
-                cpu.temp8 = (cpu.bus.read(cpu.temp8) + cpu.X);
+                cpu.bus.read(cpu.temp8);
+                cpu.temp8 = static_cast<uint8_t>(cpu.temp8 + cpu.X);
                 break;
             case 2:
                 cpu.address = cpu.bus.read(cpu.temp8);
                 break;
             case 3:
-                cpu.address += (cpu.bus.read(cpu.temp8 + 1) << 8);
+                cpu.address += (cpu.bus.read(static_cast<uint8_t>(cpu.temp8 + 1)) << 8);
                 cpu.localClock = 0;
                 cpu.addressReady = true;
-                break;
+                return;
         }
+        cpu.localClock++;
     }
     void mode_iny(Cpu& cpu)
     {
@@ -566,18 +602,22 @@ namespace ops
                 uint8_t lowByte = static_cast<uint8_t>(cpu.address);
                 uint8_t wrap = lowByte+cpu.Y;
                 cpu.address = wrap;
-                cpu.address += (cpu.bus.read(cpu.temp8 + 1) << 8);
-                if (wrap >= lowByte) { // if it doesn't wrap (no extra cycle)
+                cpu.address += (cpu.bus.read(static_cast<uint8_t>(cpu.temp8 + 1)) << 8);
+                cpu.wrapped = (wrap < lowByte);
+                if (!cpu.wrapped && is_read_instruction(pointerTable[cpu.opcode].op)) { // if it doesn't wrap (no extra cycle)
                     cpu.localClock = 0;
                     cpu.addressReady = true;
+                    return;
                 }
                 break; }
             case 3:
-                cpu.address += 0x100;
+                cpu.bus.read(cpu.address); // dummy read
+                if (cpu.wrapped) {cpu.address += 0x100;}
                 cpu.localClock = 0;
                 cpu.addressReady = true;
-                break;
+                return;
         }
+        cpu.localClock++;
     }
 
     // OPCODE FUNCTIONS
@@ -675,7 +715,7 @@ namespace ops
         uint16_t result = cpu.A + cpu.value + (cpu.P & 0x01);
         set_flag_carry(cpu, result > 0xFF);
         set_flag_zero(cpu, result);
-        set_flag_overflow(cpu, ((result ^ cpu.A) & (result ^ cpu.value) & 0x80));
+        set_flag_overflow(cpu, ((result ^ cpu.A) & (result ^ cpu.value) & 0x80) == 0x80);
         set_flag_negative(cpu, result);
         cpu.A = (result % 256);
         cpu.clear_state();
@@ -685,7 +725,7 @@ namespace ops
         uint16_t result = cpu.A + cpu.value + (cpu.P & 0x01);
         set_flag_carry(cpu, result > 0xFF);
         set_flag_zero(cpu, result);
-        set_flag_overflow(cpu, ((result ^ cpu.A) & (result ^ cpu.value) & 0x80));
+        set_flag_overflow(cpu, ((result ^ cpu.A) & (result ^ cpu.value) & 0x80) == 0x80);
         set_flag_negative(cpu, result);
         cpu.A = (result % 256);
         cpu.clear_state();
@@ -694,9 +734,9 @@ namespace ops
     {
         cpu.value = cpu.bus.read(cpu.address);
         uint16_t result = cpu.A - cpu.value - (~cpu.P & 0x01);
-        set_flag_carry(cpu, result > 0xFF);
+        set_flag_carry(cpu, result <= 0xFF);
         set_flag_zero(cpu, result);
-        set_flag_overflow(cpu, ((result ^ cpu.A) & (result ^ ~cpu.value) & 0x80));
+        set_flag_overflow(cpu, ((result ^ cpu.A) & (result ^ ~cpu.value) & 0x80) == 0x80);
         set_flag_negative(cpu, result);
         cpu.A = (result % 256);
         cpu.clear_state();
@@ -704,9 +744,9 @@ namespace ops
     void op_sbc_imm(Cpu& cpu)
     {
         uint16_t result = cpu.A - cpu.value - (~cpu.P & 0x01);
-        set_flag_carry(cpu, result > 0xFF);
+        set_flag_carry(cpu, result <= 0xFF);
         set_flag_zero(cpu, result);
-        set_flag_overflow(cpu, ((result ^ cpu.A) & (result ^ ~cpu.value) & 0x80));
+        set_flag_overflow(cpu, ((result ^ cpu.A) & (result ^ ~cpu.value) & 0x80) == 0x80);
         set_flag_negative(cpu, result);
         cpu.A = (result % 256);
         cpu.clear_state();
@@ -727,8 +767,9 @@ namespace ops
             case 2:
                 cpu.bus.write(cpu.address, cpu.value);
                 cpu.clear_state();
-                break;
+                return;
         }
+        cpu.localClock++;
     }
     void op_dec(Cpu& cpu)
     {
@@ -746,8 +787,9 @@ namespace ops
             case 2:
                 cpu.bus.write(cpu.address, cpu.value);
                 cpu.clear_state();
-                break;
+                return;
         }
+        cpu.localClock++;
     }
     void op_inx(Cpu& cpu)
     {
@@ -795,15 +837,17 @@ namespace ops
             case 2:
                 cpu.bus.write(cpu.address, cpu.value);
                 cpu.clear_state();
-                break;
+                return;
         }
+        cpu.localClock++;
     }
     void op_asl_acc(Cpu& cpu)
     {
         set_flag_carry(cpu, (cpu.A & 0x80) == 0x80);
         cpu.A<<=1;
-        set_flag_zero(cpu, cpu.value);
-        set_flag_negative(cpu, cpu.value);
+        set_flag_zero(cpu, cpu.A);
+        set_flag_negative(cpu, cpu.A);
+        cpu.clear_state();
     }
     void op_lsr(Cpu& cpu)
     {
@@ -822,15 +866,17 @@ namespace ops
             case 2:
                 cpu.bus.write(cpu.address, cpu.value);
                 cpu.clear_state();
-                break;
+                return;
         }
+        cpu.localClock++;
     }
     void op_lsr_acc(Cpu& cpu)
     {
         set_flag_carry(cpu, (cpu.A & 0x01) == 0x01);
-        cpu.A<<=1;
-        set_flag_zero(cpu, cpu.value);
+        cpu.A>>=1;
+        set_flag_zero(cpu, cpu.A);
         set_flag_negative(cpu, 0);
+        cpu.clear_state();
     }
     void op_rol(Cpu& cpu)
     {
@@ -839,27 +885,31 @@ namespace ops
             case 0:
                 cpu.value = cpu.bus.read(cpu.address);
                 break;
-            case 1:
+            case 1: {
+                uint8_t oldCarry = cpu.P & 0x01;
                 cpu.bus.write(cpu.address, cpu.value);
                 set_flag_carry(cpu, ((cpu.value & 0b10000000) == 0b10000000));
                 cpu.value<<=1;
-                cpu.value |= (cpu.P & 0x01);
+                cpu.value |= oldCarry;
                 set_flag_zero(cpu, cpu.value);
                 set_flag_negative(cpu, cpu.value);
-                break;
+                break; }
             case 2:
                 cpu.bus.write(cpu.address, cpu.value);
                 cpu.clear_state();
-                break;
+                return;
         }
+        cpu.localClock++;
     }
     void op_rol_acc(Cpu& cpu)
     {
+        uint8_t oldCarry = cpu.P & 0x01;
         set_flag_carry(cpu, (cpu.A & 0x80) == 0x80);
         cpu.A<<=1;
-        cpu.A |= (cpu.P << 7);
+        cpu.A |= oldCarry;
         set_flag_zero(cpu, cpu.A);
         set_flag_negative(cpu, cpu.A);
+        cpu.clear_state();
     }
     void op_ror(Cpu& cpu)
     {
@@ -868,27 +918,31 @@ namespace ops
             case 0:
                 cpu.value = cpu.bus.read(cpu.address);
                 break;
-            case 1:
+            case 1: {
+                uint8_t oldCarry = cpu.P << 7;
                 cpu.bus.write(cpu.address, cpu.value);
                 set_flag_carry(cpu, ((cpu.value & 0b00000001) == 0b00000001));
                 cpu.value>>=1;
-                cpu.value |= (cpu.P << 7);
+                cpu.value |= oldCarry;
                 set_flag_zero(cpu, cpu.value);
                 set_flag_negative(cpu, cpu.value);
-                break;
+                break; }
             case 2:
                 cpu.bus.write(cpu.address, cpu.value);
                 cpu.clear_state();
-                break;
+                return;
         }
+        cpu.localClock++;
     }
     void op_ror_acc(Cpu& cpu)
     {
+        uint8_t oldCarry = cpu.P << 7;
         set_flag_carry(cpu, (cpu.A & 0x01) == 0x01);
         cpu.A>>=1;
-        cpu.A |= (cpu.P << 7);
+        cpu.A |= oldCarry;
         set_flag_zero(cpu, cpu.A);
         set_flag_negative(cpu, cpu.A);
+        cpu.clear_state();
     }
     // Bitwise
     void op_and(Cpu& cpu)
@@ -1007,22 +1061,26 @@ namespace ops
                 if ((cpu.P & 0x01) == 0x01) 
                 {
                     cpu.clear_state();
+                    return;
                 }
                 break;
             case 1: {
-                uint16_t temp = cpu.PC + cpu.value;
+                int8_t offset = static_cast<int8_t>(cpu.value);
+                uint16_t temp = static_cast<uint16_t>(cpu.PC + offset);
                 if ((cpu.PC & 0xFF00) == (temp & 0xFF00)) 
                 {
                     cpu.PC = temp;
                     cpu.clear_state();
+                    return;
                 }
                 cpu.PC = temp;
                 break; }
             case 2:
                 // Fix PCH
                 cpu.clear_state();
-                break;
+                return;
         }
+        cpu.localClock++;
     }
     void op_bcs(Cpu& cpu)
     {
@@ -1033,21 +1091,25 @@ namespace ops
                 if ((cpu.P & 0x01) == 0x00) 
                 {
                     cpu.clear_state();
+                    return;
                 }
                 break;
             case 1: {
-                uint16_t temp = cpu.PC + cpu.value;
+                int8_t offset = static_cast<int8_t>(cpu.value);
+                uint16_t temp = static_cast<uint16_t>(cpu.PC + offset);
                 if ((cpu.PC & 0xFF00) == (temp & 0xFF00)) {
                     cpu.PC = temp;
                     cpu.clear_state();
+                    return;
                 }
                 cpu.PC = temp;
                 break; }
             case 2:
                 // Fix PCH
                 cpu.clear_state();
-                break;
+                return;
         }
+        cpu.localClock++;
     }
     void op_beq(Cpu& cpu)
     {
@@ -1058,21 +1120,25 @@ namespace ops
                 if ((cpu.P & 0x02) == 0x00) 
                 {
                     cpu.clear_state();
+                    return;
                 }
                 break;
             case 1: {
-                uint16_t temp = cpu.PC + cpu.value;
+                int8_t offset = static_cast<int8_t>(cpu.value);
+                uint16_t temp = static_cast<uint16_t>(cpu.PC + offset);
                 if ((cpu.PC & 0xFF00) == (temp & 0xFF00)) {
                     cpu.PC = temp;
                     cpu.clear_state();
+                    return;
                 }
                 cpu.PC = temp;
                 break; }
             case 2:
                 // Fix PCH
                 cpu.clear_state();
-                break;
+                return;
         }
+        cpu.localClock++;
     }
     void op_bne(Cpu& cpu)
     {
@@ -1083,21 +1149,25 @@ namespace ops
                 if ((cpu.P & 0x02) == 0x02) 
                 {
                     cpu.clear_state();
+                    return;
                 }
                 break;
             case 1: {
-                uint16_t temp = cpu.PC + cpu.value;
+                int8_t offset = static_cast<int8_t>(cpu.value);
+                uint16_t temp = static_cast<uint16_t>(cpu.PC + offset);
                 if ((cpu.PC & 0xFF00) == (temp & 0xFF00)) {
                     cpu.PC = temp;
                     cpu.clear_state();
+                    return;
                 }
                 cpu.PC = temp;
                 break; }
             case 2:
                 // Fix PCH
                 cpu.clear_state();
-                break;
+                return;
         }
+        cpu.localClock++;
     }
     void op_bpl(Cpu& cpu)
     {
@@ -1108,21 +1178,25 @@ namespace ops
                 if ((cpu.P & 0x80) == 0x80) 
                 {
                     cpu.clear_state();
+                    return;
                 }
                 break;
             case 1: {
-                uint16_t temp = cpu.PC + cpu.value;
+                int8_t offset = static_cast<int8_t>(cpu.value);
+                uint16_t temp = static_cast<uint16_t>(cpu.PC + offset);
                 if ((cpu.PC & 0xFF00) == (temp & 0xFF00)) {
                     cpu.PC = temp;
                     cpu.clear_state();
+                    return;
                 }
                 cpu.PC = temp;
                 break; }
             case 2:
                 // Fix PCH
                 cpu.clear_state();
-                break;
+                return;
         }
+        cpu.localClock++;
     }
     void op_bmi(Cpu& cpu)
     {
@@ -1133,21 +1207,25 @@ namespace ops
                 if ((cpu.P & 0x80) == 0x00) 
                 {
                     cpu.clear_state();
+                    return;
                 }
                 break;
             case 1: {
-                uint16_t temp = cpu.PC + cpu.value;
+                int8_t offset = static_cast<int8_t>(cpu.value);
+                uint16_t temp = static_cast<uint16_t>(cpu.PC + offset);
                 if ((cpu.PC & 0xFF00) == (temp & 0xFF00)) {
                     cpu.PC = temp;
                     cpu.clear_state();
+                    return;
                 }
                 cpu.PC = temp;
                 break; }
             case 2:
                 // Fix PCH
                 cpu.clear_state();
-                break;
+                return;
         }
+        cpu.localClock++;
     }
     void op_bvc(Cpu& cpu)
     {
@@ -1158,21 +1236,25 @@ namespace ops
                 if ((cpu.P & 0x40) == 0x40) 
                 {
                     cpu.clear_state();
+                    return;
                 }
                 break;
             case 1: {
-                uint16_t temp = cpu.PC + cpu.value;
+                int8_t offset = static_cast<int8_t>(cpu.value);
+                uint16_t temp = static_cast<uint16_t>(cpu.PC + offset);
                 if ((cpu.PC & 0xFF00) == (temp & 0xFF00)) {
                     cpu.PC = temp;
                     cpu.clear_state();
+                    return;
                 }
                 cpu.PC = temp;
                 break; }
             case 2:
                 // Fix PCH
                 cpu.clear_state();
-                break;
+                return;
         }
+        cpu.localClock++;
     }
     void op_bvs(Cpu& cpu)
     {
@@ -1183,21 +1265,25 @@ namespace ops
                 if ((cpu.P & 0x40) == 0x00) 
                 {
                     cpu.clear_state();
+                    return;
                 }
                 break;
             case 1: {
-                uint16_t temp = cpu.PC + cpu.value;
+                int8_t offset = static_cast<int8_t>(cpu.value);
+                uint16_t temp = static_cast<uint16_t>(cpu.PC + offset);
                 if ((cpu.PC & 0xFF00) == (temp & 0xFF00)) {
                     cpu.PC = temp;
                     cpu.clear_state();
+                    return;
                 }
                 cpu.PC = temp;
                 break; }
             case 2:
                 // Fix PCH
                 cpu.clear_state();
-                break;
+                return;
         }
+        cpu.localClock++;
     }
     // Jump
     void op_jmp(Cpu& cpu)
@@ -1211,8 +1297,9 @@ namespace ops
                 cpu.PC = cpu.bus.read(cpu.PC) << 8;
                 cpu.PC |= cpu.temp8;
                 cpu.clear_state();
-                break;
+                return;
         }
+        cpu.localClock++;
     }
     void op_jmp_ind(Cpu& cpu)
     {
@@ -1235,10 +1322,11 @@ namespace ops
                     cpu.address -= 0x0100;
                 }
                 cpu.PC = cpu.bus.read(cpu.address+1) << 8;
-                cpu.PC += cpu.temp8;
+                cpu.PC |= cpu.temp8;
                 cpu.clear_state();
-                break;
+                return;
         }
+        cpu.localClock++;
     }
     void op_jsr(Cpu& cpu)
     {
@@ -1262,8 +1350,9 @@ namespace ops
                 cpu.PC = static_cast<uint16_t>(cpu.bus.read(cpu.PC)) << 8;
                 cpu.PC |= cpu.temp8;
                 cpu.clear_state();
-                break;
+                return;
         }
+        cpu.localClock++;
     }
     void op_rts(Cpu& cpu)
     {
@@ -1305,17 +1394,18 @@ namespace ops
                 cpu.bus.write(0x100 + cpu.SP--, PCL);
                 break; }
             case 3:
-                cpu.bus.write(0x100 + cpu.SP--, cpu.P & 0x10);
+                cpu.bus.write(0x100 + cpu.SP--, cpu.P | 0b00110000);
                 set_flag_interrupt_disable(cpu, true);
                 break;
             case 4:
                 cpu.PC = static_cast<uint16_t>(cpu.bus.read(0xFFFE));
                 break;
             case 5:
-                cpu.PC += static_cast<uint16_t>(cpu.bus.read(0xFFFE)) << 8;
+                cpu.PC += static_cast<uint16_t>(cpu.bus.read(0xFFFF)) << 8;
                 cpu.clear_state();
-                break;
+                return;
         }
+        cpu.localClock++;
     }
     void op_rti(Cpu& cpu)
     {
@@ -1327,17 +1417,19 @@ namespace ops
             case 1:
                 cpu.SP++;
                 break;
-            case 2:
-                cpu.P = cpu.bus.read(0x100 + cpu.SP++);
-                break;
+            case 2: {
+                uint8_t pulled = cpu.bus.read(0x0100 + cpu.SP++);
+                cpu.P = (pulled & 0b11001111) | (cpu.P & 0b00110000);
+                break; }
             case 3:
                 cpu.PC = static_cast<uint16_t>(cpu.bus.read(0x100 + cpu.SP++));
                 break;
             case 4:
                 cpu.PC += static_cast<uint16_t>(cpu.bus.read(0x100 + cpu.SP) << 8);
                 cpu.clear_state();
-                break;
+                return;
         }
+        cpu.localClock++;
     }
     // Stack
     void op_pha(Cpu& cpu)
@@ -1359,9 +1451,12 @@ namespace ops
         switch(cpu.localClock)
         {
             case 0:
-                cpu.SP++;
+                cpu.bus.read(cpu.PC); // dummy read
                 break;
             case 1:
+                cpu.SP++;
+                break;
+            case 2:
                 cpu.A = cpu.bus.read(0x0100 + cpu.SP);
                 set_flag_zero(cpu, cpu.A);
                 set_flag_negative(cpu, cpu.A);
@@ -1389,12 +1484,14 @@ namespace ops
         switch(cpu.localClock)
         {
             case 0:
-                cpu.SP++;
+                cpu.bus.read(cpu.PC); // dummy read
                 break;
             case 1:
-                cpu.P |= (cpu.bus.read(0x0100 + cpu.SP) & 0b11001111);
-                set_flag_zero(cpu, cpu.A);
-                set_flag_negative(cpu, cpu.A);
+                cpu.SP++;
+                break;
+            case 2:
+                uint8_t pulled = cpu.bus.read(0x0100 + cpu.SP);
+                cpu.P = (pulled & 0b11001111) | (cpu.P & 0b00110000);
                 cpu.clear_state();
                 return;
         }
@@ -1403,8 +1500,6 @@ namespace ops
     void op_txs(Cpu& cpu)
     {
         cpu.SP = cpu.X;
-        set_flag_zero(cpu, cpu.SP);
-        set_flag_negative(cpu, cpu.SP);
         cpu.clear_state();
     }
     void op_tsx(Cpu& cpu)

@@ -32,6 +32,7 @@ class Cpu
         // Temporary Values
         uint8_t temp8 = 0; // general purpose 8-bit temporary variable
         uint16_t temp16 = 0; // general purpose 16-bit temporary variable
+        bool wrapped = false; // for tracking page wrapping for indirect addressing
         uint8_t opcode = 0;
         bool opcodeReady = false;
         uint8_t value = 0;

@@ -17,4 +17,8 @@ struct LogEntry
 class Debug
 {
     
+
+
+
+    LogEntry pending;
 };
