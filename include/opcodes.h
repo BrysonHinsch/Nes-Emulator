@@ -171,4 +171,19 @@ namespace ops
     void op_slo(Cpu& cpu); // Unofficial
     void op_anc(Cpu& cpu); // Unofficial
     void op_rla(Cpu& cpu); // Unofficial
+    void op_sre(Cpu& cpu); // Unofficial
+    void op_asr(Cpu& cpu); // Unofficial
+    void op_rra(Cpu& cpu); // Unofficial
+    void op_arr(Cpu& cpu); // Unofficial
+    void op_sax(Cpu& cpu); // Unofficial
+    void op_ane(Cpu& cpu); // Unofficial
+    void op_tas(Cpu& cpu); // Unofficial
+    void op_sha(Cpu& cpu); // Unofficial
+    void op_shx(Cpu& cpu); // Unofficial
+    void op_shy(Cpu& cpu); // Unofficial
+    void op_lax(Cpu& cpu); // Unofficial
+    void op_lxa(Cpu& cpu); // Unofficial
+    void op_las(Cpu& cpu); // Unofficial
+    void op_dcp(Cpu& cpu); // Unofficial
+    void op_isc(Cpu& cpu); // Unofficial
 }

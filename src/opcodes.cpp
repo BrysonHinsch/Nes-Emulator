@@ -1593,7 +1593,7 @@ namespace ops
         cpu.A &= cpu.value;
         set_flag_zero(cpu, cpu.A);
         set_flag_negative(cpu, cpu.A);
-        set_flag_carry(cpu, (cpu.A & 0xF0 == 0xF0));
+        set_flag_carry(cpu, ((cpu.A & 0xF0) == 0xF0));
         cpu.clear_state();
     }
     void op_rla(Cpu& cpu)
