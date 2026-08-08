@@ -29,6 +29,8 @@ class Cpu
         void power_on();
         
         // PROGRAM VARIABLES
+        // Has HLT occured?
+        bool hlt_triggered = false;
         // Temporary Values
         uint8_t temp8 = 0; // general purpose 8-bit temporary variable
         uint16_t temp16 = 0; // general purpose 16-bit temporary variable

@@ -10,150 +10,150 @@ namespace ops
     const Opcode pointerTable [256] {
     /* 00 */ {mode_imp, op_brk, AddressingMode::IMP, Instruction::BRK},
     /* 01 */ {mode_inx, op_ora, AddressingMode::INX, Instruction::ORA},
-    /* 02 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* 03 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* 04 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 02 */ {mode_imp, op_hlt, AddressingMode::IMP, Instruction::HLT},
+    /* 03 */ {mode_inx, op_slo, AddressingMode::INX, Instruction::SLO},
+    /* 04 */ {mode_zpg, op_nop_uof, AddressingMode::ZPG, Instruction::NOP},
     /* 05 */ {mode_zpg, op_ora, AddressingMode::ZPG, Instruction::ORA},
     /* 06 */ {mode_zpg, op_asl, AddressingMode::ZPG, Instruction::ASL},
-    /* 07 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 07 */ {mode_zpg, op_slo, AddressingMode::ZPG, Instruction::SLO},
     /* 08 */ {mode_imp, op_php, AddressingMode::IMP, Instruction::PHP},
     /* 09 */ {mode_imm, op_ora_imm, AddressingMode::IMM, Instruction::ORA},
     /* 0A */ {mode_acc, op_asl_acc, AddressingMode::ACC, Instruction::ASL},
-    /* 0B */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* 0C */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 0B */ {mode_imm, op_anc, AddressingMode::IMM, Instruction::ANC},
+    /* 0C */ {mode_abs, op_nop_uof, AddressingMode::ABS, Instruction::NOP},
     /* 0D */ {mode_abs, op_ora, AddressingMode::ABS, Instruction::ORA},
     /* 0E */ {mode_abs, op_asl, AddressingMode::ABS, Instruction::ASL},
-    /* 0F */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 0F */ {mode_abs, op_slo, AddressingMode::ABS, Instruction::SLO},
 
     /* 10 */ {nullptr,  op_bpl, AddressingMode::REL, Instruction::BPL},
     /* 11 */ {mode_iny, op_ora, AddressingMode::INY, Instruction::ORA},
-    /* 12 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* 13 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* 14 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 12 */ {mode_imp, op_hlt, AddressingMode::IMP, Instruction::HLT},
+    /* 13 */ {mode_iny, op_slo, AddressingMode::INY, Instruction::SLO},
+    /* 14 */ {mode_zpx, op_nop_uof, AddressingMode::ZPX, Instruction::NOP},
     /* 15 */ {mode_zpx, op_ora, AddressingMode::ZPX, Instruction::ORA},
     /* 16 */ {mode_zpx, op_asl, AddressingMode::ZPX, Instruction::ASL},
-    /* 17 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 17 */ {mode_zpx, op_slo, AddressingMode::ZPX, Instruction::SLO},
     /* 18 */ {mode_imp, op_clc, AddressingMode::IMP, Instruction::CLC},
     /* 19 */ {mode_aby, op_ora, AddressingMode::ABY, Instruction::ORA},
-    /* 1A */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* 1B */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* 1C */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 1A */ {mode_imp, op_nop, AddressingMode::IMP, Instruction::NOP},
+    /* 1B */ {mode_aby, op_slo, AddressingMode::ABY, Instruction::SLO},
+    /* 1C */ {mode_abx, op_nop_uof, AddressingMode::ABX, Instruction::NOP},
     /* 1D */ {mode_abx, op_ora, AddressingMode::ABX, Instruction::ORA},
     /* 1E */ {mode_abx, op_asl, AddressingMode::ABX, Instruction::ASL},
-    /* 1F */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 1F */ {mode_abx, op_slo, AddressingMode::ABX, Instruction::SLO},
 
     /* 20 */ {mode_abs, op_jsr, AddressingMode::UNQ, Instruction::JSR},
     /* 21 */ {mode_inx, op_and, AddressingMode::INX, Instruction::AND},
-    /* 22 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* 23 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 22 */ {mode_imp, op_hlt, AddressingMode::IMP, Instruction::HLT},
+    /* 23 */ {mode_inx, op_rla, AddressingMode::INX, Instruction::RLA},
     /* 24 */ {mode_zpg, op_bit, AddressingMode::ZPG, Instruction::BIT},
     /* 25 */ {mode_zpg, op_and, AddressingMode::ZPG, Instruction::AND},
     /* 26 */ {mode_zpg, op_rol, AddressingMode::ZPG, Instruction::ROL},
-    /* 27 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 27 */ {mode_zpg, op_rla, AddressingMode::ZPG, Instruction::RLA},
     /* 28 */ {mode_imp, op_plp, AddressingMode::IMP, Instruction::PLP},
     /* 29 */ {mode_imm, op_and_imm, AddressingMode::IMM, Instruction::AND},
     /* 2A */ {mode_acc, op_rol_acc, AddressingMode::ACC, Instruction::ROL},
-    /* 2B */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 2B */ {mode_imm, op_anc, AddressingMode::IMM, Instruction::ANC},
     /* 2C */ {mode_abs, op_bit, AddressingMode::ABS, Instruction::BIT},
     /* 2D */ {mode_abs, op_and, AddressingMode::ABS, Instruction::AND},
     /* 2E */ {mode_abs, op_rol, AddressingMode::ABS, Instruction::ROL},
-    /* 2F */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 2F */ {mode_abs, op_rla, AddressingMode::ABS, Instruction::RLA},
 
     /* 30 */ {nullptr,  op_bmi, AddressingMode::REL, Instruction::BMI},
     /* 31 */ {mode_iny, op_and, AddressingMode::INY, Instruction::AND},
-    /* 32 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* 33 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* 34 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 32 */ {mode_imp, op_hlt, AddressingMode::IMP, Instruction::HLT},
+    /* 33 */ {mode_iny, op_rla, AddressingMode::INY, Instruction::RLA},
+    /* 34 */ {mode_zpx, op_nop_uof, AddressingMode::ZPX, Instruction::NOP},
     /* 35 */ {mode_zpx, op_and, AddressingMode::ZPX, Instruction::AND},
     /* 36 */ {mode_zpx, op_rol, AddressingMode::ZPX, Instruction::ROL},
-    /* 37 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 37 */ {mode_zpx, op_rla, AddressingMode::ZPX, Instruction::RLA},
     /* 38 */ {mode_imp, op_sec, AddressingMode::IMP, Instruction::SEC},
     /* 39 */ {mode_aby, op_and, AddressingMode::ABY, Instruction::AND},
-    /* 3A */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* 3B */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* 3C */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 3A */ {mode_imp, op_nop, AddressingMode::IMP, Instruction::NOP},
+    /* 3B */ {mode_aby, op_rla, AddressingMode::ABY, Instruction::RLA},
+    /* 3C */ {mode_abx, op_nop_uof, AddressingMode::ABX, Instruction::NOP},
     /* 3D */ {mode_abx, op_and, AddressingMode::ABX, Instruction::AND},
     /* 3E */ {mode_abx, op_rol, AddressingMode::ABX, Instruction::ROL},
-    /* 3F */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 3F */ {mode_abx, op_rla, AddressingMode::ABX, Instruction::RLA},
 
     /* 40 */ {mode_imp, op_rti, AddressingMode::IMP, Instruction::RTI},
     /* 41 */ {mode_inx, op_eor, AddressingMode::INX, Instruction::EOR},
-    /* 42 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* 43 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* 44 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 42 */ {mode_imp, op_hlt, AddressingMode::IMP, Instruction::HLT},
+    /* 43 */ {mode_inx, op_sre, AddressingMode::INX, Instruction::SRE},
+    /* 44 */ {mode_zpg, op_nop_uof, AddressingMode::ZPG, Instruction::NOP},
     /* 45 */ {mode_zpg, op_eor, AddressingMode::ZPG, Instruction::EOR},
     /* 46 */ {mode_zpg, op_lsr, AddressingMode::ZPG, Instruction::LSR},
-    /* 47 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 47 */ {mode_zpg, op_sre, AddressingMode::ZPG, Instruction::SRE},
     /* 48 */ {mode_imp, op_pha, AddressingMode::IMP, Instruction::PHA},
     /* 49 */ {mode_imm, op_eor_imm, AddressingMode::IMM, Instruction::EOR},
     /* 4A */ {mode_acc, op_lsr_acc, AddressingMode::ACC, Instruction::LSR},
-    /* 4B */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 4B */ {mode_imm, op_asr, AddressingMode::IMM, Instruction::ASR},
     /* 4C */ {mode_abs, op_jmp, AddressingMode::UNQ, Instruction::JMP},
     /* 4D */ {mode_abs, op_eor, AddressingMode::ABS, Instruction::EOR},
     /* 4E */ {mode_abs, op_lsr, AddressingMode::ABS, Instruction::LSR},
-    /* 4F */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 4F */ {mode_abs, op_sre, AddressingMode::ABS, Instruction::SRE},
 
     /* 50 */ {nullptr,  op_bvc, AddressingMode::REL, Instruction::BVC},
     /* 51 */ {mode_iny, op_eor, AddressingMode::INY, Instruction::EOR},
-    /* 52 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* 53 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* 54 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 52 */ {mode_imp, op_hlt, AddressingMode::IMP, Instruction::HLT},
+    /* 53 */ {mode_iny, op_sre, AddressingMode::INY, Instruction::SRE},
+    /* 54 */ {mode_zpx, op_nop_uof, AddressingMode::ZPX, Instruction::NOP},
     /* 55 */ {mode_zpx, op_eor, AddressingMode::ZPX, Instruction::EOR},
     /* 56 */ {mode_zpx, op_lsr, AddressingMode::ZPX, Instruction::LSR},
-    /* 57 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 57 */ {mode_zpx, op_sre, AddressingMode::ZPX, Instruction::SRE},
     /* 58 */ {mode_imp, op_cli, AddressingMode::IMP, Instruction::CLI},
     /* 59 */ {mode_aby, op_eor, AddressingMode::ABY, Instruction::EOR},
-    /* 5A */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* 5B */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* 5C */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 5A */ {mode_imp, op_nop, AddressingMode::IMP, Instruction::NOP},
+    /* 5B */ {mode_aby, op_sre, AddressingMode::ABY, Instruction::SRE},
+    /* 5C */ {mode_abx, op_nop_uof, AddressingMode::ABX, Instruction::NOP},
     /* 5D */ {mode_abx, op_eor, AddressingMode::ABX, Instruction::EOR},
     /* 5E */ {mode_abx, op_lsr, AddressingMode::ABX, Instruction::LSR},
-    /* 5F */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 5F */ {mode_abx, op_sre, AddressingMode::ABX, Instruction::SRE},
 
     /* 60 */ {mode_imp, op_rts, AddressingMode::IMP, Instruction::RTS},
     /* 61 */ {mode_inx, op_adc, AddressingMode::INX, Instruction::ADC},
-    /* 62 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* 63 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* 64 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 62 */ {mode_imp, op_hlt, AddressingMode::IMP, Instruction::HLT},
+    /* 63 */ {mode_inx, op_rra, AddressingMode::INX, Instruction::RRA},
+    /* 64 */ {mode_zpg, op_nop_uof, AddressingMode::ZPG, Instruction::NOP},
     /* 65 */ {mode_zpg, op_adc, AddressingMode::ZPG, Instruction::ADC},
     /* 66 */ {mode_zpg, op_ror, AddressingMode::ZPG, Instruction::ROR},
-    /* 67 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 67 */ {mode_zpg, op_rra, AddressingMode::ZPG, Instruction::RRA},
     /* 68 */ {mode_imp, op_pla, AddressingMode::IMP, Instruction::PLA},
     /* 69 */ {mode_imm, op_adc_imm, AddressingMode::IMM, Instruction::ADC},
     /* 6A */ {mode_acc, op_ror_acc, AddressingMode::ACC, Instruction::ROR},
-    /* 6B */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 6B */ {mode_imm, op_arr, AddressingMode::IMM, Instruction::ARR},
     /* 6C */ {nullptr, op_jmp_ind, AddressingMode::UNQ, Instruction::JMP}, // this makes me so sad
     /* 6D */ {mode_abs, op_adc, AddressingMode::ABS, Instruction::ADC},
     /* 6E */ {mode_abs, op_ror, AddressingMode::ABS, Instruction::ROR},
-    /* 6F */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 6F */ {mode_abs, op_rra, AddressingMode::ABS, Instruction::RRA},
 
     /* 70 */ {nullptr,  op_bvs, AddressingMode::REL, Instruction::BVS},
     /* 71 */ {mode_iny, op_adc, AddressingMode::INY, Instruction::ADC},
-    /* 72 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* 73 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* 74 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 72 */ {mode_imp, op_hlt, AddressingMode::IMP, Instruction::HLT},
+    /* 73 */ {mode_iny, op_rra, AddressingMode::INY, Instruction::RRA},
+    /* 74 */ {mode_zpx, op_nop_uof, AddressingMode::ZPX, Instruction::NOP},
     /* 75 */ {mode_zpx, op_adc, AddressingMode::ZPX, Instruction::ADC},
     /* 76 */ {mode_zpx, op_ror, AddressingMode::ZPX, Instruction::ROR},
-    /* 77 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 77 */ {mode_zpx, op_rra, AddressingMode::ZPX, Instruction::RRA},
     /* 78 */ {mode_imp, op_sei, AddressingMode::IMP, Instruction::SEI},
     /* 79 */ {mode_aby, op_adc, AddressingMode::ABY, Instruction::ADC},
-    /* 7A */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* 7B */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* 7C */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 7A */ {mode_imp, op_nop, AddressingMode::IMP, Instruction::NOP},
+    /* 7B */ {mode_aby, op_rra, AddressingMode::ABY, Instruction::RRA},
+    /* 7C */ {mode_abx, op_nop_uof, AddressingMode::ABX, Instruction::NOP},
     /* 7D */ {mode_abx, op_adc, AddressingMode::ABX, Instruction::ADC},
     /* 7E */ {mode_abx, op_ror, AddressingMode::ABX, Instruction::ROR},
-    /* 7F */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 7F */ {mode_abx, op_rra, AddressingMode::ABX, Instruction::RRA},
 
-    /* 80 */ {mode_imm, op_nop, AddressingMode::IMM, Instruction::NOP},
+    /* 80 */ {mode_imm, op_nop_uof, AddressingMode::IMM, Instruction::NOP},
     /* 81 */ {mode_inx, op_sta, AddressingMode::INX, Instruction::STA},
-    /* 82 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 82 */ {mode_imm, op_nop_uof, AddressingMode::IMM, Instruction::NOP},
     /* 83 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* 84 */ {mode_zpg, op_sty, AddressingMode::ZPG, Instruction::STY},
     /* 85 */ {mode_zpg, op_sta, AddressingMode::ZPG, Instruction::STA},
     /* 86 */ {mode_zpg, op_stx, AddressingMode::ZPG, Instruction::STX},
     /* 87 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* 88 */ {mode_imp, op_dey, AddressingMode::IMP, Instruction::DEY},
-    /* 89 */ {mode_imm, op_nop, AddressingMode::IMM, Instruction::NOP},
+    /* 89 */ {mode_imm, op_nop_uof, AddressingMode::IMM, Instruction::NOP},
     /* 8A */ {mode_imp, op_txa, AddressingMode::IMP, Instruction::TXA},
     /* 8B */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* 8C */ {mode_abs, op_sty, AddressingMode::ABS, Instruction::STY},
@@ -163,7 +163,7 @@ namespace ops
 
     /* 90 */ {nullptr,  op_bcc, AddressingMode::REL, Instruction::BCC},
     /* 91 */ {mode_iny, op_sta, AddressingMode::INY, Instruction::STA},
-    /* 92 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* 92 */ {mode_imp, op_hlt, AddressingMode::IMP, Instruction::HLT},
     /* 93 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* 94 */ {mode_zpx, op_sty, AddressingMode::ZPX, Instruction::STY},
     /* 95 */ {mode_zpx, op_sta, AddressingMode::ZPX, Instruction::STA},
@@ -197,7 +197,7 @@ namespace ops
 
     /* B0 */ {nullptr,  op_bcs, AddressingMode::REL, Instruction::BCS},
     /* B1 */ {mode_iny, op_lda, AddressingMode::INY, Instruction::LDA},
-    /* B2 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* B2 */ {mode_imp, op_hlt, AddressingMode::IMP, Instruction::HLT},
     /* B3 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* B4 */ {mode_zpx, op_ldy, AddressingMode::ZPX, Instruction::LDY},
     /* B5 */ {mode_zpx, op_lda, AddressingMode::ZPX, Instruction::LDA},
@@ -214,7 +214,7 @@ namespace ops
 
     /* C0 */ {mode_imm, op_cpy_imm, AddressingMode::IMM, Instruction::CPY},
     /* C1 */ {mode_inx, op_cmp, AddressingMode::INX, Instruction::CMP},
-    /* C2 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* C2 */ {mode_imm, op_nop_uof, AddressingMode::IMM, Instruction::NOP},
     /* C3 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* C4 */ {mode_zpg, op_cpy, AddressingMode::ZPG, Instruction::CPY},
     /* C5 */ {mode_zpg, op_cmp, AddressingMode::ZPG, Instruction::CMP},
@@ -231,24 +231,24 @@ namespace ops
 
     /* D0 */ {nullptr,  op_bne, AddressingMode::REL, Instruction::BNE},
     /* D1 */ {mode_iny, op_cmp, AddressingMode::INY, Instruction::CMP},
-    /* D2 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* D2 */ {mode_imp, op_hlt, AddressingMode::IMP, Instruction::HLT},
     /* D3 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* D4 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* D4 */ {mode_zpx, op_nop_uof, AddressingMode::ZPX, Instruction::NOP},
     /* D5 */ {mode_zpx, op_cmp, AddressingMode::ZPX, Instruction::CMP},
     /* D6 */ {mode_zpx, op_dec, AddressingMode::ZPX, Instruction::DEC},
     /* D7 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* D8 */ {mode_imp, op_cld, AddressingMode::IMP, Instruction::CLD},
     /* D9 */ {mode_aby, op_cmp, AddressingMode::ABY, Instruction::CMP},
-    /* DA */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* DA */ {mode_imp, op_nop, AddressingMode::IMP, Instruction::NOP},
     /* DB */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* DC */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* DC */ {mode_abx, op_nop_uof, AddressingMode::ABX, Instruction::NOP},
     /* DD */ {mode_abx, op_cmp, AddressingMode::ABX, Instruction::CMP},
     /* DE */ {mode_abx, op_dec, AddressingMode::ABX, Instruction::DEC},
     /* DF */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
 
     /* E0 */ {mode_imm, op_cpx_imm, AddressingMode::IMM, Instruction::CPX},
     /* E1 */ {mode_inx, op_sbc, AddressingMode::INX, Instruction::SBC},
-    /* E2 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* E2 */ {mode_imm, op_nop_uof, AddressingMode::IMM, Instruction::NOP},
     /* E3 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* E4 */ {mode_zpg, op_cpx, AddressingMode::ZPG, Instruction::CPX},
     /* E5 */ {mode_zpg, op_sbc, AddressingMode::ZPG, Instruction::SBC},
@@ -265,17 +265,17 @@ namespace ops
 
     /* F0 */ {nullptr,  op_beq, AddressingMode::REL, Instruction::BEQ},
     /* F1 */ {mode_iny, op_sbc, AddressingMode::INY, Instruction::SBC},
-    /* F2 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* F2 */ {mode_imp, op_hlt, AddressingMode::IMP, Instruction::HLT},
     /* F3 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* F4 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* F4 */ {mode_zpx, op_nop_uof, AddressingMode::ZPX, Instruction::NOP},
     /* F5 */ {mode_zpx, op_sbc, AddressingMode::ZPX, Instruction::SBC},
     /* F6 */ {mode_zpx, op_inc, AddressingMode::ZPX, Instruction::INC},
     /* F7 */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
     /* F8 */ {mode_imp, op_sed, AddressingMode::IMP, Instruction::SED},
     /* F9 */ {mode_aby, op_sbc, AddressingMode::ABY, Instruction::SBC},
-    /* FA */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* FA */ {mode_imp, op_nop, AddressingMode::IMP, Instruction::NOP},
     /* FB */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
-    /* FC */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP},
+    /* FC */ {mode_abx, op_nop_uof, AddressingMode::ABX, Instruction::NOP},
     /* FD */ {mode_abx, op_sbc, AddressingMode::ABX, Instruction::SBC},
     /* FE */ {mode_abx, op_inc, AddressingMode::ABX, Instruction::INC},
     /* FF */ {nullptr, nullptr, AddressingMode::IMP, Instruction::NOP}
@@ -360,6 +360,9 @@ namespace ops
             case Instruction::SBC:
             case Instruction::CMP:
             case Instruction::BIT:
+            //case Instruction::LAX:
+            //case Instruction::LAE:
+            //case Instruction::SHS:
             case Instruction::NOP:
                 return true;
         }
@@ -1549,5 +1552,202 @@ namespace ops
     void op_nop(Cpu& cpu)
     {
         cpu.clear_state();
+    }
+    // Unofficial
+    void op_nop_uof(Cpu& cpu)
+    {
+        cpu.bus.read(cpu.address);
+        cpu.clear_state();
+    }
+    void op_hlt(Cpu& cpu)
+    {
+        // Freezes the cpu indefinitely
+        cpu.hlt_triggered = true;
+    }
+    void op_slo(Cpu& cpu)
+    {
+        switch(cpu.localClock)
+        {
+            case 0:
+                cpu.value = cpu.bus.read(cpu.address);
+                break;
+            case 1:
+                // ASL
+                cpu.bus.write(cpu.address, cpu.value);
+                set_flag_carry(cpu, ((cpu.value & 0b10000000) == 0b10000000));
+                cpu.value<<=1;
+                break;
+            case 2:
+                cpu.bus.write(cpu.address, cpu.value);
+                // ORA
+                cpu.A |= cpu.value;
+                set_flag_zero(cpu, cpu.A);
+                set_flag_negative(cpu, cpu.A);
+                cpu.clear_state();
+                return;
+        }
+        cpu.localClock++;
+    }
+    void op_anc(Cpu& cpu)
+    {
+        cpu.A &= cpu.value;
+        set_flag_zero(cpu, cpu.A);
+        set_flag_negative(cpu, cpu.A);
+        set_flag_carry(cpu, (cpu.A & 0xF0 == 0xF0));
+        cpu.clear_state();
+    }
+    void op_rla(Cpu& cpu)
+    {
+        switch(cpu.localClock)
+        {
+            case 0:
+                cpu.value = cpu.bus.read(cpu.address);
+                break;
+            case 1: {
+                // ROL
+                uint8_t oldCarry = cpu.P & 0x01;
+                cpu.bus.write(cpu.address, cpu.value); // dummy write
+                set_flag_carry(cpu, ((cpu.value & 0b10000000) == 0b10000000));
+                cpu.value<<=1;
+                cpu.value |= oldCarry;
+                break; }
+            case 2:
+                cpu.bus.write(cpu.address, cpu.value);
+                // AND
+                cpu.A &= cpu.value;
+                set_flag_zero(cpu, cpu.A);
+                set_flag_negative(cpu, cpu.A);
+                cpu.clear_state();
+                return;
+        }
+        cpu.localClock++;
+    }
+    void op_sre(Cpu& cpu)
+    {
+        switch(cpu.localClock)
+        {
+            case 0:
+                cpu.value = cpu.bus.read(cpu.address);
+                break;
+            case 1:
+                // LSR
+                cpu.bus.write(cpu.address, cpu.value);
+                set_flag_carry(cpu, ((cpu.value & 0b00000001) == 0b00000001));
+                cpu.value>>=1;
+                break;
+            case 2:
+                cpu.bus.write(cpu.address, cpu.value);
+                // EOR
+                cpu.A ^= cpu.value;
+                set_flag_zero(cpu, cpu.A);
+                set_flag_negative(cpu, cpu.A);
+                cpu.clear_state();
+                return;
+        }
+        cpu.localClock++;
+    }
+    void op_asr(Cpu& cpu)
+    {
+        // AND
+        cpu.A &= cpu.value;
+        // LSR
+        set_flag_carry(cpu, (cpu.A & 0x01) == 0x01);
+        cpu.A>>=1;
+        set_flag_zero(cpu, cpu.A);
+        set_flag_negative(cpu, cpu.A);
+        cpu.clear_state();
+    }
+    void op_rra(Cpu& cpu)
+    {
+        switch(cpu.localClock)
+        {
+            case 0:
+                cpu.value = cpu.bus.read(cpu.address);
+                break;
+            case 1: {
+                // ROR
+                uint8_t oldCarry = cpu.P << 7;
+                cpu.bus.write(cpu.address, cpu.value);
+                set_flag_carry(cpu, ((cpu.value & 0b00000001) == 0b00000001));
+                cpu.value>>=1;
+                cpu.value |= oldCarry;
+                break; }
+            case 2:
+                // ADC
+                uint16_t result = cpu.A + cpu.value + (cpu.P & 0x01);
+                set_flag_carry(cpu, result > 0xFF);
+                set_flag_zero(cpu, result);
+                set_flag_overflow(cpu, ((result ^ cpu.A) & (result ^ cpu.value) & 0x80) == 0x80);
+                set_flag_negative(cpu, result);
+                cpu.A = (result % 256);
+                cpu.bus.write(cpu.address, cpu.value);
+                cpu.clear_state();
+                return;
+        }
+        cpu.localClock++;
+    }
+    void op_arr(Cpu& cpu)
+    {
+        // AND
+        uint8_t value = cpu.bus.read(cpu.address);
+        cpu.A &= cpu.bus.read(value);
+        set_flag_overflow(cpu, (cpu.A + value) > 255);
+        // ROR
+        uint8_t oldCarry = cpu.P << 7;
+        set_flag_carry(cpu, (cpu.A & 0x01) == 0x01);
+        cpu.A>>=1;
+        cpu.A |= oldCarry;
+        set_flag_zero(cpu, cpu.A);
+        set_flag_negative(cpu, cpu.A);
+        cpu.clear_state();
+    }
+    void op_sax(Cpu& cpu)
+    {
+        cpu.bus.write(cpu.address, cpu.A & cpu.X);
+        cpu.clear_state();
+    }
+    void op_ane(Cpu& cpu)
+    {
+
+    }
+    void op_tas(Cpu& cpu)
+    {
+
+    }
+    void op_sha(Cpu& cpu)
+    {
+
+    }
+    void op_shx(Cpu& cpu)
+    {
+
+    }
+    void op_shy(Cpu& cpu)
+    {
+
+    }
+    void op_lax(Cpu& cpu)
+    {
+        cpu.A = cpu.bus.read(cpu.address);
+        cpu.X = cpu.bus.read(cpu.address);
+        set_flag_zero(cpu, cpu.A);
+        set_flag_negative(cpu, cpu.A);
+        cpu.clear_state();
+    }
+    void op_lxa(Cpu& cpu)
+    {
+
+    }
+    void op_las(Cpu& cpu)
+    {
+
+    }
+    void op_dcp(Cpu& cpu)
+    {
+
+    }
+    void op_isc(Cpu& cpu)
+    {
+
     }
 }

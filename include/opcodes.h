@@ -32,13 +32,17 @@ namespace ops
     };
 
     enum class Instruction {
+        // Official
         ADC, AND, ASL, BCC, BCS, BEQ, BIT, BMI,
         BNE, BPL, BRK, BVC, BVS, CLC, CLD, CLI,
         CLV, CMP, CPX, CPY, DEC, DEX, DEY, EOR,
         INC, INX, INY, JMP, JSR, LDA, LDX, LDY,
         LSR, NOP, ORA, PHA, PHP, PLA, PLP, ROL,
         ROR, RTI, RTS, SBC, SEC, SED, SEI, STA,
-        STX, STY, TAX, TAY, TSX, TXA, TXS, TYA
+        STX, STY, TAX, TAY, TSX, TXA, TXS, TYA,
+        // Unofficial
+        HLT, SLO, ANC, RLA, SRE, ASR, RRA, ARR,
+
     };
     
     struct Opcode
@@ -161,4 +165,10 @@ namespace ops
     void op_clv(Cpu& cpu); // Official
     // Other
     void op_nop(Cpu& cpu); // Official
+    // UNOFFICIAL OPCODES
+    void op_nop_uof(Cpu& cpu); // Unofficial
+    void op_hlt(Cpu& cpu); // Unofficial
+    void op_slo(Cpu& cpu); // Unofficial
+    void op_anc(Cpu& cpu); // Unofficial
+    void op_rla(Cpu& cpu); // Unofficial
 }
