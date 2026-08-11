@@ -19,92 +19,115 @@ uint8_t Ppu::get_fine_y(int reg)
 {
     return (reg & 0x7000) >> 12;
 }
-
+bool Ppu::get_vram_increment()
+{
+    return ((PPUCTRL & 0x04) == 0x04) ? true : false;
+}
 
 uint8_t Ppu::register_read(uint16_t address)
 {
     int reg = (address - 0x2000) % 8;
-    if (reg == 2)
+    if (reg == 2) // done
     {
         w = false;
         uint8_t temp = PPUSTATUS;
         PPUSTATUS &= 0x7F;
         return temp;
     }
-    else if (reg == 4)
+    else if (reg == 4) // done
     {
         return OAM[OAMADDR];
     }
-    else if (reg == 7)
+    else if (reg == 7) // done
     {
-        
+        uint8_t temp = ppudata_read_buffer;
+        ppudata_read_buffer = read(v);
+        v = (get_vram_increment()) ? v+1 : v+32;
+        return temp;
     }
     return 0;
 }
 
 uint8_t Ppu::register_write(uint16_t address, uint8_t value)
 {
+    if (address == 0x4014) // OAMDMA // NOT DONE
+    {
+        return 0;
+    }
+
     int reg = (address - 0x2000) % 8;
-    if (reg == 0)
+    if (reg == 0) // done
     {
         t = (t & 0xF3FF) | ((value & 0x03) << 10);
         PPUCTRL = value;
         return PPUCTRL;
     }
-    else if (reg == 1)
+    else if (reg == 1) // done
     {
         PPUMASK = value;
         return PPUMASK;
     }
-    else if (reg == 3)
+    else if (reg == 3) // done
     {
         OAMADDR = value;
         return OAMADDR;
     }
-    else if (reg == 4)
+    else if (reg == 4) // done
     {
         if (scanline <= 239) {return 0;}
         OAM[OAMADDR++] = value;
         return value;
     }
-    else if (reg == 5)
+    else if (reg == 5) // done
     {
         if (!w) // write 1
         {
-            PPUSCROLL = (PPUSCROLL & 0x00FF) | (value << 8);
             t = (t & 0xFFE0) | (value >> 3);
             x = value & 0x07;
             w = true;
-            return PPUSCROLL;
+            return 0;
         }
         else // write 2
         {
-            PPUSCROLL = (PPUSCROLL & 0xFF00) | value;
+            if (scanline < 240) // Can't update v-scroll during rendering
+            {
+                v_scroll_update = true;
+                pending_v_scroll = value;
+                return 0;
+            }
             t = (t & 0x8C1F) | ((value & 0xF8) << 2) | ((value & 0x07) << 12);
             w = false;
-            return PPUSCROLL;
+            return 0;
         }
     }
-    else if (reg == 6)
+    else if (reg == 6) // done
     {
         if (!w) // write 1
         {
-            PPUADDR = (PPUADDR & 0x00FF) | ((value & 0x3F) << 8);
+            t = (t & 0x00FF) | ((value & 0x3F) << 8);
+            t &= 0x3FFF; // clear bit 15
             w = true;
-            return PPUADDR;
+            return 0;
         }
         else // write 2
         {
-            PPUADDR = (PPUADDR & 0xFF00) | value;
+            t = (t & 0xFF00) | value;
             w = false;
-            return PPUADDR;
+            return 0;
         }
     }
-    else if (reg == 7)
+    else if (reg == 7) // done
     {
-
+        bus.write_ppu(v, value);
+        v = (get_vram_increment()) ? v+1 : v+32;
+        return 0;
     }
     return 0;
+}
+
+void Ppu::oam_dma_write(uint8_t value)
+{
+
 }
 
 uint8_t Ppu::read(uint16_t address)
@@ -194,6 +217,7 @@ void Ppu::clock_ppu() {
         }
         else if (dot <= 320) // sprites
         {
+            OAMADDR = 0;
             if (dot == 257) // set horizontal scroll to beginning of line
             {
                 int cx = get_coarse_x(t);
@@ -225,8 +249,13 @@ void Ppu::clock_ppu() {
     {
         if (dot == 0)
         {
-            if (even_frame) {return;}
-            
+            // Fix v-scroll if it was set by PPUSCROLL during rendering
+            t = (t & 0x8C1F) | ((pending_v_scroll & 0xF8) << 2) | ((pending_v_scroll & 0x07) << 12);
+            // Fetch BG 
+            if (!even_frame) 
+            {
+
+            }
         }
         return;
     }
@@ -236,7 +265,6 @@ void Ppu::clock_ppu() {
         {
             PPUSTATUS |= 0x80;
         }
-        return;
     }
     else if (scanline == 261) // pre-render
     {
@@ -250,5 +278,17 @@ void Ppu::clock_ppu() {
     if (dot == 0)
     {
         scanline = (scanline+1) % 261;
+    }
+    // make sure there are no early returns
+    // function needs to reach this point
+
+    // Check for finished writes to PPUADDR
+    // Adds 1 dot delay to update v from t
+    if (vram_address_update == true) {vram_update_ready = true;}
+    if (vram_update_ready)
+    {
+        v = t;
+        vram_address_update = false;
+        vram_update_ready = false;
     }
 }
