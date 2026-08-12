@@ -4,7 +4,7 @@
 Emulator::Emulator(Cpu& cpu, Ppu& ppu, Renderer& renderer): 
     cpu(cpu), ppu(ppu) , renderer(renderer)
 {
-    debug = true;
+    debug = false;
 }
 
 void Emulator::swap_cartridge(std::string filename) 
@@ -20,9 +20,9 @@ void Emulator::step()
         cpu.print_state();
     }
     // 3 PPU clocks per CPU clock
-    //ppu.clock_ppu();
-    //ppu.clock_ppu();
-    //ppu.clock_ppu();
+    ppu.clock_ppu();
+    ppu.clock_ppu();
+    ppu.clock_ppu();
 }
 
 void Emulator::frame()

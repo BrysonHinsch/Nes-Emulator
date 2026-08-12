@@ -16,7 +16,7 @@ class Ppu {
         uint8_t get_fine_y(int reg);
         bool get_vram_increment();
 
-        void fetch_background(int local_clock);
+        void fetch_background();
 
         // lets cpu read from registers
         uint8_t register_read(uint16_t address);

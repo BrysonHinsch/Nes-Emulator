@@ -8,7 +8,7 @@
 
 int main() 
 {
-    Cartridge cart("nestest.nes");
+    Cartridge cart("dk.nes");
 
     Bus* bus = new Bus(cart);
 
@@ -29,10 +29,10 @@ int main()
     
     rend->update_texture(buffer);
 
-    for (int i = 0; i < 16000; i++)
+    for (int i = 0; i < 300; i++)
     {
-        emu->step();
-        // Sleep(1000/60);
+        emu->frame();
+        Sleep(1000/60);
     }
     
     std::cout << "Returned with error code 0";

@@ -113,6 +113,7 @@ uint8_t Ppu::register_write(uint16_t address, uint8_t value)
         {
             t = (t & 0xFF00) | value;
             w = false;
+            vram_address_update = true;
             return 0;
         }
     }
@@ -142,7 +143,7 @@ uint8_t Ppu::read(uint16_t address)
     }
 }
 
-void Ppu::fetch_background(int local_clock)
+void Ppu::fetch_background()
 {
     switch (local_clock)
     {
@@ -162,19 +163,24 @@ void Ppu::fetch_background(int local_clock)
             break;
         case 5: { // read pattern table low byte
             int fy = get_fine_y(v);
-            pattern_low = read(((PPUCTRL & 0x10) << 8) | (nametable_byte << 3) | fy);
+            pattern_low = read(((PPUCTRL & 0x10) << 8) | (nametable_byte << 4) | fy);
             break; }
         case 6: // read pattern table high byte
             break;
         case 7: { // read pattern table high byte
             int fy = get_fine_y(v);
-            pattern_low = read(((PPUCTRL & 0x10) << 8) | (nametable_byte << 3) | 0x08 | fy);
+            pattern_high = read(((PPUCTRL & 0x10) << 8) | (nametable_byte << 4) | 0x08 | fy);
             // fill shift registers
             pattern_shift_low |= pattern_low;
             pattern_shift_high |= pattern_high;
             // increment horizontal scroll
             int cx = get_coarse_x(v);
-            v = (v & 0xFFE0) | (cx + 1);
+            if (cx == 31) {
+                v &= ~0x001F;   // coarse X = 0
+                v ^= 0x0400;    // flip horizontal nametable
+            } else {
+                v+=1;
+            }
             // increment vertical scroll
             if (dot == 256) 
             {
@@ -192,18 +198,18 @@ void Ppu::clock_ppu() {
     {
         if (dot == 0)
         {
-            if (even_frame) {return;}
-            
-
+            if (!even_frame) {
+                // do something later
+            }
         }
         else if (dot <= 256) // background tiles
         {
-            fetch_background(local_clock); // local clock starts scanline at -1
+            fetch_background(); // local clock starts scanline at -1
             local_clock++;
 
             // ########## Drawing Pixels ##########
 
-            int color = (((pattern_shift_low << x) & 0x80) >> 16) | (((pattern_shift_low << x) & 0x80) >> 15);
+            int color = (((pattern_shift_low << x) & 0x80) >> 7) | (((pattern_shift_high << x) & 0x80) >> 6);
             pattern_shift_low <<= 1;
             pattern_shift_high <<= 1;
             int index = scanline*256 + dot;
@@ -237,7 +243,7 @@ void Ppu::clock_ppu() {
         }
         else if (dot <= 336) // next scanline background tiles
         {
-            fetch_background(local_clock);
+            fetch_background();
         }
         else // unused nametable fetches
         {
@@ -257,7 +263,6 @@ void Ppu::clock_ppu() {
 
             }
         }
-        return;
     }
     else if (scanline > 240 && scanline <= 260) // v-blank
     {
@@ -272,12 +277,12 @@ void Ppu::clock_ppu() {
         {
             PPUSTATUS &= 0x1F;
         }
-        fetch_background(local_clock); // local clock starts scanline at -1
+        fetch_background(); // local clock starts scanline at -1
     }
     dot = (dot+1) % 341;
     if (dot == 0)
     {
-        scanline = (scanline+1) % 261;
+        scanline = (scanline+1) % 262;
     }
     // make sure there are no early returns
     // function needs to reach this point
