@@ -24,6 +24,46 @@ bool Ppu::get_vram_increment()
     return ((PPUCTRL & 0x04) == 0x04) ? true : false;
 }
 
+void Ppu::inc_x()
+{
+    if ((v & 0x001F) == 31) {
+        v &= ~0x001F;
+        v ^= 0x0400;
+    }
+    else {v += 1;}
+}
+void Ppu::inc_y()
+{
+    if ((v & 0x7000) != 0x7000) {v += 0x1000;}
+    else
+    {
+        v &= ~0x7000;
+        int y = (v & 0x03E0) >> 5;
+        if (y == 29)
+        {
+            y = 0;
+            v ^= 0x0800;
+        }
+        else if (y == 31) {y = 0;}
+        else
+        {
+            y += 1;
+            v = (v & ~0x03E0) | (y << 5);
+        }
+    } 
+}
+void Ppu::reset_x()
+{
+    int x = get_coarse_x(t);
+    v = (v & 0xFFE0) | x | (t & 0x0400);
+}
+void Ppu::reset_y()
+{
+    int cy = get_coarse_y(t);
+    int fy = get_fine_y(t);
+    v = (v & 0x8C1F) | (cy << 5) | (fy << 12) | (t & 0x0800);
+}
+
 uint8_t Ppu::register_read(uint16_t address)
 {
     int reg = (address - 0x2000) % 8;
@@ -47,7 +87,6 @@ uint8_t Ppu::register_read(uint16_t address)
     }
     return 0;
 }
-
 uint8_t Ppu::register_write(uint16_t address, uint8_t value)
 {
     if (address == 0x4014) // OAMDMA // NOT DONE
@@ -145,101 +184,111 @@ uint8_t Ppu::read(uint16_t address)
 
 void Ppu::fetch_background()
 {
+    // shift registers to the left once per cycle
+    pattern_shift_low <<= 1;
+    pattern_shift_high <<= 1;
+    attribute_shift_low <<= 1;
+    attribute_shift_high <<= 1;
+
     switch (local_clock)
     {
         case 0: // read nametable byte
+            nametable_addr = 0x2000 | (v & 0x0FFF);
             break;
         case 1: // read nametable byte
-            nametable_byte = read(0x2000 | (v & 0x0FFF));
+            nametable_byte = read(nametable_addr);
             break;
         case 2: // read attribute table byte
+            attribute_addr = 0x23C0 | (v & 0x0C00) | ((v >> 4) & 0x38) | ((v >> 2) & 0x07);
             break;
         case 3: { // read attribute table byte
-            int cx = get_coarse_x(v);
-            int cy = get_coarse_y(v);
-            attribute_byte = read(0x23C0 | (v & 0x0C00) | ((cx >> 2)) | ((cy >> 2) << 3));
+            int temp = read(attribute_addr);
+            int shift = ((v >> 4) & 4) | (v & 2);
+            attribute_byte = (temp >> shift) & 0x03;
             break; }
         case 4: // read pattern table low byte
             break;
         case 5: { // read pattern table low byte
+            int half = (PPUCTRL & 0x10) << 8;
             int fy = get_fine_y(v);
-            pattern_low = read(((PPUCTRL & 0x10) << 8) | (nametable_byte << 4) | fy);
+            pattern_low = read(half | (nametable_byte << 4) | fy);
             break; }
         case 6: // read pattern table high byte
             break;
         case 7: { // read pattern table high byte
+            int half = (PPUCTRL & 0x10) << 8;
             int fy = get_fine_y(v);
-            pattern_high = read(((PPUCTRL & 0x10) << 8) | (nametable_byte << 4) | 0x08 | fy);
-            // fill shift registers
+            pattern_high = read(half | (nametable_byte << 4) | fy + 8);
+
+            // load shift registers
             pattern_shift_low |= pattern_low;
             pattern_shift_high |= pattern_high;
-            // increment horizontal scroll
-            int cx = get_coarse_x(v);
-            if (cx == 31) {
-                v &= ~0x001F;   // coarse X = 0
-                v ^= 0x0400;    // flip horizontal nametable
-            } else {
-                v+=1;
-            }
-            // increment vertical scroll
-            if (dot == 256) 
-            {
-                int cy = get_coarse_y(v);
-                v = (v & 0xFC1F) | ((cy << 5) + 1);
-            }
-            // reset for next 8 bits
-            local_clock = -1;
+
+            uint8_t al = ((attribute_byte & 0b01) == 0b01) ? 0xFF : 0x00;
+            uint8_t ah = ((attribute_byte & 0b10) == 0b10) ? 0xFF : 0x00;
+
+            attribute_shift_low |= al;
+            attribute_shift_high |= ah;
+
+            // increment x offset
+            inc_x();
             break; }
     }
 }
+void Ppu::fetch_sprite() // TODO
+{
+    switch (local_clock)
+    {
+        case 0: // unused nametable byte
+            break;
+        case 1: // unused nametable byte
+            break;
+        case 2: // ignored nametable byte
+            break;
+        case 3: // ignored nametable byte
+            break;
+        case 4: // sprite lsbits
+            break;
+        case 5: // sprite lsbits
+            break;
+        case 6: // sprite msbits
+            break;
+        case 7: // sprite msbits
+            break;
+    }
+}
+
+void Ppu::draw_pixel() // TODO
+{
+    // This is basically the representation of that big
+    // ugly block of text on the nesdev rendering page
+    
+    // TODO CURRENTLY MISSING SPRITES!!!
+
+    
+
+}
 
 void Ppu::clock_ppu() {
-    if (scanline >= 0 && scanline < 240) // rendering
+    if (scanline < 240) // ########## rendering ##########
     {
-        if (dot == 0)
+        if (dot == 0) // idle cycle, fetch BG lsbit on odd frames only
         {
-            if (!even_frame) {
-                // do something later
-            }
+            // TODO
         }
         else if (dot <= 256) // background tiles
         {
-            fetch_background(); // local clock starts scanline at -1
-            local_clock++;
-
-            // ########## Drawing Pixels ##########
-
-            int color = (((pattern_shift_low << x) & 0x80) >> 7) | (((pattern_shift_high << x) & 0x80) >> 6);
-            pattern_shift_low <<= 1;
-            pattern_shift_high <<= 1;
-            int index = scanline*256 + dot;
-            switch(color)
-            {
-                case 0: buffer[index] = 0x000000FF; break;
-                case 1: buffer[index] = 0x555555FF; break;
-                case 2: buffer[index] = 0xAAAAAAFF; break;
-                case 3: buffer[index] = 0xFFFFFFFF; break;
-            }
+            fetch_background();
+            if (dot == 256) {inc_y();}
         }
         else if (dot <= 320) // sprites
         {
-            OAMADDR = 0;
-            if (dot == 257) // set horizontal scroll to beginning of line
+            if (dot == 257) // set coarse_x V to coarse_x T
             {
-                int cx = get_coarse_x(t);
-                v = (v & 0xFFE0) | (cx + 1);
+                reset_x();
             }
-            switch(local_clock)
-            {
-                case 0:
-                    break;
-                case 1:
-                    break;
-                case 2:
-                    break;
-                case 3:
-                    break;
-            }
+
+            fetch_sprite();
         }
         else if (dot <= 336) // next scanline background tiles
         {
@@ -247,53 +296,74 @@ void Ppu::clock_ppu() {
         }
         else // unused nametable fetches
         {
-            // Implement later
-            // Certain mappers rely on the dummy reads
+            // TODO
         }
     }
-    else if (scanline == 240) // idle
+    else if (scanline == 240) // ########## idle ##########
     {
-        if (dot == 0)
+        if (dot == 0) // idle cycle, fetch BG lsbit on odd frames only
         {
-            // Fix v-scroll if it was set by PPUSCROLL during rendering
-            t = (t & 0x8C1F) | ((pending_v_scroll & 0xF8) << 2) | ((pending_v_scroll & 0x07) << 12);
-            // Fetch BG 
-            if (!even_frame) 
-            {
-
-            }
+            // TODO
         }
     }
-    else if (scanline > 240 && scanline <= 260) // v-blank
+    else if (scanline == 241 && dot == 1) // ########## v-blank ##########
     {
-        if (scanline == 241 && dot == 1)
-        {
-            PPUSTATUS |= 0x80;
-        }
+        PPUSTATUS |= 0x80; // set v-blank flag
     }
-    else if (scanline == 261) // pre-render
+    else if (scanline == 261) // ########## pre-render ##########
     {
-        if (dot == 1)
+        if (dot == 1) // clear v-blank, sprite 0, and overflow flags
         {
             PPUSTATUS &= 0x1F;
         }
-        fetch_background(); // local clock starts scanline at -1
+
+        if (dot == 0) {} // idle cycle. do nothing for pre-render line
+        
+        else if (dot <= 256) // background tiles
+        {
+            fetch_background();
+            if (dot == 256) {inc_y();}
+        }
+        else if (dot <= 320) // sprites
+        {
+            if (dot == 257) // set coarse_x V to coarse_x T
+            {
+                reset_x();
+            }
+            if (dot >= 280 && dot <= 304) // vert(v) = vert(t)
+            {
+                reset_y();
+            }
+
+            fetch_sprite();
+        }
+        else if (dot <= 336) // next scanline background tiles
+        {
+            fetch_background();
+        }
+        else // unused nametable fetches
+        {
+            // TODO
+        }
     }
+    // increments dot counter after every ppu cycle
+    // scanline increments once dot wraps back to 0
     dot = (dot+1) % 341;
     if (dot == 0)
     {
         scanline = (scanline+1) % 262;
     }
-    // make sure there are no early returns
-    // function needs to reach this point
 
     // Check for finished writes to PPUADDR
     // Adds 1 dot delay to update v from t
-    if (vram_address_update == true) {vram_update_ready = true;}
-    if (vram_update_ready)
+    if (vram_address_update == true) 
     {
-        v = t;
         vram_address_update = false;
+        vram_update_ready = true;
+    }
+    else if (vram_update_ready)
+    {
         vram_update_ready = false;
+        v = t;
     }
 }

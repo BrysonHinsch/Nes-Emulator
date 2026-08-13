@@ -16,7 +16,18 @@ class Ppu {
         uint8_t get_fine_y(int reg);
         bool get_vram_increment();
 
+        // updates x and y indices
+        void inc_x();
+        void inc_y();
+        void reset_x();
+        void reset_y();
+
+        // shift register loading functions
         void fetch_background();
+        void fetch_sprite();
+
+        // fills buffer with pixel data using shift registers
+        void draw_pixel();
 
         // lets cpu read from registers
         uint8_t register_read(uint16_t address);
@@ -69,6 +80,10 @@ class Ppu {
         uint8_t OAM[256];
         uint8_t palette_ram[0x20];
 
+        // Rendering Addresses
+        uint16_t nametable_addr = 0;
+        uint16_t attribute_addr = 0;
+
         // Rendering Latches
         uint8_t nametable_byte = 0;
         uint8_t attribute_byte = 0;
@@ -78,8 +93,8 @@ class Ppu {
         // Shift Registers
         uint16_t pattern_shift_low = 0;
         uint16_t pattern_shift_high = 0;
-        uint8_t attribute_shift_one = 0;
-        uint8_t attribute_shift_two = 0;
+        uint16_t attribute_shift_low = 0;
+        uint16_t attribute_shift_high = 0;
 
         // Pixel indices
         int scanline = 0;
