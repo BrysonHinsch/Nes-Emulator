@@ -158,8 +158,8 @@ uint8_t Ppu::register_write(uint16_t address, uint8_t value)
     }
     else if (reg == 7) // done
     {
-        bus.write_ppu(v, value);
-        v = (get_vram_increment()) ? v+1 : v+32;
+        write(v, value);
+        v = (get_vram_increment()) ? v+32 : v+1;
         return 0;
     }
     return 0;
@@ -174,11 +174,23 @@ uint8_t Ppu::read(uint16_t address)
 {
     if (address >= 0x3F00 && address <= 0x3FFF) // Palette Ram
     {
-        return palette_ram[(address - 0x3F00) % 20];
+        return palette_ram[(address - 0x3F00) % 0x20];
     }
     else
     {
         return bus.read_ppu(address);
+    }
+}
+uint8_t Ppu::write(uint16_t address, uint8_t value)
+{
+    if (!(address > 0x3EFF && address < 0x4000)) // vram
+    {
+        return bus.write_ppu(address, value);
+    }
+    else
+    {
+        palette_ram[(address - 0x3F00) % 0x20] = value;
+        return 0;
     }
 }
 
@@ -258,15 +270,23 @@ void Ppu::fetch_sprite() // TODO
     }
 }
 
-void Ppu::draw_pixel() // TODO
+int Ppu::generate_color(int index)
 {
-    // This is basically the representation of that big
-    // ugly block of text on the nesdev rendering page
-    
+    const uint8_t* value = palette[index];
+    return (value[0] << 24) | (value[1] << 16) | (value[2] << 8) | value[3];
+}
+void Ppu::draw_pixel() // TODO
+{   
     // TODO CURRENTLY MISSING SPRITES!!!
 
-    
-
+    int pattern_offset = ((pattern_shift_low >> (15-x)) & 0x0001) | (((pattern_shift_high >> (15-x)) & 0x0001) << 1);
+    int attribute_offset = ((attribute_shift_low >> (15-x)) & 0x0001) | (((attribute_shift_high >> (15-x)) & 0x0001) << 1);
+    // get index from palette ram
+    int index = read(0x3F00 + (attribute_offset * 4) + pattern_offset);
+    // send pixel data to buffer
+    int color = generate_color(index);
+    int buffer_index = (dot - 1) + (scanline * 256);
+    buffer[buffer_index] = color;
 }
 
 void Ppu::clock_ppu() {
@@ -279,6 +299,7 @@ void Ppu::clock_ppu() {
         else if (dot <= 256) // background tiles
         {
             fetch_background();
+            draw_pixel();
             if (dot == 256) {inc_y();}
         }
         else if (dot <= 320) // sprites
@@ -309,6 +330,7 @@ void Ppu::clock_ppu() {
     else if (scanline == 241 && dot == 1) // ########## v-blank ##########
     {
         PPUSTATUS |= 0x80; // set v-blank flag
+        renderer.update_texture(buffer);
     }
     else if (scanline == 261) // ########## pre-render ##########
     {
@@ -353,6 +375,8 @@ void Ppu::clock_ppu() {
     {
         scanline = (scanline+1) % 262;
     }
+    // Increment local_clock
+    local_clock = (local_clock + 1) % 8;
 
     // Check for finished writes to PPUADDR
     // Adds 1 dot delay to update v from t

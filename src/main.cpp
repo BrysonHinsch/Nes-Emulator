@@ -29,7 +29,7 @@ int main()
     
     rend->update_texture(buffer);
 
-    for (int i = 0; i < 300; i++)
+    for (int i = 0; i < 90; i++)
     {
         emu->frame();
         Sleep(1000/60);

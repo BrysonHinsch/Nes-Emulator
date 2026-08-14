@@ -79,6 +79,15 @@ uint8_t Bus::read_ppu(uint16_t address)
 
 uint8_t Bus::write_ppu(uint16_t address, uint8_t value)
 {
+    if (address < 0x2000) // ROM, don't write
+    {
+        return 0;
+    }
+    if (address < 0x3000) // Nametables in VRAM
+    {
+        vram[(address - 0x2000) % 0x800] = value;
+        return 0;
+    }
     return 0;
 }
 

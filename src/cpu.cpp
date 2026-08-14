@@ -98,8 +98,8 @@ void Cpu::power_on()
     P = 0b00100100;
 
     // for nestest
-    // PC = 0;
-    // PC = 0xc000;
+    //PC = 0;
+    //PC = 0xc000;
 
     PC = bus.read(0xFFFC);
     PC |= bus.read(0xFFFD) << 8;
