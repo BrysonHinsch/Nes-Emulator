@@ -4,7 +4,7 @@
 
 class Renderer {
     public:
-        Renderer(int width, int height);
+        Renderer(int width, int height, int scale);
 
         void update_texture(int* buffer);
 

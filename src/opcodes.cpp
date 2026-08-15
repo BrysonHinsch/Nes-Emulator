@@ -631,6 +631,7 @@ namespace ops
         set_flag_zero(cpu, cpu.A);
         set_flag_negative(cpu, cpu.A);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_lda_imm(Cpu& cpu)
     {
@@ -638,11 +639,13 @@ namespace ops
         set_flag_zero(cpu, cpu.A);
         set_flag_negative(cpu, cpu.A);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_sta(Cpu& cpu)
     {
         cpu.bus.write(cpu.address, cpu.A);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_ldx(Cpu& cpu)
     {
@@ -650,6 +653,7 @@ namespace ops
         set_flag_zero(cpu, cpu.X);
         set_flag_negative(cpu, cpu.X);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_ldx_imm(Cpu& cpu)
     {
@@ -657,11 +661,13 @@ namespace ops
         set_flag_zero(cpu, cpu.X);
         set_flag_negative(cpu, cpu.X);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_stx(Cpu& cpu)
     {
         cpu.bus.write(cpu.address, cpu.X);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_ldy(Cpu& cpu)
     {
@@ -669,6 +675,7 @@ namespace ops
         set_flag_zero(cpu, cpu.Y);
         set_flag_negative(cpu, cpu.Y);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_ldy_imm(Cpu& cpu)
     {
@@ -676,11 +683,13 @@ namespace ops
         set_flag_zero(cpu, cpu.Y);
         set_flag_negative(cpu, cpu.Y);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_sty(Cpu& cpu)
     {
         cpu.bus.write(cpu.address, cpu.Y);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     // Transfer
     void op_tax(Cpu& cpu)
@@ -689,6 +698,7 @@ namespace ops
         set_flag_zero(cpu, cpu.X);
         set_flag_negative(cpu, cpu.X);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_txa(Cpu& cpu)
     {
@@ -696,6 +706,7 @@ namespace ops
         set_flag_zero(cpu, cpu.A);
         set_flag_negative(cpu, cpu.A);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_tay(Cpu& cpu)
     {
@@ -703,6 +714,7 @@ namespace ops
         set_flag_zero(cpu, cpu.Y);
         set_flag_negative(cpu, cpu.Y);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_tya(Cpu& cpu)
     {
@@ -710,6 +722,7 @@ namespace ops
         set_flag_zero(cpu, cpu.A);
         set_flag_negative(cpu, cpu.A);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     // Arithmetic
     void op_adc(Cpu& cpu)
@@ -722,6 +735,7 @@ namespace ops
         set_flag_negative(cpu, result);
         cpu.A = (result % 256);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_adc_imm(Cpu& cpu)
     {
@@ -732,6 +746,7 @@ namespace ops
         set_flag_negative(cpu, result);
         cpu.A = (result % 256);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_sbc(Cpu& cpu)
     {
@@ -743,6 +758,7 @@ namespace ops
         set_flag_negative(cpu, result);
         cpu.A = (result % 256);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_sbc_imm(Cpu& cpu)
     {
@@ -753,6 +769,7 @@ namespace ops
         set_flag_negative(cpu, result);
         cpu.A = (result % 256);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_inc(Cpu& cpu)
     {
@@ -770,6 +787,7 @@ namespace ops
             case 2:
                 cpu.bus.write(cpu.address, cpu.value);
                 cpu.clear_state();
+                cpu.poll_nmi();
                 return;
         }
         cpu.localClock++;
@@ -790,6 +808,7 @@ namespace ops
             case 2:
                 cpu.bus.write(cpu.address, cpu.value);
                 cpu.clear_state();
+                cpu.poll_nmi();
                 return;
         }
         cpu.localClock++;
@@ -800,6 +819,7 @@ namespace ops
         set_flag_zero(cpu, cpu.X);
         set_flag_negative(cpu, cpu.X);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_dex(Cpu& cpu)
     {
@@ -807,6 +827,7 @@ namespace ops
         set_flag_zero(cpu, cpu.X);
         set_flag_negative(cpu, cpu.X);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_iny(Cpu& cpu)
     {
@@ -814,6 +835,7 @@ namespace ops
         set_flag_zero(cpu, cpu.Y);
         set_flag_negative(cpu, cpu.Y);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_dey(Cpu& cpu)
     {
@@ -821,6 +843,7 @@ namespace ops
         set_flag_zero(cpu, cpu.Y);
         set_flag_negative(cpu, cpu.Y);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     // Shift
     void op_asl(Cpu& cpu)
@@ -840,6 +863,7 @@ namespace ops
             case 2:
                 cpu.bus.write(cpu.address, cpu.value);
                 cpu.clear_state();
+                cpu.poll_nmi();
                 return;
         }
         cpu.localClock++;
@@ -851,6 +875,7 @@ namespace ops
         set_flag_zero(cpu, cpu.A);
         set_flag_negative(cpu, cpu.A);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_lsr(Cpu& cpu)
     {
@@ -869,6 +894,7 @@ namespace ops
             case 2:
                 cpu.bus.write(cpu.address, cpu.value);
                 cpu.clear_state();
+                cpu.poll_nmi();
                 return;
         }
         cpu.localClock++;
@@ -880,6 +906,7 @@ namespace ops
         set_flag_zero(cpu, cpu.A);
         set_flag_negative(cpu, 0);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_rol(Cpu& cpu)
     {
@@ -900,6 +927,7 @@ namespace ops
             case 2:
                 cpu.bus.write(cpu.address, cpu.value);
                 cpu.clear_state();
+                cpu.poll_nmi();
                 return;
         }
         cpu.localClock++;
@@ -913,6 +941,7 @@ namespace ops
         set_flag_zero(cpu, cpu.A);
         set_flag_negative(cpu, cpu.A);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_ror(Cpu& cpu)
     {
@@ -933,6 +962,7 @@ namespace ops
             case 2:
                 cpu.bus.write(cpu.address, cpu.value);
                 cpu.clear_state();
+                cpu.poll_nmi();
                 return;
         }
         cpu.localClock++;
@@ -946,6 +976,7 @@ namespace ops
         set_flag_zero(cpu, cpu.A);
         set_flag_negative(cpu, cpu.A);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     // Bitwise
     void op_and(Cpu& cpu)
@@ -954,6 +985,7 @@ namespace ops
         set_flag_zero(cpu, cpu.A);
         set_flag_negative(cpu, cpu.A);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_and_imm(Cpu& cpu)
     {
@@ -961,6 +993,7 @@ namespace ops
         set_flag_zero(cpu, cpu.A);
         set_flag_negative(cpu, cpu.A);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_ora(Cpu& cpu)
     {
@@ -968,6 +1001,7 @@ namespace ops
         set_flag_zero(cpu, cpu.A);
         set_flag_negative(cpu, cpu.A);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_ora_imm(Cpu& cpu)
     {
@@ -975,6 +1009,7 @@ namespace ops
         set_flag_zero(cpu, cpu.A);
         set_flag_negative(cpu, cpu.A);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_eor(Cpu& cpu)
     {
@@ -982,6 +1017,7 @@ namespace ops
         set_flag_zero(cpu, cpu.A);
         set_flag_negative(cpu, cpu.A);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_eor_imm(Cpu& cpu)
     {
@@ -989,6 +1025,7 @@ namespace ops
         set_flag_zero(cpu, cpu.A);
         set_flag_negative(cpu, cpu.A);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_bit(Cpu& cpu)
     {
@@ -998,6 +1035,7 @@ namespace ops
         set_flag_overflow(cpu, ((memory & 0b01000000) == 0b01000000));
         set_flag_negative(cpu, memory);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     // Compare
     void op_cmp(Cpu& cpu)
@@ -1008,6 +1046,7 @@ namespace ops
         uint8_t result = (cpu.A - memory);
         set_flag_negative(cpu, result);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_cmp_imm(Cpu& cpu)
     {
@@ -1017,6 +1056,7 @@ namespace ops
         uint8_t result = (cpu.A - memory);
         set_flag_negative(cpu, result);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_cpx(Cpu& cpu)
     {
@@ -1026,6 +1066,7 @@ namespace ops
         uint8_t result = (cpu.X - memory);
         set_flag_negative(cpu, result);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_cpx_imm(Cpu& cpu)
     {
@@ -1035,6 +1076,7 @@ namespace ops
         uint8_t result = (cpu.X - memory);
         set_flag_negative(cpu, result);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_cpy(Cpu& cpu)
     {
@@ -1044,6 +1086,7 @@ namespace ops
         uint8_t result = (cpu.Y - memory);
         set_flag_negative(cpu, result);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_cpy_imm(Cpu& cpu)
     {
@@ -1053,6 +1096,7 @@ namespace ops
         uint8_t result = (cpu.Y - memory);
         set_flag_negative(cpu, result);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     // Branch
     void op_bcc(Cpu& cpu)
@@ -1064,6 +1108,7 @@ namespace ops
                 if ((cpu.P & 0x01) == 0x01) 
                 {
                     cpu.clear_state();
+                    cpu.poll_nmi();
                     return;
                 }
                 break;
@@ -1074,6 +1119,7 @@ namespace ops
                 {
                     cpu.PC = temp;
                     cpu.clear_state();
+                    cpu.poll_nmi();
                     return;
                 }
                 cpu.PC = temp;
@@ -1081,6 +1127,7 @@ namespace ops
             case 2:
                 // Fix PCH
                 cpu.clear_state();
+                cpu.poll_nmi();
                 return;
         }
         cpu.localClock++;
@@ -1094,6 +1141,7 @@ namespace ops
                 if ((cpu.P & 0x01) == 0x00) 
                 {
                     cpu.clear_state();
+                    cpu.poll_nmi();
                     return;
                 }
                 break;
@@ -1103,6 +1151,7 @@ namespace ops
                 if ((cpu.PC & 0xFF00) == (temp & 0xFF00)) {
                     cpu.PC = temp;
                     cpu.clear_state();
+                    cpu.poll_nmi();
                     return;
                 }
                 cpu.PC = temp;
@@ -1110,6 +1159,7 @@ namespace ops
             case 2:
                 // Fix PCH
                 cpu.clear_state();
+                cpu.poll_nmi();
                 return;
         }
         cpu.localClock++;
@@ -1123,6 +1173,7 @@ namespace ops
                 if ((cpu.P & 0x02) == 0x00) 
                 {
                     cpu.clear_state();
+                    cpu.poll_nmi();
                     return;
                 }
                 break;
@@ -1132,6 +1183,7 @@ namespace ops
                 if ((cpu.PC & 0xFF00) == (temp & 0xFF00)) {
                     cpu.PC = temp;
                     cpu.clear_state();
+                    cpu.poll_nmi();
                     return;
                 }
                 cpu.PC = temp;
@@ -1139,6 +1191,7 @@ namespace ops
             case 2:
                 // Fix PCH
                 cpu.clear_state();
+                cpu.poll_nmi();
                 return;
         }
         cpu.localClock++;
@@ -1152,6 +1205,7 @@ namespace ops
                 if ((cpu.P & 0x02) == 0x02) 
                 {
                     cpu.clear_state();
+                    cpu.poll_nmi();
                     return;
                 }
                 break;
@@ -1161,6 +1215,7 @@ namespace ops
                 if ((cpu.PC & 0xFF00) == (temp & 0xFF00)) {
                     cpu.PC = temp;
                     cpu.clear_state();
+                    cpu.poll_nmi();
                     return;
                 }
                 cpu.PC = temp;
@@ -1168,6 +1223,7 @@ namespace ops
             case 2:
                 // Fix PCH
                 cpu.clear_state();
+                cpu.poll_nmi();
                 return;
         }
         cpu.localClock++;
@@ -1181,6 +1237,7 @@ namespace ops
                 if ((cpu.P & 0x80) == 0x80) 
                 {
                     cpu.clear_state();
+                    cpu.poll_nmi();
                     return;
                 }
                 break;
@@ -1190,6 +1247,7 @@ namespace ops
                 if ((cpu.PC & 0xFF00) == (temp & 0xFF00)) {
                     cpu.PC = temp;
                     cpu.clear_state();
+                    cpu.poll_nmi();
                     return;
                 }
                 cpu.PC = temp;
@@ -1197,6 +1255,7 @@ namespace ops
             case 2:
                 // Fix PCH
                 cpu.clear_state();
+                cpu.poll_nmi();
                 return;
         }
         cpu.localClock++;
@@ -1210,6 +1269,7 @@ namespace ops
                 if ((cpu.P & 0x80) == 0x00) 
                 {
                     cpu.clear_state();
+                    cpu.poll_nmi();
                     return;
                 }
                 break;
@@ -1219,6 +1279,7 @@ namespace ops
                 if ((cpu.PC & 0xFF00) == (temp & 0xFF00)) {
                     cpu.PC = temp;
                     cpu.clear_state();
+                    cpu.poll_nmi();
                     return;
                 }
                 cpu.PC = temp;
@@ -1226,6 +1287,7 @@ namespace ops
             case 2:
                 // Fix PCH
                 cpu.clear_state();
+                cpu.poll_nmi();
                 return;
         }
         cpu.localClock++;
@@ -1239,6 +1301,7 @@ namespace ops
                 if ((cpu.P & 0x40) == 0x40) 
                 {
                     cpu.clear_state();
+                    cpu.poll_nmi();
                     return;
                 }
                 break;
@@ -1248,6 +1311,7 @@ namespace ops
                 if ((cpu.PC & 0xFF00) == (temp & 0xFF00)) {
                     cpu.PC = temp;
                     cpu.clear_state();
+                    cpu.poll_nmi();
                     return;
                 }
                 cpu.PC = temp;
@@ -1255,6 +1319,7 @@ namespace ops
             case 2:
                 // Fix PCH
                 cpu.clear_state();
+                cpu.poll_nmi();
                 return;
         }
         cpu.localClock++;
@@ -1268,6 +1333,7 @@ namespace ops
                 if ((cpu.P & 0x40) == 0x00) 
                 {
                     cpu.clear_state();
+                    cpu.poll_nmi();
                     return;
                 }
                 break;
@@ -1277,6 +1343,7 @@ namespace ops
                 if ((cpu.PC & 0xFF00) == (temp & 0xFF00)) {
                     cpu.PC = temp;
                     cpu.clear_state();
+                    cpu.poll_nmi();
                     return;
                 }
                 cpu.PC = temp;
@@ -1284,6 +1351,7 @@ namespace ops
             case 2:
                 // Fix PCH
                 cpu.clear_state();
+                cpu.poll_nmi();
                 return;
         }
         cpu.localClock++;
@@ -1300,6 +1368,7 @@ namespace ops
                 cpu.PC = cpu.bus.read(cpu.PC) << 8;
                 cpu.PC |= cpu.temp8;
                 cpu.clear_state();
+                cpu.poll_nmi();
                 return;
         }
         cpu.localClock++;
@@ -1327,6 +1396,7 @@ namespace ops
                 cpu.PC = cpu.bus.read(cpu.address+1) << 8;
                 cpu.PC |= cpu.temp8;
                 cpu.clear_state();
+                cpu.poll_nmi();
                 return;
         }
         cpu.localClock++;
@@ -1353,6 +1423,7 @@ namespace ops
                 cpu.PC = static_cast<uint16_t>(cpu.bus.read(cpu.PC)) << 8;
                 cpu.PC |= cpu.temp8;
                 cpu.clear_state();
+                cpu.poll_nmi();
                 return;
         }
         cpu.localClock++;
@@ -1376,6 +1447,7 @@ namespace ops
             case 4:
                 cpu.PC++;
                 cpu.clear_state();
+                cpu.poll_nmi();
                 return;
         }
         cpu.localClock++;
@@ -1406,6 +1478,7 @@ namespace ops
             case 5:
                 cpu.PC += static_cast<uint16_t>(cpu.bus.read(0xFFFF)) << 8;
                 cpu.clear_state();
+                cpu.poll_nmi();
                 return;
         }
         cpu.localClock++;
@@ -1430,6 +1503,7 @@ namespace ops
             case 4:
                 cpu.PC += static_cast<uint16_t>(cpu.bus.read(0x100 + cpu.SP) << 8);
                 cpu.clear_state();
+                cpu.poll_nmi();
                 return;
         }
         cpu.localClock++;
@@ -1445,6 +1519,7 @@ namespace ops
             case 1:
                 cpu.bus.write(0x0100 + cpu.SP--, cpu.A);
                 cpu.clear_state();
+                cpu.poll_nmi();
                 return;
         }
         cpu.localClock++;
@@ -1464,6 +1539,7 @@ namespace ops
                 set_flag_zero(cpu, cpu.A);
                 set_flag_negative(cpu, cpu.A);
                 cpu.clear_state();
+                cpu.poll_nmi();
                 return;
         }
         cpu.localClock++;
@@ -1478,6 +1554,7 @@ namespace ops
             case 1:
                 cpu.bus.write(0x0100 + cpu.SP--, cpu.P | 0b00110000);
                 cpu.clear_state();
+                cpu.poll_nmi();
                 return;
         }
         cpu.localClock++;
@@ -1496,6 +1573,7 @@ namespace ops
                 uint8_t pulled = cpu.bus.read(0x0100 + cpu.SP);
                 cpu.P = (pulled & 0b11001111) | (cpu.P & 0b00110000);
                 cpu.clear_state();
+                cpu.poll_nmi();
                 return;
         }
         cpu.localClock++;
@@ -1504,6 +1582,7 @@ namespace ops
     {
         cpu.SP = cpu.X;
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_tsx(Cpu& cpu)
     {
@@ -1511,53 +1590,63 @@ namespace ops
         set_flag_zero(cpu, cpu.X);
         set_flag_negative(cpu, cpu.X);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     // Flags
     void op_clc(Cpu& cpu)
     {
         set_flag_carry(cpu, false);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_sec(Cpu& cpu)
     {
         set_flag_carry(cpu, true);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_cli(Cpu& cpu)
     {
         set_flag_interrupt_disable(cpu, false);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_sei(Cpu& cpu)
     {
         set_flag_interrupt_disable(cpu, true);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_cld(Cpu& cpu)
     {
         set_flag_decimal(cpu, false);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_sed(Cpu& cpu)
     {
         set_flag_decimal(cpu, true);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_clv(Cpu& cpu)
     {
         set_flag_overflow(cpu, false);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     // Other
     void op_nop(Cpu& cpu)
     {
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     // Unofficial
     void op_nop_uof(Cpu& cpu)
     {
         cpu.bus.read(cpu.address);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_hlt(Cpu& cpu)
     {
@@ -1584,6 +1673,7 @@ namespace ops
                 set_flag_zero(cpu, cpu.A);
                 set_flag_negative(cpu, cpu.A);
                 cpu.clear_state();
+                cpu.poll_nmi();
                 return;
         }
         cpu.localClock++;
@@ -1595,6 +1685,7 @@ namespace ops
         set_flag_negative(cpu, cpu.A);
         set_flag_carry(cpu, ((cpu.A & 0xF0) == 0xF0));
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_rla(Cpu& cpu)
     {
@@ -1618,6 +1709,7 @@ namespace ops
                 set_flag_zero(cpu, cpu.A);
                 set_flag_negative(cpu, cpu.A);
                 cpu.clear_state();
+                cpu.poll_nmi();
                 return;
         }
         cpu.localClock++;
@@ -1642,6 +1734,7 @@ namespace ops
                 set_flag_zero(cpu, cpu.A);
                 set_flag_negative(cpu, cpu.A);
                 cpu.clear_state();
+                cpu.poll_nmi();
                 return;
         }
         cpu.localClock++;
@@ -1656,6 +1749,7 @@ namespace ops
         set_flag_zero(cpu, cpu.A);
         set_flag_negative(cpu, cpu.A);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_rra(Cpu& cpu)
     {
@@ -1682,6 +1776,7 @@ namespace ops
                 cpu.A = (result % 256);
                 cpu.bus.write(cpu.address, cpu.value);
                 cpu.clear_state();
+                cpu.poll_nmi();
                 return;
         }
         cpu.localClock++;
@@ -1700,11 +1795,13 @@ namespace ops
         set_flag_zero(cpu, cpu.A);
         set_flag_negative(cpu, cpu.A);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_sax(Cpu& cpu)
     {
         cpu.bus.write(cpu.address, cpu.A & cpu.X);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_ane(Cpu& cpu)
     {
@@ -1733,6 +1830,7 @@ namespace ops
         set_flag_zero(cpu, cpu.A);
         set_flag_negative(cpu, cpu.A);
         cpu.clear_state();
+        cpu.poll_nmi();
     }
     void op_lxa(Cpu& cpu)
     {

@@ -19,6 +19,10 @@ class Cpu
         void fetch_address();
         // Executes the current instruction for one cycle
         void execute_instruction();
+        // handles NMI
+        void handle_nmi();
+        // polls for NMI near the end of instructions
+        void poll_nmi();
         // clocks the cpu for one cycle
         void clock_cpu();
         // prints the current state of the cpu
@@ -40,6 +44,9 @@ class Cpu
         uint8_t value = 0;
         uint16_t address = 0;
         bool addressReady = false;
+        // NMI Detection
+        bool nmi_pending = false;
+        bool service_nmi = false;
         // Cycle Counters
         int cyclesSincePower = 0;
         int masterClock = 0;

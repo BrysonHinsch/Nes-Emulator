@@ -58,7 +58,9 @@ class Ppu {
         // executes a read from the ppu
         uint8_t read(uint16_t address);
         // executes a write for ppu data
-        uint8_t Ppu::write(uint16_t address, uint8_t value);
+        uint8_t write(uint16_t address, uint8_t value);
+        // sets nmi flag in cpu
+        void set_nmi_flag();
 
         // clocks the ppu for one cycle
         void clock_ppu();
@@ -76,6 +78,8 @@ class Ppu {
         uint8_t PPUSTATUS = 0;
         uint8_t OAMADDR = 0;
         uint8_t OAMDATA = 0;
+        uint16_t PPUSCROLL = 0;
+        uint16_t PPUADDR = 0;
         uint8_t PPUDATA = 0;
         uint8_t OAMDMA = 0;
 
@@ -125,7 +129,8 @@ class Ppu {
         // State trackers
         bool address_ready = false;
         uint8_t local_clock = 0;
-        bool even_frame = true;
+        bool odd_frame = false;
+        bool nmi_called = false;
 
         // Bus for reading and writing to memory
         Bus& bus;

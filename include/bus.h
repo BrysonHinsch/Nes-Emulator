@@ -6,6 +6,7 @@
 #include "cartridge.h"
 
 class Ppu; // forward declaration
+class Cpu; // forward declaration
 
 class Bus
 {
@@ -21,8 +22,12 @@ class Bus
         uint8_t read_ppu(uint16_t address);
         // Writes to address for ppu
         uint8_t write_ppu(uint16_t address, uint8_t value);
-        // Sets PPU pointer (janky but had to)
+        // Sets CPU pointer
+        void set_cpu(Cpu* cpu);
+        // Sets PPU pointer
         void set_ppu(Ppu* ppu);
+        // sets nmi flag in cpu
+        void set_nmi_flag();
 
     private:
         // Busses
@@ -35,6 +40,8 @@ class Bus
         // Cartridge
         Cartridge& cartridge;
 
+        // CPU pointer for accessing registers
+        Cpu* CPU;
         // PPU pointer for accessing registers
         Ppu* PPU;
 };

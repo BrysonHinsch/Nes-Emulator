@@ -55,13 +55,13 @@ void Ppu::inc_y()
 void Ppu::reset_x()
 {
     int x = get_coarse_x(t);
-    v = (v & 0xFFE0) | x | (t & 0x0400);
+    v = (v & 0xFBE0) | x | (t & 0x0400);
 }
 void Ppu::reset_y()
 {
     int cy = get_coarse_y(t);
     int fy = get_fine_y(t);
-    v = (v & 0x8C1F) | (cy << 5) | (fy << 12) | (t & 0x0800);
+    v = (v & 0x841F) | (cy << 5) | (fy << 12) | (t & 0x0800);
 }
 
 uint8_t Ppu::register_read(uint16_t address)
@@ -192,6 +192,11 @@ uint8_t Ppu::write(uint16_t address, uint8_t value)
         palette_ram[(address - 0x3F00) % 0x20] = value;
         return 0;
     }
+}
+
+void Ppu::set_nmi_flag()
+{
+    bus.set_nmi_flag();
 }
 
 void Ppu::fetch_background()
@@ -327,16 +332,27 @@ void Ppu::clock_ppu() {
             // TODO
         }
     }
-    else if (scanline == 241 && dot == 1) // ########## v-blank ##########
+    else if (scanline <= 260) // ########## v-blank ##########
     {
-        PPUSTATUS |= 0x80; // set v-blank flag
-        renderer.update_texture(buffer);
+        if (dot == 1)
+        {
+            PPUSTATUS |= 0x80; // set v-blank flag
+            renderer.update_texture(buffer); // draw completed frame
+        }
+        
+        // call nmi handler
+        if (((PPUCTRL & 0x80) == 0x80) && ((PPUSTATUS & 0x80) == 0x80) && nmi_called == false)
+        {
+            set_nmi_flag();
+            nmi_called = true;
+        }
     }
     else if (scanline == 261) // ########## pre-render ##########
     {
         if (dot == 1) // clear v-blank, sprite 0, and overflow flags
         {
             PPUSTATUS &= 0x1F;
+            nmi_called = false;
         }
 
         if (dot == 0) {} // idle cycle. do nothing for pre-render line
@@ -365,7 +381,14 @@ void Ppu::clock_ppu() {
         }
         else // unused nametable fetches
         {
-            // TODO
+            // TODO garbage nametable fetches
+
+            if (dot == 339 && odd_frame && (((PPUMASK & 0x08) == 0x08) || ((PPUMASK & 0x10) == 0x10)))
+            {
+                // dot already increments every cycle
+                // this effectively skips the last pre-render cycle
+                dot++;
+            }
         }
     }
     // increments dot counter after every ppu cycle
@@ -374,6 +397,10 @@ void Ppu::clock_ppu() {
     if (dot == 0)
     {
         scanline = (scanline+1) % 262;
+        if (scanline == 0)
+        {
+            odd_frame = !odd_frame;
+        }
     }
     // Increment local_clock
     local_clock = (local_clock + 1) % 8;
@@ -390,4 +417,17 @@ void Ppu::clock_ppu() {
         vram_update_ready = false;
         v = t;
     }
+}
+
+void Ppu::power_on()
+{
+    PPUCTRL = 0;
+    PPUMASK = 0;
+    PPUSTATUS = 0b10100000;
+    OAMADDR = 0;
+    w = 0;
+    PPUSCROLL = 0;
+    PPUADDR = 0;
+    PPUDATA = 0;
+    odd_frame = false;
 }

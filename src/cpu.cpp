@@ -28,8 +28,57 @@ void Cpu::execute_instruction()
     ops::pointerTable[opcode].execute(*this);
 }
 
+void Cpu::handle_nmi()
+{
+    switch(localClock)
+    {
+        case 0:
+            bus.read(PC); // dummy read
+            break;
+        case 1:
+            bus.read(PC); // dummy read
+            break;
+        case 2:
+            bus.write(SP--, static_cast<uint8_t>(PC >> 8));
+            break;
+        case 3:
+            bus.write(SP--, static_cast<uint8_t>(PC));
+            break;
+        case 4:
+            bus.write(SP--, (P & 0b11101111));
+            break;
+        case 5:
+            temp8 = bus.read(0xFFFA);
+            P |= 0b00000100; // set interrupt disable
+            break;
+        case 6:
+            PC = bus.read(0xFFFB) << 8;
+            PC |= temp8;
+            service_nmi = false;
+            clear_state();
+            break;
+    }
+    localClock++;
+}
+
+void Cpu::poll_nmi()
+{
+    if (nmi_pending)
+    {
+        nmi_pending = false;
+        service_nmi = true;
+        return;
+    }
+}
+
 void Cpu::clock_cpu()
 {
+    if (service_nmi)
+    {
+        handle_nmi();
+        masterClock++;
+        return;
+    }
     if (opcodeReady != true)
     {
         fetch_opcode();
@@ -82,6 +131,8 @@ void Cpu::print_state()
 // Clears the state of the cpu to reset for the next instruction
 void Cpu::clear_state()
 {
+    temp8 = 0;
+    temp16 = 0;
     address = 0;
     localClock = 0;
     opcodeReady = false;

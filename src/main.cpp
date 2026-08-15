@@ -14,14 +14,16 @@ int main()
 
     Cpu* cpu = new Cpu(*bus);
 
-    Renderer* rend = new Renderer(256, 240);
+    Renderer* rend = new Renderer(256, 240, 4);
     Ppu* ppu = new Ppu(*rend, *bus);
 
+    bus->set_cpu(cpu);
     bus->set_ppu(ppu);
 
     Emulator* emu = new Emulator(*cpu, *ppu, *rend);
 
     cpu->power_on();
+    ppu->power_on();
 
     SDL_Init(SDL_INIT_VIDEO);
 
@@ -29,10 +31,10 @@ int main()
     
     rend->update_texture(buffer);
 
-    for (int i = 0; i < 90; i++)
+    for (int i = 0; i < 300; i++)
     {
         emu->frame();
-        Sleep(1000/60);
+        Sleep(1000/4);
     }
     
     std::cout << "Returned with error code 0";

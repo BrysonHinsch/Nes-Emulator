@@ -3,6 +3,7 @@
 
 #include "bus.h"
 #include "cartridge.h"
+#include "cpu.h"
 #include "ppu.h"
 
 Bus::Bus(Cartridge& cart) : cartridge(cart) {}
@@ -90,8 +91,17 @@ uint8_t Bus::write_ppu(uint16_t address, uint8_t value)
     }
     return 0;
 }
-
+void Bus::set_cpu(Cpu* cpu)
+{
+    CPU = cpu;
+}
+        
 void Bus::set_ppu(Ppu* ppu)
 {
     PPU = ppu;
+}
+
+void Bus::set_nmi_flag()
+{
+    CPU->nmi_pending = true;
 }
