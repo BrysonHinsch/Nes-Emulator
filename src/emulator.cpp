@@ -32,5 +32,4 @@ void Emulator::frame()
     {
         step();
     }
-    renderer.update_texture(ppu.buffer);
 }

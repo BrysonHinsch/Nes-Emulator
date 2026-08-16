@@ -11,7 +11,7 @@ Cartridge::Cartridge(std::string filename)
     // read file header
     file.read(reinterpret_cast<char*>(header), sizeof(header));
     // read trainer data
-    if (header[6] &= 0x04)
+    if ((header[6] & 0x04) == 0x04)
     {
         // will eventually read trainer data
         // either 0 or 512 bytes

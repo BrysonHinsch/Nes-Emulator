@@ -94,7 +94,7 @@ class Ppu {
         bool vram_update_ready = false;
 
         bool oam_dma_exec = false;
-        uint8_t oam_dma_counter = 0;
+        uint8_t oam_dma_index = 0;
 
         // Internal Registers
         uint16_t v = 0;

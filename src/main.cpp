@@ -31,10 +31,10 @@ int main()
     
     rend->update_texture(buffer);
 
-    for (int i = 0; i < 300; i++)
+    for (int i = 0; i <300; i++)
     {
         emu->frame();
-        Sleep(1000/4);
+        Sleep(1000/60);
     }
     
     std::cout << "Returned with error code 0";

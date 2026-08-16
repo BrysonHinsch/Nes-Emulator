@@ -70,7 +70,28 @@ uint8_t Bus::read_ppu(uint16_t address)
     }
     else if (address < 0x3000) // Nametables in VRAM
     {
-        return vram[(address - 0x2000) % 0x800];
+        int n = cartridge.header[6];
+        if ((n & 0x08) == 0x08) // alternative nametable layout
+        {
+            // TODO
+            return 0;
+        }
+        else if ((n & 0x01) == 0) // horizontal mirroring
+        {
+            int temp = address - 0x2000;
+            if (temp < 0x800) // nametable A
+            {
+                return vram[temp % 0x400];
+            }
+            else // nametable B
+            {
+                return vram[(temp % 0x400)+0x400];
+            }
+        }
+        else // vertical mirroring
+        {
+            return vram[(address - 0x2000) % 0x800];
+        }
     }
     else
     {
@@ -86,11 +107,33 @@ uint8_t Bus::write_ppu(uint16_t address, uint8_t value)
     }
     if (address < 0x3000) // Nametables in VRAM
     {
-        vram[(address - 0x2000) % 0x800] = value;
+        int n = cartridge.header[6];
+        if ((n & 0x08) == 0x08) // alternative nametable layout
+        {
+            // TODO
+            return 0;
+        }
+        else if ((n & 0x01) == 0) // horizontal mirroring
+        {
+            int temp = address - 0x2000;
+            if (temp < 0x800) // nametable A
+            {
+                vram[temp % 0x400] = value;
+            }
+            else // nametable B
+            {
+                vram[(temp % 0x400)+0x400] = value;
+            }
+        }
+        else // vertical mirroring
+        {
+            vram[(address - 0x2000) % 0x800] = value;
+        }
         return 0;
     }
     return 0;
 }
+
 void Bus::set_cpu(Cpu* cpu)
 {
     CPU = cpu;

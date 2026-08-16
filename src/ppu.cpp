@@ -30,7 +30,10 @@ void Ppu::inc_x()
         v &= ~0x001F;
         v ^= 0x0400;
     }
-    else {v += 1;}
+    else {
+        v += 1;
+    }
+    v &= 0x3FFF;
 }
 void Ppu::inc_y()
 {
@@ -51,17 +54,20 @@ void Ppu::inc_y()
             v = (v & ~0x03E0) | (y << 5);
         }
     } 
+    v &= 0x3FFF;
 }
 void Ppu::reset_x()
 {
     int x = get_coarse_x(t);
     v = (v & 0xFBE0) | x | (t & 0x0400);
+    v &= 0x3FFF;
 }
 void Ppu::reset_y()
 {
     int cy = get_coarse_y(t);
     int fy = get_fine_y(t);
     v = (v & 0x841F) | (cy << 5) | (fy << 12) | (t & 0x0800);
+    v &= 0x3FFF;
 }
 
 uint8_t Ppu::register_read(uint16_t address)
@@ -82,7 +88,8 @@ uint8_t Ppu::register_read(uint16_t address)
     {
         uint8_t temp = ppudata_read_buffer;
         ppudata_read_buffer = read(v);
-        v = (get_vram_increment()) ? v+1 : v+32;
+        v = (get_vram_increment()) ? v+32 : v+1;
+        v &= 0x3FFF;
         return temp;
     }
     return 0;
@@ -128,12 +135,6 @@ uint8_t Ppu::register_write(uint16_t address, uint8_t value)
         }
         else // write 2
         {
-            if (scanline < 240) // Can't update v-scroll during rendering
-            {
-                v_scroll_update = true;
-                pending_v_scroll = value;
-                return 0;
-            }
             t = (t & 0x8C1F) | ((value & 0xF8) << 2) | ((value & 0x07) << 12);
             w = false;
             return 0;
@@ -158,8 +159,10 @@ uint8_t Ppu::register_write(uint16_t address, uint8_t value)
     }
     else if (reg == 7) // done
     {
+        if (v > 0x3FFF) {std::cout<<"hit at address: "<<std::hex<<"0x"<<v<<"\n";}
         write(v, value);
         v = (get_vram_increment()) ? v+32 : v+1;
+        v &= 0x3FFF;
         return 0;
     }
     return 0;
@@ -172,6 +175,7 @@ void Ppu::oam_dma_write(uint8_t value)
 
 uint8_t Ppu::read(uint16_t address)
 {
+    address &= 0x3FFF;
     if (address >= 0x3F00 && address <= 0x3FFF) // Palette Ram
     {
         return palette_ram[(address - 0x3F00) % 0x20];
@@ -183,15 +187,17 @@ uint8_t Ppu::read(uint16_t address)
 }
 uint8_t Ppu::write(uint16_t address, uint8_t value)
 {
-    if (!(address > 0x3EFF && address < 0x4000)) // vram
+    address &= 0x3FFF;
+    if (address < 0x3000) // vram
     {
         return bus.write_ppu(address, value);
     }
-    else
+    else if (address >= 0x3F00 && address < 0x4000)
     {
         palette_ram[(address - 0x3F00) % 0x20] = value;
         return 0;
     }
+    return 0;
 }
 
 void Ppu::set_nmi_flag()
@@ -277,7 +283,7 @@ void Ppu::fetch_sprite() // TODO
 
 int Ppu::generate_color(int index)
 {
-    const uint8_t* value = palette[index];
+    const uint8_t* value = palette[index & 0x3F];
     return (value[0] << 24) | (value[1] << 16) | (value[2] << 8) | value[3];
 }
 void Ppu::draw_pixel() // TODO
@@ -403,7 +409,7 @@ void Ppu::clock_ppu() {
         }
     }
     // Increment local_clock
-    local_clock = (local_clock + 1) % 8;
+    local_clock = (dot - 1) & 0x07;
 
     // Check for finished writes to PPUADDR
     // Adds 1 dot delay to update v from t
@@ -416,6 +422,7 @@ void Ppu::clock_ppu() {
     {
         vram_update_ready = false;
         v = t;
+        v &= 0x3FFF;
     }
 }
 
