@@ -96,11 +96,6 @@ uint8_t Ppu::register_read(uint16_t address)
 }
 uint8_t Ppu::register_write(uint16_t address, uint8_t value)
 {
-    if (address == 0x4014) // OAMDMA // NOT DONE
-    {
-        return 0;
-    }
-
     int reg = (address - 0x2000) % 8;
     if (reg == 0) // done
     {
@@ -121,7 +116,7 @@ uint8_t Ppu::register_write(uint16_t address, uint8_t value)
     else if (reg == 4) // done
     {
         if (scanline <= 239) {return 0;}
-        OAM[OAMADDR++] = value;
+        write_oam(OAMADDR++, value);
         return value;
     }
     else if (reg == 5) // done
@@ -168,9 +163,9 @@ uint8_t Ppu::register_write(uint16_t address, uint8_t value)
     return 0;
 }
 
-void Ppu::oam_dma_write(uint8_t value)
+void Ppu::write_oam(uint8_t index, uint8_t value)
 {
-
+    OAM[index] = value;
 }
 
 uint8_t Ppu::read(uint16_t address)

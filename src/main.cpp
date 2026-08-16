@@ -8,7 +8,7 @@
 
 int main() 
 {
-    Cartridge cart("dk.nes");
+    Cartridge cart("roms/color_test.nes");
 
     Bus* bus = new Bus(cart);
 

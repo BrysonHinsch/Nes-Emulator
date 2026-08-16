@@ -71,8 +71,50 @@ void Cpu::poll_nmi()
     }
 }
 
+void Cpu::handle_oam_dma()
+{
+    if (oam_delay) // oam hit on odd cycle
+    {
+        oam_delay = false;
+        return;
+    }
+    if (!oam_dummy_done) // 1 cycle delay
+    {
+        oam_dummy_done = true;
+        return;
+    }
+    if (localClock == 0) // fetch data
+    {
+        uint16_t address = (oam_dma_addr << 8) | oam_dma_index;
+        value = bus.read(address);
+        localClock = 1;
+    }
+    else // write to oam
+    {
+        write_oam(oam_dma_index++, value);
+        localClock = 0;
+
+        if (oam_dma_index == 0) // wrapped to 0, oam_dma complete
+        {
+            oam_dma = false;
+            oam_dummy_done = false;
+        }
+    }
+}
+
+void Cpu::write_oam(uint8_t index, uint8_t value)
+{
+    bus.write_oam(index, value);
+}
+
 void Cpu::clock_cpu()
 {
+    if (oam_dma)
+    {
+        handle_oam_dma();
+        masterClock++;
+        return;
+    }
     if (service_nmi)
     {
         handle_nmi();

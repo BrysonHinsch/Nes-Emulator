@@ -54,7 +54,7 @@ class Ppu {
         // lets cpu write to registers
         uint8_t register_write(uint16_t address, uint8_t value);
         // lets cpu write to oam
-        void oam_dma_write(uint8_t value);
+        void write_oam(uint8_t index, uint8_t value);
         // executes a read from the ppu
         uint8_t read(uint16_t address);
         // executes a write for ppu data
@@ -71,7 +71,6 @@ class Ppu {
         int buffer[256*240] = {0};
         Renderer& renderer;
 
-        private:
         // PPU Registers
         uint8_t PPUCTRL = 0;
         uint8_t PPUMASK = 0;
@@ -94,7 +93,6 @@ class Ppu {
         bool vram_update_ready = false;
 
         bool oam_dma_exec = false;
-        uint8_t oam_dma_index = 0;
 
         // Internal Registers
         uint16_t v = 0;

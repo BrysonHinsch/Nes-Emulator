@@ -50,6 +50,15 @@ uint8_t Bus::write(uint16_t address, uint8_t value)
     }
     else if (address < 0x4018) // APU and IO Registers
     {
+        if (address == 0x4014) // OAMDMA
+        {
+            // set cpu to oamdma mode
+            CPU->oam_dma = true;
+            CPU->oam_dma_addr = value;
+            CPU->oam_delay = ((CPU->masterClock % 2) != 0) ? true : false;
+            PPU->OAMDMA = value;
+            return 0;
+        }
         return 0;
     }
     else if (address < 0x4020) // CPU Test Mode
@@ -132,6 +141,11 @@ uint8_t Bus::write_ppu(uint16_t address, uint8_t value)
         return 0;
     }
     return 0;
+}
+
+void Bus::write_oam(uint8_t index, uint8_t value)
+{
+    PPU->write_oam(index, value);
 }
 
 void Bus::set_cpu(Cpu* cpu)

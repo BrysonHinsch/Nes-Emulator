@@ -23,6 +23,10 @@ class Cpu
         void handle_nmi();
         // polls for NMI near the end of instructions
         void poll_nmi();
+        // handles oam_dma
+        void handle_oam_dma();
+        // writes to oam memory in ppu
+        void write_oam(uint8_t index, uint8_t value);
         // clocks the cpu for one cycle
         void clock_cpu();
         // prints the current state of the cpu
@@ -47,6 +51,12 @@ class Cpu
         // NMI Detection
         bool nmi_pending = false;
         bool service_nmi = false;
+        // OAMDMA Handling
+        bool oam_dma = false;
+        uint8_t oam_dma_addr = 0;
+        uint8_t oam_dma_index = 0;
+        bool oam_delay = false; // 1 cycle offset on odd cycle counts
+        bool oam_dummy_done = false; // 1 cycle offset for dummy read
         // Cycle Counters
         int cyclesSincePower = 0;
         int masterClock = 0;

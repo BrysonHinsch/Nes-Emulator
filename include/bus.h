@@ -22,6 +22,8 @@ class Bus
         uint8_t read_ppu(uint16_t address);
         // Writes to address for ppu
         uint8_t write_ppu(uint16_t address, uint8_t value);
+        // writes to ppu oam data
+        void write_oam(uint8_t index, uint8_t value);
         // Sets CPU pointer
         void set_cpu(Cpu* cpu);
         // Sets PPU pointer

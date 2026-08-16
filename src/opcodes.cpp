@@ -1491,6 +1491,7 @@ namespace ops
                 cpu.bus.read(cpu.PC); // open bus
                 break;
             case 1:
+                cpu.bus.read(0x0100 + cpu.SP); // dummy read
                 cpu.SP++;
                 break;
             case 2: {
