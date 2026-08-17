@@ -39,13 +39,13 @@ void Cpu::handle_nmi()
             bus.read(PC); // dummy read
             break;
         case 2:
-            bus.write(SP--, static_cast<uint8_t>(PC >> 8));
+            bus.write(0x100 + SP--, static_cast<uint8_t>(PC >> 8));
             break;
         case 3:
-            bus.write(SP--, static_cast<uint8_t>(PC));
+            bus.write(0x100 + SP--, static_cast<uint8_t>(PC));
             break;
         case 4:
-            bus.write(SP--, (P & 0b11101111));
+            bus.write(0x100 + SP--, ((P & 0b11101111) | 0b00100000));
             break;
         case 5:
             temp8 = bus.read(0xFFFA);

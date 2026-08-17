@@ -102,6 +102,7 @@ class Ppu {
 
         // Ppu internal memory
         uint8_t OAM[256] = {0};
+        uint8_t secondary_OAM[32] = {0};
         uint8_t palette_ram[0x20] = {0};
 
         // Rendering Addresses

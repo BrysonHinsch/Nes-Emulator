@@ -8,13 +8,13 @@
 
 int main() 
 {
-    Cartridge cart("roms/color_test.nes");
+    Cartridge cart("roms/dk.nes");
 
     Bus* bus = new Bus(cart);
 
     Cpu* cpu = new Cpu(*bus);
 
-    Renderer* rend = new Renderer(256, 240, 4);
+    Renderer* rend = new Renderer(256, 240, 2);
     Ppu* ppu = new Ppu(*rend, *bus);
 
     bus->set_cpu(cpu);
