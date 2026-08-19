@@ -276,6 +276,27 @@ void Ppu::fetch_sprite() // TODO
     }
 }
 
+void Ppu::clear_secondary_oam() // TODO
+{
+    if ((dot % 2) == 2) 
+    {
+        secondary_OAM[dot/2] = 0xFF;
+    }
+}
+void Ppu::sprite_eval() // TODO
+{
+    if ((dot % 2) != 2) // odd cycle
+    {
+        value = OAM[eval_index];
+        // check if y value is in range this scanline
+        
+    }
+    else // even cycle
+    {
+
+    }
+}
+
 int Ppu::generate_color(int index)
 {
     const uint8_t* value = palette[index & 0x3F];

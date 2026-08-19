@@ -24,6 +24,15 @@ static const uint8_t palette[64][4] = {
     {160,214,228,255}, {160,162,160,255}, {0,0,0,255}, {0,0,0,255},
 };
 
+struct sprite_data
+{
+    uint8_t pattern_low;
+    uint8_t pattern_high;
+    
+    uint8_t attributes;
+    uint8_t x_pos;
+};
+
 class Ppu {
     public:
         Ppu(Renderer& renderer, Bus& bus);
@@ -44,6 +53,10 @@ class Ppu {
         // shift register loading functions
         void fetch_background();
         void fetch_sprite();
+
+        // sprite functions
+        void clear_secondary_oam();
+        void sprite_eval();
 
         // fills buffer with pixel data using shift registers
         int generate_color(int index);
@@ -120,6 +133,14 @@ class Ppu {
         uint16_t pattern_shift_high = 0;
         uint16_t attribute_shift_low = 0;
         uint16_t attribute_shift_high = 0;
+
+        // Sprite Evaluation
+        sprite_data sprite_registers[8] = {0};
+        uint8_t value = 0; // value read from OAM to be processed
+        int eval_index = 0; // equivalent to n on nesdev wiki
+        int eval_offset = 0;  // equivalent to m on nesdev wiki
+        bool load_sprite_zero_next = false; // set sprite 0 loaded next scanline
+        bool sprite_zero_loaded = false; // is sprite 0 in S-OAM this scanline
 
         // Pixel indices
         int scanline = 0;
