@@ -36,7 +36,7 @@ struct debug_window_info
 const debug_window_info debug_window_info_array[debug_types] =
 {
     {"Pattern Tables", 256, 128, 4}, // 0
-    {"Nametables", 512, 480, 2}      // 1
+    {"Nametables", 256, 240, 2}      // 1
 };
 
 // Enum of window types for indexing in emulator
@@ -58,7 +58,7 @@ class Debug
         void update_texture(debug_window&, int* buffer);
         void update_windows();
 
-        void display_pattern_table_tile(std::vector<uint8_t>& CHR_ROM, std::vector<int>& buffer, int x, int y, int half);
+        std::array<int, 64> get_pattern_table_tile(std::vector<uint8_t>& CHR_ROM, int address);
 
     private:
         // array of debug windows for tracking which are active

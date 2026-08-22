@@ -39,9 +39,9 @@ class Bus
         uint8_t dataBus = 0;
         uint16_t addressBus = 0;
         // 2KB Internal RAM
-        std::array<uint8_t, 2048> ram;
+        std::array<uint8_t, 2048> ram = {0};
         // 2KB Internal VRAM
-        std::array<uint8_t, 2048> vram;
+        std::array<uint8_t, 2048> vram = {0};
         // Cartridge pointer
         Cartridge* cartridge;
         // CPU pointer for accessing registers

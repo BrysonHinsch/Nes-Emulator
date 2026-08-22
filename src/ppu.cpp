@@ -454,3 +454,9 @@ void Ppu::power_on()
     PPUDATA = 0;
     odd_frame = false;
 }
+
+bool Ppu::rendering_enabled()
+{
+    if ((PPUMASK & 0b00011000) == 0) {return false;}
+    return true;
+}

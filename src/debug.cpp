@@ -1,4 +1,6 @@
 
+#include <array>
+
 #include "debug.h"
 
 Debug::Debug(Bus& bus):
@@ -56,11 +58,19 @@ void Debug::update_pattern_table_window()
     int size = d.width * d.height;
     std::vector<int> buffer(size, 0);
 
-    for (int i = 0; i < d.width / 8; i++)
+    for (int i = 0; i < 512; i++)
     {
-        for (int j = 0; j < d.height / 8; j++)
+        int address = i * 16;
+        auto tile = get_pattern_table_tile(CHR_ROM, address);
+        for (int j = 0; j < 8; j++)
         {
-            display_pattern_table_tile(CHR_ROM, buffer, i % 16, j % 16, (i >> 4) & 0x01);
+            for (int k = 0; k < 8; k++)
+            {
+                int x_offset = (i%16) * 8 + ((i/256)*128) + k;
+                int y_offset = (i%256/16) * 8 + j;
+                int index = (y_offset * 256 + x_offset);
+                buffer[index] = tile[j*8+k];
+            }
         }
     }
     update_texture(d, buffer.data());
@@ -80,8 +90,19 @@ void Debug::update_nametable_window()
         for (int j = 0; j < 32; j++)
         {
             int address = 0x2000 + (32 * i) + j;
-            uint8_t pattern_index = bus.read_ppu(address);
-            display_pattern_table_tile(CHR_ROM, buffer, 0, 0, 0);
+            int pattern_index = bus.read_ppu(address);
+            auto tile = get_pattern_table_tile(CHR_ROM, pattern_index*16 + 0x1000);
+
+            for (int y = 0; y < 8; y++)
+            {
+                for (int x = 0; x < 8; x++)
+                {
+                    int px = j * 8 + x;
+                    int py = i * 8 + y;
+                    int fb_index = py * 256 + px; // 256 = screen width in px
+                    buffer[fb_index] = tile[y * 8 + x];
+                }
+            }
         }
     }
 
@@ -103,28 +124,27 @@ void Debug::update_windows()
     if (debug_window_array[window_types::NAMETABLE].active) {update_nametable_window();}
 }
 
-void Debug::display_pattern_table_tile(std::vector<uint8_t>& CHR_ROM, std::vector<int>& buffer, int x, int y, int half)
+std::array<int, 64> Debug::get_pattern_table_tile(std::vector<uint8_t>& CHR_ROM, int address)
 {
+    std::array<int, 64> return_array;
     for (int i = 0; i < 8; i++)
     {
-        int tile_offset = (half * 0x1000) + (x * 16) + (y * 256);
-        uint8_t low_byte = CHR_ROM[tile_offset + i];
-        uint8_t high_byte = CHR_ROM[tile_offset + i + 8];
+        uint8_t low_byte = CHR_ROM[address + i];
+        uint8_t high_byte = CHR_ROM[address + i + 8];
         for (int j = 0; j < 8; j++)
         {
             int color = ((low_byte & 0x80) >> 7) | ((high_byte & 0x80) >> 6);
-            int x_offset = (half * 128) + (x * 8) + j;
-            int y_offset = (y * 8) + i;
-            int address = (y_offset * 256 + x_offset);
+            int address = (i*8)+j;
             switch(color)
             {
-                case 0: buffer[address] = 0x222222FF; break;
-                case 1: buffer[address] = 0x666666FF; break;
-                case 2: buffer[address] = 0xAAAAAAFF; break;
-                case 3: buffer[address] = 0xEEEEEEFF; break;
+                case 0: return_array[address] = 0x222222FF; break;
+                case 1: return_array[address] = 0x666666FF; break;
+                case 2: return_array[address] = 0xAAAAAAFF; break;
+                case 3: return_array[address] = 0xEEEEEEFF; break;
             }
             low_byte <<= 1;
             high_byte <<= 1;
         }
     }
+    return return_array;
 }

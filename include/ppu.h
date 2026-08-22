@@ -80,6 +80,9 @@ class Ppu {
         // sets default state for console power on
         void power_on();
 
+        // checks if rendering is enabled
+        bool rendering_enabled();
+
         // Rendering Information
         int buffer[256*240] = {0};
         Renderer& renderer;
