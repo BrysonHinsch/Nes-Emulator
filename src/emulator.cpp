@@ -60,14 +60,13 @@ void Emulator::start_emulator()
                     handle_keypress(event, true);
                     break;
                 case SDL_EVENT_KEY_UP:
-                    handle_keypress(event, false);
+                    //handle_keypress(event, false);
                     break;
                 default:
                     break;
             }
         }
-        run_frame();
-        debug.open_debug_window(window_types::PATTERN_TABLE);
+        debug.update_windows();
         Sleep(1000/60);
     }
     SDL_Quit();
@@ -88,5 +87,18 @@ void Emulator::handle_window_close(SDL_Event& event)
 
 void Emulator::handle_keypress(SDL_Event& event, bool pressed)
 {
+    switch (event.key.scancode)
+    {
+        // Debug window keybinds
+        case 19: // P
+            debug.open_debug_window(window_types::PATTERN_TABLE);
+            break;
+        case 18: // O
+            run_frame();
+            break;
+        // Program control keybinds
 
+        // Controller inputs
+
+    }
 }

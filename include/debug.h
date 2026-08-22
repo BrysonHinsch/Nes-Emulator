@@ -28,12 +28,14 @@ struct debug_window_info
 
     int width;
     int height;
+
+    int scale;
 };
 
 // List of information for each debug window type
 const debug_window_info debug_window_info_array[debug_types] =
 {
-    {"Pattern Tables", 512, 256} // 0
+    {"Pattern Tables", 256, 128, 2} // 0
 };
 
 // Enum of window types for indexing in emulator
@@ -50,6 +52,8 @@ class Debug
         void open_debug_window(int index);
         bool close_debug_window(SDL_WindowID window_id); // returns true if window is successfully closed
         void update_pattern_table_window();
+        void update_texture(debug_window&, int* buffer);
+        void update_windows();
 
     private:
         // array of debug windows for tracking which are active

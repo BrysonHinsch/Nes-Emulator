@@ -31,6 +31,9 @@ class Bus
         // sets nmi flag in cpu
         void set_nmi_flag();
 
+        // Getters for debugging
+        std::vector<uint8_t>& get_chr_rom();
+
     private:
         // Busses
         uint8_t dataBus = 0;

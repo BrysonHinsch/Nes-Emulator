@@ -162,3 +162,8 @@ void Bus::set_nmi_flag()
 {
     CPU->nmi_pending = true;
 }
+
+std::vector<uint8_t>& Bus::get_chr_rom()
+{
+    return cartridge->CHR_ROM;
+}
