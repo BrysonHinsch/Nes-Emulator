@@ -6,7 +6,7 @@
 #include "cpu.h"
 #include "ppu.h"
 
-Bus::Bus(Cartridge& cart) : cartridge(cart) {}
+Bus::Bus(Cartridge* cart) : cartridge(cart) {}
 
 uint8_t Bus::read(uint16_t address)
 {
@@ -30,7 +30,7 @@ uint8_t Bus::read(uint16_t address)
     }
     else // Unmapped memory. Functionality determined by mapper
     {
-        dataBus = cartridge.read(address);
+        dataBus = cartridge->read(address);
         return dataBus;
     }
 }
@@ -67,7 +67,7 @@ uint8_t Bus::write(uint16_t address, uint8_t value)
     }
     else // Unmapped memory. Functionality determined by mapper
     {
-        return cartridge.write(address, value);
+        return cartridge->write(address, value);
     }
 }
 
@@ -75,11 +75,11 @@ uint8_t Bus::read_ppu(uint16_t address)
 {
     if (address < 0x2000) // CHR ROM
     {
-        return cartridge.read_ppu(address);
+        return cartridge->read_ppu(address);
     }
     else if (address < 0x3000) // Nametables in VRAM
     {
-        int n = cartridge.header[6];
+        int n = cartridge->header[6];
         if ((n & 0x08) == 0x08) // alternative nametable layout
         {
             // TODO
@@ -116,7 +116,7 @@ uint8_t Bus::write_ppu(uint16_t address, uint8_t value)
     }
     if (address < 0x3000) // Nametables in VRAM
     {
-        int n = cartridge.header[6];
+        int n = cartridge->header[6];
         if ((n & 0x08) == 0x08) // alternative nametable layout
         {
             // TODO

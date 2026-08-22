@@ -1,7 +1,7 @@
 
 #include "ppu.h"
 
-Ppu::Ppu(Renderer& renderer, Bus& bus): renderer(renderer), bus(bus) {}
+Ppu::Ppu(Bus& bus, Renderer& renderer): renderer(renderer), bus(bus) {}
 
 uint8_t Ppu::get_coarse_x(int reg)
 {

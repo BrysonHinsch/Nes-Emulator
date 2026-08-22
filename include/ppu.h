@@ -35,7 +35,7 @@ struct sprite_data
 
 class Ppu {
     public:
-        Ppu(Renderer& renderer, Bus& bus);
+        Ppu(Bus& bus, Renderer& renderer);
 
         // V register functions
         uint8_t get_coarse_x(int reg);

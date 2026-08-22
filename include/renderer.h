@@ -4,11 +4,13 @@
 
 class Renderer {
     public:
-        Renderer(int width, int height, int scale);
+        Renderer(const char* title, int width, int height, int scale);
 
         void update_texture(int* buffer);
 
         void advance_frame();
+
+        SDL_WindowID get_window_id();
     private:
         SDL_Window* window;
         SDL_Renderer* renderer;

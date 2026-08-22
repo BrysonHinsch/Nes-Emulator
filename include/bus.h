@@ -12,7 +12,7 @@ class Bus
 {
     public:
         // Constructors
-        Bus(Cartridge& cart);
+        Bus(Cartridge* cart);
         // Member Functions
         // Reads and returns value for cpu
         uint8_t read(uint16_t address);
@@ -39,9 +39,8 @@ class Bus
         std::array<uint8_t, 2048> ram;
         // 2KB Internal VRAM
         std::array<uint8_t, 2048> vram;
-        // Cartridge
-        Cartridge& cartridge;
-
+        // Cartridge pointer
+        Cartridge* cartridge;
         // CPU pointer for accessing registers
         Cpu* CPU;
         // PPU pointer for accessing registers

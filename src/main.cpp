@@ -1,42 +1,20 @@
 #include <stdio.h>
-#include <windows.h>
-#include "cartridge.h"
-#include "cpu.h"
+
 #include "emulator.h"
-#include "renderer.h"
 #include "SDL.h"
 
 int main() 
 {
-    Cartridge cart("roms/dk.nes");
-
-    Bus* bus = new Bus(cart);
-
-    Cpu* cpu = new Cpu(*bus);
-
-    Renderer* rend = new Renderer(256, 240, 2);
-    Ppu* ppu = new Ppu(*rend, *bus);
-
-    bus->set_cpu(cpu);
-    bus->set_ppu(ppu);
-
-    Emulator* emu = new Emulator(*cpu, *ppu, *rend);
-
-    cpu->power_on();
-    ppu->power_on();
-
+    // Initialize SDL library
     SDL_Init(SDL_INIT_VIDEO);
 
-    int *buffer = new int[256*240];
-    
-    rend->update_texture(buffer);
+    // Create main emulator object
+    Emulator* emu = new Emulator();
 
-    for (int i = 0; i <300; i++)
-    {
-        emu->frame();
-        Sleep(1000/60);
-    }
-    
+    // Start main emulator loop
+    emu->start_emulator();
+
+    // Program termination
     std::cout << "Returned with error code 0";
     return 0;
 }
