@@ -6,7 +6,7 @@
 #include "SDL.h"
 
 // Constant for how many types of debug windows there are
-const uint8_t debug_types = 1;
+const uint8_t debug_types = 2;
 
 // Contains information for updating window
 struct debug_window
@@ -35,13 +35,15 @@ struct debug_window_info
 // List of information for each debug window type
 const debug_window_info debug_window_info_array[debug_types] =
 {
-    {"Pattern Tables", 256, 128, 2} // 0
+    {"Pattern Tables", 256, 128, 4}, // 0
+    {"Nametables", 512, 480, 2}      // 1
 };
 
 // Enum of window types for indexing in emulator
 enum window_types
 {
-    PATTERN_TABLE // 0
+    PATTERN_TABLE, // 0
+    NAMETABLE      // 0
 };
 
 class Debug
@@ -52,8 +54,11 @@ class Debug
         void open_debug_window(int index);
         bool close_debug_window(SDL_WindowID window_id); // returns true if window is successfully closed
         void update_pattern_table_window();
+        void update_nametable_window();
         void update_texture(debug_window&, int* buffer);
         void update_windows();
+
+        void display_pattern_table_tile(std::vector<uint8_t>& CHR_ROM, std::vector<int>& buffer, int x, int y, int half);
 
     private:
         // array of debug windows for tracking which are active

@@ -96,6 +96,9 @@ void Emulator::handle_keypress(SDL_Event& event, bool pressed)
         case 18: // O
             run_frame();
             break;
+        case 17: // N
+            debug.open_debug_window(window_types::NAMETABLE);
+            break;
         // Program control keybinds
 
         // Controller inputs
