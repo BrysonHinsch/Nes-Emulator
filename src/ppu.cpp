@@ -325,22 +325,31 @@ void Ppu::clock_ppu() {
         }
         else if (dot <= 256) // background tiles
         {
-            fetch_background();
-            draw_pixel();
-            if (dot == 256) {inc_y();}
+            if (rendering_enabled())
+            {
+                fetch_background();
+                draw_pixel();
+                if (dot == 256) {inc_y();}
+            }
         }
         else if (dot <= 320) // sprites
         {
-            if (dot == 257) // set coarse_x V to coarse_x T
+            if (rendering_enabled())
             {
-                reset_x();
-            }
+                if (dot == 257) // set coarse_x V to coarse_x T
+                {
+                    reset_x();
+                }
 
-            fetch_sprite();
+                fetch_sprite();
+            }
         }
         else if (dot <= 336) // next scanline background tiles
         {
-            fetch_background();
+            if (rendering_enabled())
+            {
+                fetch_background();
+            }
         }
         else // unused nametable fetches
         {
@@ -381,25 +390,34 @@ void Ppu::clock_ppu() {
         
         else if (dot <= 256) // background tiles
         {
-            fetch_background();
-            if (dot == 256) {inc_y();}
+            if (rendering_enabled())
+            {
+                fetch_background();
+                if (dot == 256) {inc_y();}
+            }
         }
         else if (dot <= 320) // sprites
         {
-            if (dot == 257) // set coarse_x V to coarse_x T
+            if (rendering_enabled())
             {
-                reset_x();
-            }
-            if (dot >= 280 && dot <= 304) // vert(v) = vert(t)
-            {
-                reset_y();
-            }
+                if (dot == 257) // set coarse_x V to coarse_x T
+                {
+                    reset_x();
+                }
+                if (dot >= 280 && dot <= 304) // vert(v) = vert(t)
+                {
+                    reset_y();
+                }
 
-            fetch_sprite();
+                fetch_sprite();
+            }
         }
         else if (dot <= 336) // next scanline background tiles
         {
-            fetch_background();
+            if (rendering_enabled())
+            {
+                fetch_background();
+            }
         }
         else // unused nametable fetches
         {
