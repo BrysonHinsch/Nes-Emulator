@@ -33,7 +33,6 @@ void Ppu::inc_x()
     else {
         v += 1;
     }
-    v &= 0x3FFF;
 }
 void Ppu::inc_y()
 {
@@ -51,23 +50,20 @@ void Ppu::inc_y()
         else
         {
             y += 1;
-            v = (v & ~0x03E0) | (y << 5);
         }
-    } 
-    v &= 0x3FFF;
+        v = (v & ~0x03E0) | (y << 5);
+    }
 }
 void Ppu::reset_x()
 {
     int x = get_coarse_x(t);
     v = (v & 0xFBE0) | x | (t & 0x0400);
-    v &= 0x3FFF;
 }
 void Ppu::reset_y()
 {
     int cy = get_coarse_y(t);
     int fy = get_fine_y(t);
     v = (v & 0x841F) | (cy << 5) | (fy << 12) | (t & 0x0800);
-    v &= 0x3FFF;
 }
 
 uint8_t Ppu::register_read(uint16_t address)
@@ -89,7 +85,6 @@ uint8_t Ppu::register_read(uint16_t address)
         uint8_t temp = ppudata_read_buffer;
         ppudata_read_buffer = read(v);
         v = (get_vram_increment()) ? v+32 : v+1;
-        v &= 0x3FFF;
         return temp;
     }
     return 0;
@@ -157,7 +152,6 @@ uint8_t Ppu::register_write(uint16_t address, uint8_t value)
         if (v > 0x3FFF) {std::cout<<"hit at address: "<<std::hex<<"0x"<<v<<"\n";}
         write(v, value);
         v = (get_vram_increment()) ? v+32 : v+1;
-        v &= 0x3FFF;
         return 0;
     }
     return 0;
@@ -207,7 +201,6 @@ void Ppu::fetch_background()
     pattern_shift_high <<= 1;
     attribute_shift_low <<= 1;
     attribute_shift_high <<= 1;
-
     switch (local_clock)
     {
         case 0: // read nametable byte
@@ -456,7 +449,6 @@ void Ppu::clock_ppu() {
     {
         vram_update_ready = false;
         v = t;
-        v &= 0x3FFF;
     }
 }
 
