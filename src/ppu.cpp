@@ -251,12 +251,22 @@ void Ppu::fetch_sprite() // TODO
     switch (local_clock)
     {
         case 0: // unused nametable byte
+            nametable_addr = 0x2000 | (v & 0x0FFF);
             break;
         case 1: // unused nametable byte
+            read(nametable_addr);
             break;
         case 2: // ignored nametable byte
+            nametable_addr = 0x2000 | (v & 0x0FFF);
+            // Fetch attribute byte to sprite latch
+            int i = sprite_render_index;
+            sprite_registers[i].attributes = secondary_OAM[i+2];
             break;
         case 3: // ignored nametable byte
+            read(nametable_addr);
+            // Fetch x-position to sprite latch
+            int i = sprite_render_index;
+            sprite_registers[i].attributes = secondary_OAM[i+3];
             break;
         case 4: // sprite lsbits
             break;
@@ -265,11 +275,12 @@ void Ppu::fetch_sprite() // TODO
         case 6: // sprite msbits
             break;
         case 7: // sprite msbits
+            sprite_render_index++;
             break;
     }
 }
 
-void Ppu::clear_secondary_oam() // TODO
+void Ppu::clear_secondary_oam()
 {
     if ((dot % 2) == 2) 
     {
@@ -278,15 +289,48 @@ void Ppu::clear_secondary_oam() // TODO
 }
 void Ppu::sprite_eval() // TODO
 {
-    if ((dot % 2) != 2) // odd cycle
+    if ((dot % 2) != 0) // odd cycle
     {
-        value = OAM[eval_index];
-        // check if y value is in range this scanline
-        
+        int index = eval_index * 4 + eval_offset;
+        eval_value = OAM[index];
+        return;
     }
     else // even cycle
     {
+        if (oam_index_overflow) // check for overflow flag hits
+        {
+            // TODO overflow flag hit detection
+            return;
+        }
+        if (secondary_oam_full) // read instead if full
+        {
+            // TODO DUMMY READ
+            return;
+        }
+        else
+        {
+            if (eval_offset == 0)
+            {
+                // 1 if 8x8, 2 if 8x16
+                int sprite_height = 8 * (((PPUCTRL & 0x20) >> 5) + 1) - 1;
+                int diff = scanline - eval_value;
+                if (diff < 0 || diff > sprite_height) // miss
+                {
+                    eval_index++;
+                    return;
+                }
+            }
+        }
+        secondary_OAM[secondary_oam_index++] = eval_value;
+        if (secondary_oam_index == 32) {secondary_oam_full = true;}
 
+        // set new offsets
+        eval_offset = (eval_offset + 1) % 4;
+        if (eval_offset == 0) 
+        {
+            eval_index = (eval_index + 1) % 64;
+            if (eval_index == 0) {oam_index_overflow = true;}
+        } 
     }
 }
 
@@ -323,6 +367,14 @@ void Ppu::clock_ppu() {
                 fetch_background();
                 draw_pixel();
                 if (dot == 256) {inc_y();}
+            }
+            if (dot <= 64)
+            {
+                clear_secondary_oam();
+            }
+            if (dot > 64)
+            {
+                sprite_eval();
             }
         }
         else if (dot <= 320) // sprites

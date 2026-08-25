@@ -67,7 +67,8 @@ void Emulator::start_emulator()
             }
         }
         debug.update_windows();
-        Sleep(1000/60);
+        run_frame();
+        Sleep(1000/100);
     }
     SDL_Quit();
     return;

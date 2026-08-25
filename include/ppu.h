@@ -142,11 +142,16 @@ class Ppu {
 
         // Sprite Evaluation
         sprite_data sprite_registers[8] = {0};
-        uint8_t value = 0; // value read from OAM to be processed
+        uint8_t eval_value = 0; // value read from OAM to be processed
         int eval_index = 0; // equivalent to n on nesdev wiki
         int eval_offset = 0;  // equivalent to m on nesdev wiki
+        int secondary_oam_index = 0; // index to secondary oam
+        bool oam_index_overflow = false; // oam index wrapped back to 0
         bool load_sprite_zero_next = false; // set sprite 0 loaded next scanline
         bool sprite_zero_loaded = false; // is sprite 0 in S-OAM this scanline
+        bool secondary_oam_full = false; // set true when 8 sprites are loaded
+
+        int sprite_render_index = 0; // index into secondary oam while rendering
 
         // Pixel indices
         int scanline = 0;
