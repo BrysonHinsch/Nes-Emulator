@@ -34,6 +34,7 @@ struct sprite_data
     
     uint8_t attributes;
     uint8_t x_pos;
+    uint8_t y_pos;
 
     uint8_t tile_index;
 };
@@ -67,7 +68,7 @@ class Ppu {
         void sprite_eval();
 
         // fills buffer with pixel data using shift registers
-        int generate_color(int index, bool sprite);
+        int generate_color(int index);
         void draw_pixel();
 
         // lets cpu read from registers

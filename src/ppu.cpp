@@ -73,6 +73,7 @@ void Ppu::reset_sprite_variables()
     eval_offset = 0;
     secondary_oam_index = 0;
     oam_index_overflow = false;
+    secondary_oam_full = false;
 
     // reset oam address index
     sprite_render_index = 0;
@@ -270,6 +271,7 @@ void Ppu::fetch_sprite() // TODO implement 8x16 sprites
             nametable_addr = 0x2000 | (v & 0x0FFF);
             // Fetch tile index to sprite latch
             int i = sprite_render_index;
+            sprite_registers[i].y_pos = secondary_OAM[(i*4)]; // for convenience
             sprite_registers[i].tile_index = secondary_OAM[(i*4)+1]; // for convenience
             break; }
         case 1: // unused nametable byte
@@ -292,7 +294,7 @@ void Ppu::fetch_sprite() // TODO implement 8x16 sprites
         case 5: {// sprite lsbits
             int i = sprite_render_index;
             int tile = sprite_registers[i].tile_index << 4;
-            int fy = get_fine_y(v);
+            int fy = scanline - sprite_registers[i].y_pos;
             int index = fy | tile | ((PPUCTRL & 0x08) << 9);
             sprite_registers[i].pattern_low = read(index);
             break; }
@@ -301,7 +303,7 @@ void Ppu::fetch_sprite() // TODO implement 8x16 sprites
         case 7: // sprite msbits
             int i = sprite_render_index;
             int tile = sprite_registers[i].tile_index << 4;
-            int fy = get_fine_y(v);
+            int fy = scanline - sprite_registers[i].y_pos;
             int index = fy | 0x08 | tile | ((PPUCTRL & 0x08) << 9);
             sprite_registers[i].pattern_high = read(index);
             // increment oam fetching address
@@ -312,7 +314,7 @@ void Ppu::fetch_sprite() // TODO implement 8x16 sprites
 
 void Ppu::clear_secondary_oam()
 {
-    if ((dot % 2) == 2) 
+    if ((dot % 2) == 0) 
     {
         secondary_OAM[dot/2] = 0xFF;
     }
@@ -364,23 +366,48 @@ void Ppu::sprite_eval() // TODO
     }
 }
 
-int Ppu::generate_color(int index, bool sprite)
+int Ppu::generate_color(int index)
 {
     const uint8_t* value = palette[index & 0x3F];
     return (value[0] << 24) | (value[1] << 16) | (value[2] << 8) | value[3];
 }
 void Ppu::draw_pixel() // TODO
 {   
-    // TODO CURRENTLY MISSING SPRITES!!!
+    // Check if sprite should be rendered
+    bool sprite_found = false;
+    int sprite_index = 0;
+    for (int i = 0; i < 8; i++)
+    {
+        int diff = dot - sprite_registers[i].x_pos;
+        if (diff >= 0 && diff < 8)
+        {
+            sprite_found = true;
+            sprite_index = i;
+        }
+    }
 
+    int sprite_color = 0;
+    if (sprite_found)
+    {
+        // Get sprite color value
+        int bit = dot - sprite_registers[sprite_index].x_pos;
+        int sprite_low_bit = (sprite_registers[sprite_index].pattern_low >> (7 - bit)) & 0x01;
+        int sprite_high_bit = (sprite_registers[sprite_index].pattern_high >> (7 - bit)) & 0x01;
+        int sprite_offset = sprite_low_bit | (sprite_high_bit << 1);
+        int sprite_palette = sprite_registers[sprite_index].attributes & 0x03;
+        int sprite_color_index = read(0x3F10 + sprite_palette * 4 + sprite_offset);
+        sprite_color = generate_color(sprite_color_index);
+    }
+    // Get background color value
     int pattern_offset = ((pattern_shift_low >> (15-x)) & 0x0001) | (((pattern_shift_high >> (15-x)) & 0x0001) << 1);
     int attribute_offset = ((attribute_shift_low >> (15-x)) & 0x0001) | (((attribute_shift_high >> (15-x)) & 0x0001) << 1);
-    // get index from palette ram
     int index = read(0x3F00 + (attribute_offset * 4) + pattern_offset);
-    // send pixel data to buffer
-    int color = generate_color(index, false);
+    int background_color = generate_color(index);
+
     int buffer_index = (dot - 1) + (scanline * 256);
-    buffer[buffer_index] = color;
+    // TODO ACTUAL PRIORITY
+    if (sprite_color != 0) {buffer[buffer_index] = sprite_color;}
+    else {buffer[buffer_index] = background_color;}
 }
 
 void Ppu::clock_ppu() {
