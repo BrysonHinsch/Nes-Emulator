@@ -66,6 +66,22 @@ void Ppu::reset_y()
     v = (v & 0x841F) | (cy << 5) | (fy << 12) | (t & 0x0800);
 }
 
+void Ppu::reset_sprite_variables()
+{
+    // reset counters and indices
+    eval_index = 0;
+    eval_offset = 0;
+    secondary_oam_index = 0;
+    oam_index_overflow = false;
+
+    // reset oam address index
+    sprite_render_index = 0;
+
+    // set whether sprite 0 is loaded in upcoming scanline
+    sprite_zero_loaded = load_sprite_zero_next;
+    load_sprite_zero_next = false;
+}
+
 uint8_t Ppu::register_read(uint16_t address)
 {
     int reg = (address - 0x2000) % 8;
@@ -246,35 +262,49 @@ void Ppu::fetch_background()
             break; }
     }
 }
-void Ppu::fetch_sprite() // TODO
+void Ppu::fetch_sprite() // TODO implement 8x16 sprites
 {
     switch (local_clock)
     {
-        case 0: // unused nametable byte
+        case 0: {// unused nametable byte
             nametable_addr = 0x2000 | (v & 0x0FFF);
-            break;
+            // Fetch tile index to sprite latch
+            int i = sprite_render_index;
+            sprite_registers[i].tile_index = secondary_OAM[(i*4)+1]; // for convenience
+            break; }
         case 1: // unused nametable byte
             read(nametable_addr);
             break;
-        case 2: // ignored nametable byte
+        case 2: {// ignored nametable byte
             nametable_addr = 0x2000 | (v & 0x0FFF);
             // Fetch attribute byte to sprite latch
             int i = sprite_render_index;
-            sprite_registers[i].attributes = secondary_OAM[i+2];
-            break;
-        case 3: // ignored nametable byte
+            sprite_registers[i].attributes = secondary_OAM[(i*4)+2];
+            break; }
+        case 3: {// ignored nametable byte
             read(nametable_addr);
             // Fetch x-position to sprite latch
             int i = sprite_render_index;
-            sprite_registers[i].attributes = secondary_OAM[i+3];
-            break;
+            sprite_registers[i].x_pos = secondary_OAM[(i*4)+3];
+            break; }
         case 4: // sprite lsbits
             break;
-        case 5: // sprite lsbits
-            break;
+        case 5: {// sprite lsbits
+            int i = sprite_render_index;
+            int tile = sprite_registers[i].tile_index << 4;
+            int fy = get_fine_y(v);
+            int index = fy | tile | ((PPUCTRL & 0x08) << 9);
+            sprite_registers[i].pattern_low = read(index);
+            break; }
         case 6: // sprite msbits
             break;
         case 7: // sprite msbits
+            int i = sprite_render_index;
+            int tile = sprite_registers[i].tile_index << 4;
+            int fy = get_fine_y(v);
+            int index = fy | 0x08 | tile | ((PPUCTRL & 0x08) << 9);
+            sprite_registers[i].pattern_high = read(index);
+            // increment oam fetching address
             sprite_render_index++;
             break;
     }
@@ -334,7 +364,7 @@ void Ppu::sprite_eval() // TODO
     }
 }
 
-int Ppu::generate_color(int index)
+int Ppu::generate_color(int index, bool sprite)
 {
     const uint8_t* value = palette[index & 0x3F];
     return (value[0] << 24) | (value[1] << 16) | (value[2] << 8) | value[3];
@@ -348,7 +378,7 @@ void Ppu::draw_pixel() // TODO
     // get index from palette ram
     int index = read(0x3F00 + (attribute_offset * 4) + pattern_offset);
     // send pixel data to buffer
-    int color = generate_color(index);
+    int color = generate_color(index, false);
     int buffer_index = (dot - 1) + (scanline * 256);
     buffer[buffer_index] = color;
 }
@@ -387,6 +417,10 @@ void Ppu::clock_ppu() {
                 }
 
                 fetch_sprite();
+            }
+            if (dot == 320)
+            {
+                reset_sprite_variables();
             }
         }
         else if (dot <= 336) // next scanline background tiles
@@ -455,6 +489,10 @@ void Ppu::clock_ppu() {
                 }
 
                 fetch_sprite();
+            }
+            if (dot == 320)
+            {
+                reset_sprite_variables();
             }
         }
         else if (dot <= 336) // next scanline background tiles
