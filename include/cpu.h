@@ -37,6 +37,10 @@ class Cpu
         void power_on();
         
         // PROGRAM VARIABLES
+        // Controller latches
+        uint8_t controller_1 = 0;
+        uint8_t controller_2 = 0; // always set to 0
+        bool controller_input_requested = false; // set true when 0x4016 is written to
         // Has HLT occured?
         bool hlt_triggered = false;
         // Temporary Values

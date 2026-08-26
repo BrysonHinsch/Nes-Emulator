@@ -26,6 +26,7 @@ void Emulator::swap_cartridge(std::string filename)
 void Emulator::step() 
 {
     cpu.clock_cpu();
+    poll_controller_input();
     // 3 PPU clocks per CPU clock
     ppu.clock_ppu();
     ppu.clock_ppu();
@@ -60,7 +61,7 @@ void Emulator::start_emulator()
                     handle_keypress(event, true);
                     break;
                 case SDL_EVENT_KEY_UP:
-                    //handle_keypress(event, false);
+                    handle_keypress(event, false);
                     break;
                 default:
                     break;
@@ -92,17 +93,45 @@ void Emulator::handle_keypress(SDL_Event& event, bool pressed)
     {
         // Debug window keybinds
         case 19: // P
-            debug.open_debug_window(window_types::PATTERN_TABLE);
-            break;
-        case 18: // O
-            run_frame();
+            if (pressed) {debug.open_debug_window(window_types::PATTERN_TABLE);}
             break;
         case 17: // N
-            debug.open_debug_window(window_types::NAMETABLE);
+            if (pressed) {debug.open_debug_window(window_types::NAMETABLE);}
             break;
         // Program control keybinds
 
         // Controller inputs
+        case 26: // W = up
+            controller_latch = (pressed) ? controller_latch | 0x10 : controller_latch & 0xEF;
+            break;
+        case 4: // A = left
+            controller_latch = (pressed) ? controller_latch | 0x40 : controller_latch & 0xBF;
+            break;
+        case 22: // S = down
+            controller_latch = (pressed) ? controller_latch | 0x20 : controller_latch & 0xDF;
+            break;
+        case 7: // D = right
+            controller_latch = (pressed) ? controller_latch | 0x80 : controller_latch & 0x7F;
+            break;
+        case 13: // J = B
+            controller_latch = (pressed) ? controller_latch | 0x02 : controller_latch & 0xFD;
+            break;
+        case 14: // K = A
+            controller_latch = (pressed) ? controller_latch | 0x01 : controller_latch & 0xFE;
+            break;
+        case 20: // Q = select
+            controller_latch = (pressed) ? controller_latch | 0x04 : controller_latch & 0xFB;
+            break;
+        case 8: // E = start
+            controller_latch = (pressed) ? controller_latch | 0x08 : controller_latch & 0xF7;
+            break;
+    }
+}
 
+void Emulator::poll_controller_input()
+{
+    if (cpu.controller_input_requested)
+    {
+        cpu.controller_1 = controller_latch;
     }
 }

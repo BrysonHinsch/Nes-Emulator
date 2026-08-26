@@ -18,7 +18,11 @@ void Cpu::fetch_opcode()
 
 void Cpu::fetch_address()
 {
-    if (ops::pointerTable[opcode].fetchAddress == nullptr) {return;}
+    if (ops::pointerTable[opcode].fetchAddress == nullptr) 
+    {
+        clear_state();
+        return;
+    }
     ops::pointerTable[opcode].fetchAddress(*this);
 }
 

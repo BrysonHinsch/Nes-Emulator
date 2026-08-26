@@ -22,6 +22,13 @@ uint8_t Bus::read(uint16_t address)
     }
     else if (address < 0x4018) // APU and IO Registers
     {
+        if (address == 0x4016) // controller 1 polling
+        {
+            int return_val = CPU->controller_1 & 0x01;
+            CPU->controller_1 >>= 1;
+            return return_val;
+        }
+        if (address == 0x4017) {return 0;} // controller 2 polling
         return 0;
     }
     else if (address < 0x4020) // CPU Test Mode
@@ -58,6 +65,17 @@ uint8_t Bus::write(uint16_t address, uint8_t value)
             CPU->oam_delay = ((CPU->masterClock % 2) != 0) ? true : false;
             PPU->OAMDMA = value;
             return 0;
+        }
+        if (address == 0x4016) // controller 1 polling
+        {
+            if (value == 0)
+            {
+                CPU->controller_input_requested = false;
+            }
+            else if (value == 1)
+            {
+                CPU->controller_input_requested = true;
+            }
         }
         return 0;
     }

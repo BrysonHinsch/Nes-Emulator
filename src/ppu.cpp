@@ -371,7 +371,7 @@ int Ppu::generate_color(int index)
     const uint8_t* value = palette[index & 0x3F];
     return (value[0] << 24) | (value[1] << 16) | (value[2] << 8) | value[3];
 }
-void Ppu::draw_pixel() // TODO
+void Ppu::draw_pixel() // TODO 8x16 sprites
 {   
     // Check if sprite should be rendered
     bool sprite_found = false;

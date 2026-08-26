@@ -20,13 +20,13 @@ Cartridge::Cartridge(std::string filename)
     PRG_ROM.resize(header[4] * 0x4000);
     for (int i = 0; i < header[4]; i++)
     {
-        file.read(reinterpret_cast<char*>(PRG_ROM.data()), 0x4000);
+        file.read(reinterpret_cast<char*>(PRG_ROM.data()) + (i * 0x4000), 0x4000);
     }
     // read CHR_ROM
     CHR_ROM.resize(header[5] * 0x2000);
     for (int i = 0; i < header[5]; i++) 
     {
-        file.read(reinterpret_cast<char*>(CHR_ROM.data()), 0x2000);
+        file.read(reinterpret_cast<char*>(CHR_ROM.data()) + (i * 0x2000), 0x2000);
     }
     // set mapper
     switch (((header[6] & 0xF0) >> 4) + (header[7] & 0xF0))
