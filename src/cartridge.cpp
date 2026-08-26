@@ -32,7 +32,7 @@ Cartridge::Cartridge(std::string filename)
     switch (((header[6] & 0xF0) >> 4) + (header[7] & 0xF0))
     {
         case 0:
-            mapper = new MapperNROM(PRG_ROM, CHR_ROM);
+            mapper = new MapperNROM(PRG_ROM, CHR_ROM, header);
     }
 }
 
