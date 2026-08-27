@@ -351,6 +351,10 @@ void Ppu::sprite_eval() // TODO
                     eval_index++;
                     return;
                 }
+                if (eval_index == 0)
+                {
+                    load_sprite_zero_next = true;
+                }
             }
         }
         secondary_OAM[secondary_oam_index++] = eval_value;
@@ -406,7 +410,14 @@ void Ppu::draw_pixel() // TODO 8x16 sprites
 
     int buffer_index = (dot - 1) + (scanline * 256);
     // TODO ACTUAL PRIORITY
-    if (sprite_color != 0) {buffer[buffer_index] = sprite_color;}
+    if (sprite_color != 0) 
+    {
+        if ((sprite_index == 0) && sprite_zero_loaded)
+        {
+            PPUSTATUS |= 0x40;
+        }
+        buffer[buffer_index] = sprite_color;
+    }
     else {buffer[buffer_index] = background_color;}
 }
 

@@ -16,11 +16,15 @@ class MapperNROM: public Mapper
 
         uint8_t read(uint16_t address) override
         {
-            if (NROM128)
+            if (address >= 0x8000)
             {
-                return PRG_ROM[(address - 0x8000) % 0x4000];
+                if (NROM128)
+                {
+                    return PRG_ROM[(address - 0x8000) % 0x4000];
+                }
+                return PRG_ROM[address - 0x8000];
             }
-            return PRG_ROM[address - 0x8000];
+            return 0;
         }
     private:
         bool NROM128 = false;

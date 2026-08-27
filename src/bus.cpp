@@ -48,7 +48,7 @@ uint8_t Bus::write(uint16_t address, uint8_t value)
     {
         dataBus = value;
         addressBus = address;
-        ram[address] = value;
+        ram[address % 0x800] = value;
         return value;
     }
     else if (address < 0x4000) // PPU Registers

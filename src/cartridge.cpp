@@ -33,6 +33,10 @@ Cartridge::Cartridge(std::string filename)
     {
         case 0:
             mapper = new MapperNROM(PRG_ROM, CHR_ROM, header);
+            break;
+        default:
+            mapper = new MapperNROM(PRG_ROM, CHR_ROM, header);
+            break;
     }
 }
 
