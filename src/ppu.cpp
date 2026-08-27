@@ -294,7 +294,8 @@ void Ppu::fetch_sprite() // TODO implement 8x16 sprites
         case 5: {// sprite lsbits
             int i = sprite_render_index;
             int tile = sprite_registers[i].tile_index << 4;
-            int fy = scanline - sprite_registers[i].y_pos;
+            int flip = (sprite_registers[i].attributes & 0x80) ? 0b111 : 0;
+            int fy = (scanline - sprite_registers[i].y_pos) ^ flip;
             int index = fy | tile | ((PPUCTRL & 0x08) << 9);
             sprite_registers[i].pattern_low = read(index);
             break; }
@@ -303,7 +304,8 @@ void Ppu::fetch_sprite() // TODO implement 8x16 sprites
         case 7: // sprite msbits
             int i = sprite_render_index;
             int tile = sprite_registers[i].tile_index << 4;
-            int fy = scanline - sprite_registers[i].y_pos;
+            int flip = (sprite_registers[i].attributes & 0x80) ? 0b111 : 0;
+            int fy = (scanline - sprite_registers[i].y_pos) ^ flip;
             int index = fy | 0x08 | tile | ((PPUCTRL & 0x08) << 9);
             sprite_registers[i].pattern_high = read(index);
             // increment oam fetching address
@@ -395,8 +397,9 @@ void Ppu::draw_pixel() // TODO 8x16 sprites
     {
         // Get sprite color value
         int bit = dot - sprite_registers[sprite_index].x_pos;
-        int sprite_low_bit = (sprite_registers[sprite_index].pattern_low >> (7 - bit)) & 0x01;
-        int sprite_high_bit = (sprite_registers[sprite_index].pattern_high >> (7 - bit)) & 0x01;
+        int flip = (sprite_registers[sprite_index].attributes & 0x40) ? 0b111 : 0;
+        int sprite_low_bit = (sprite_registers[sprite_index].pattern_low >> (7 - (bit ^ flip))) & 0x01;
+        int sprite_high_bit = (sprite_registers[sprite_index].pattern_high >> (7 - (bit ^ flip))) & 0x01;
         int sprite_offset = sprite_low_bit | (sprite_high_bit << 1);
         int sprite_palette = sprite_registers[sprite_index].attributes & 0x03;
         int sprite_color_index = read(0x3F10 + sprite_palette * 4 + sprite_offset);
