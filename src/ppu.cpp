@@ -127,7 +127,6 @@ uint8_t Ppu::register_write(uint16_t address, uint8_t value)
     }
     else if (reg == 4) // done
     {
-        if (scanline <= 239) {return 0;}
         write_oam(OAMADDR++, value);
         return value;
     }
@@ -485,10 +484,13 @@ void Ppu::clock_ppu() {
     }
     else if (scanline <= 260) // ########## v-blank ##########
     {
-        if (dot == 1)
+        if (scanline == 241)
         {
-            PPUSTATUS |= 0x80; // set v-blank flag
-            renderer.update_texture(buffer); // draw completed frame
+            if (dot == 1)
+            {
+                PPUSTATUS |= 0x80; // set v-blank flag
+                renderer.update_texture(buffer); // draw completed frame
+            }
         }
         
         // call nmi handler

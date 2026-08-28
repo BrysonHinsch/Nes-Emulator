@@ -4,7 +4,7 @@
 #include "emulator.h"
 
 Emulator::Emulator():
-    cartridge("roms/bf.nes"),
+    cartridge("roms/smb.nes"),
     bus(&cartridge),
     renderer(title, 256, 240, 2),
     cpu(bus),
@@ -26,6 +26,12 @@ void Emulator::swap_cartridge(std::string filename)
 void Emulator::step() 
 {
     cpu.clock_cpu();
+    /*
+    if (cpu.masterClock > 70000)
+    {
+        cpu.print_state();
+    }
+    */
     poll_controller_input();
     // 3 PPU clocks per CPU clock
     ppu.clock_ppu();

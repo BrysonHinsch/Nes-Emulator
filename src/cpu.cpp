@@ -12,23 +12,22 @@ Cpu::Cpu(Bus& bus): bus(bus) {}
 void Cpu::fetch_opcode()
 {
     opcode = bus.read(PC);
+    if (ops::pointerTable[opcode].execute == nullptr)
+    {
+        PC++;
+        return;
+    }
     opcodeReady = true;
     PC++;
 }
 
 void Cpu::fetch_address()
 {
-    if (ops::pointerTable[opcode].fetchAddress == nullptr) 
-    {
-        clear_state();
-        return;
-    }
     ops::pointerTable[opcode].fetchAddress(*this);
 }
 
 void Cpu::execute_instruction()
 {
-    if (ops::pointerTable[opcode].execute == nullptr) {return;}
     ops::pointerTable[opcode].execute(*this);
 }
 
@@ -60,7 +59,7 @@ void Cpu::handle_nmi()
             PC |= temp8;
             service_nmi = false;
             clear_state();
-            break;
+            return;
     }
     localClock++;
 }
@@ -163,6 +162,7 @@ void Cpu::clock_cpu()
 void Cpu::print_state()
 {
     std::cout << std::hex << PC-1 << "  ";
+    std::cout << std::hex << "0x" << (int)opcode << "  ";
     std::cout << std::uppercase << ops::op_to_string(ops::pointerTable[opcode].op) << "                       ";
     std::cout << "A: " << std::hex << (int)A << " ";
     std::cout << "X: " << std::hex << (int)X << " ";
@@ -170,7 +170,7 @@ void Cpu::print_state()
     std::cout << "P: " << std::hex << (int)P << " ";
     std::cout << "SP: " << std::hex << (int)SP << "     ";
     std::cout << "CYC: " << std::dec << (int)masterClock+6 << "     ";
-    std::cout << "ADDRESS: " << std::dec << (int)address << "\n";
+    std::cout << "ADDRESS: " << std::hex << "0x" <<(int)address << "\n";
 
 }
 

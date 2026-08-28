@@ -42,7 +42,7 @@ namespace ops
     /* 1E */ {mode_abx, op_asl, AddressingMode::ABX, Instruction::ASL},
     /* 1F */ {mode_abx, op_slo, AddressingMode::ABX, Instruction::SLO},
 
-    /* 20 */ {mode_abs, op_jsr, AddressingMode::UNQ, Instruction::JSR},
+    /* 20 */ {nullptr, op_jsr, AddressingMode::UNQ, Instruction::JSR},
     /* 21 */ {mode_inx, op_and, AddressingMode::INX, Instruction::AND},
     /* 22 */ {mode_imp, op_hlt, AddressingMode::IMP, Instruction::HLT},
     /* 23 */ {mode_inx, op_rla, AddressingMode::INX, Instruction::RLA},
@@ -122,7 +122,7 @@ namespace ops
     /* 69 */ {mode_imm, op_adc_imm, AddressingMode::IMM, Instruction::ADC},
     /* 6A */ {mode_acc, op_ror_acc, AddressingMode::ACC, Instruction::ROR},
     /* 6B */ {mode_imm, op_arr, AddressingMode::IMM, Instruction::ARR},
-    /* 6C */ {nullptr, op_jmp_ind, AddressingMode::UNQ, Instruction::JMP}, // this makes me so sad
+    /* 6C */ {nullptr, op_jmp_ind, AddressingMode::UNQ, Instruction::JMP},
     /* 6D */ {mode_abs, op_adc, AddressingMode::ABS, Instruction::ADC},
     /* 6E */ {mode_abs, op_ror, AddressingMode::ABS, Instruction::ROR},
     /* 6F */ {mode_abs, op_rra, AddressingMode::ABS, Instruction::RRA},
