@@ -317,7 +317,7 @@ void Ppu::clear_secondary_oam()
 {
     if ((dot % 2) == 0) 
     {
-        secondary_OAM[dot/2] = 0xFF;
+        secondary_OAM[(dot-1)/2] = 0xFF;
     }
 }
 void Ppu::sprite_eval() // TODO
@@ -335,11 +335,8 @@ void Ppu::sprite_eval() // TODO
             // TODO overflow flag hit detection
             return;
         }
-        if (secondary_oam_full) // read instead if full
-        {
-            // TODO DUMMY READ
-            return;
-        }
+        // Fails to copy to secondary oam since its full
+        if (secondary_oam_full) {return;}
         else
         {
             if (eval_offset == 0)
@@ -349,7 +346,8 @@ void Ppu::sprite_eval() // TODO
                 int diff = scanline - eval_value;
                 if (diff < 0 || diff > sprite_height) // miss
                 {
-                    eval_index++;
+                    eval_index = (eval_index + 1) % 64;
+                    if (eval_index == 0) {oam_index_overflow = true;}
                     return;
                 }
                 if (eval_index == 0)
@@ -386,8 +384,12 @@ void Ppu::draw_pixel() // TODO 8x16 sprites
         int diff = dot - sprite_registers[i].x_pos;
         if (diff >= 0 && diff < 8)
         {
-            sprite_found = true;
-            sprite_index = i;
+            if (sprite_registers[i].y_pos < 0xEF && sprite_registers[i].x_pos < 0xF9)
+            {
+                sprite_found = true;
+                sprite_index = i;
+                break;
+            }
         }
     }
 
@@ -456,7 +458,7 @@ void Ppu::clock_ppu() {
                     reset_x();
                 }
 
-                fetch_sprite();
+                fetch_sprite(); // fetch sprites for next scanline
             }
             if (dot == 320)
             {
