@@ -4,7 +4,7 @@
 #include "emulator.h"
 
 Emulator::Emulator():
-    cartridge("roms/AccuracyCoin.nes"),
+    cartridge("roms/smb.nes"),
     bus(&cartridge),
     renderer(title, 256, 240, 2),
     cpu(bus),
@@ -53,8 +53,18 @@ void Emulator::start_emulator()
     SDL_Event event;
     running = true;
 
+    const int FPS = 60;
+    const int frame_delay = 1000/FPS;
+
+    uint64_t frame_start;
+    uint64_t frame_time;
+
     while (running)
     {
+
+        // Get miliseconds since init on frame start
+        frame_start = SDL_GetTicks();
+
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_EVENT_QUIT: // no debug windows open
@@ -73,9 +83,17 @@ void Emulator::start_emulator()
                     break;
             }
         }
-        debug.update_windows();
+        // runs cpu and ppu for one frame's worth of cycles
         run_frame();
-        Sleep(1000/100);
+        // updates opened debug windows with graphics data
+        debug.update_windows();
+
+        frame_time = SDL_GetTicks() - frame_start;
+
+        if (frame_delay > frame_time)
+        {
+            SDL_Delay(frame_delay - frame_time);
+        }
     }
     SDL_Quit();
     return;
