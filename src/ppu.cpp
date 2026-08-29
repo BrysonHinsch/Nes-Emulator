@@ -379,17 +379,19 @@ void Ppu::draw_pixel() // TODO 8x16 sprites
     // Check if sprite should be rendered
     bool sprite_found = false;
     int sprite_index = 0;
+    int flip = 0;
     for (int i = 0; i < 8; i++)
     {
         int diff = dot - sprite_registers[i].x_pos;
-        if (diff >= 0 && diff < 8)
+        flip = (sprite_registers[i].attributes & 0x40) ? 0b111 : 0;
+        if ((diff >= 0) && (diff < 8) && 
+            (sprite_registers[i].y_pos < 0xEF) && (sprite_registers[i].x_pos < 0xF9) &&
+            ((((sprite_registers[i].pattern_low >> (7 - (diff ^ flip))) & 0x01) == 0x01) || 
+            (((sprite_registers[i].pattern_high >> (7 - (diff ^ flip))) & 0x01) == 0x01)))
         {
-            if (sprite_registers[i].y_pos < 0xEF && sprite_registers[i].x_pos < 0xF9)
-            {
-                sprite_found = true;
-                sprite_index = i;
-                break;
-            }
+            sprite_found = true;
+            sprite_index = i;
+            break;
         }
     }
 
@@ -398,7 +400,6 @@ void Ppu::draw_pixel() // TODO 8x16 sprites
     {
         // Get sprite color value
         int bit = dot - sprite_registers[sprite_index].x_pos;
-        int flip = (sprite_registers[sprite_index].attributes & 0x40) ? 0b111 : 0;
         int sprite_low_bit = (sprite_registers[sprite_index].pattern_low >> (7 - (bit ^ flip))) & 0x01;
         int sprite_high_bit = (sprite_registers[sprite_index].pattern_high >> (7 - (bit ^ flip))) & 0x01;
         int sprite_offset = sprite_low_bit | (sprite_high_bit << 1);
