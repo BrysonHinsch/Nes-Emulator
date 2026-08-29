@@ -42,6 +42,7 @@ namespace ops
         STX, STY, TAX, TAY, TSX, TXA, TXS, TYA,
         // Unofficial
         HLT, SLO, ANC, RLA, SRE, ASR, RRA, ARR,
+        SAX
 
     };
     

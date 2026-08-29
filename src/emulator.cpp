@@ -4,7 +4,7 @@
 #include "emulator.h"
 
 Emulator::Emulator():
-    cartridge("roms/smb.nes"),
+    cartridge("roms/AccuracyCoin.nes"),
     bus(&cartridge),
     renderer(title, 256, 240, 2),
     cpu(bus),
