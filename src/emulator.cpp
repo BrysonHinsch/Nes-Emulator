@@ -4,7 +4,7 @@
 #include "emulator.h"
 
 Emulator::Emulator():
-    cartridge("roms/dk.nes"),
+    cartridge("roms/smb.nes"),
     bus(&cartridge),
     renderer(title, 256, 240, 2),
     cpu(bus),

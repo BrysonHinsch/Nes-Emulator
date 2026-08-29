@@ -100,7 +100,8 @@ uint8_t Ppu::register_read(uint16_t address)
     else if (reg == 7) // done
     {
         uint8_t temp = ppudata_read_buffer;
-        ppudata_read_buffer = read(v);
+        if (v < 0x3F00) {ppudata_read_buffer = read(v);}
+        else {temp = read(v);}
         v = (get_vram_increment()) ? v+32 : v+1;
         return temp;
     }
@@ -183,7 +184,9 @@ uint8_t Ppu::read(uint16_t address)
     address &= 0x3FFF;
     if (address >= 0x3F00 && address <= 0x3FFF) // Palette Ram
     {
-        return palette_ram[(address - 0x3F00) % 0x20];
+        int index = (address - 0x3F00) % 0x20;
+        if ((index > 0x0F) && (index % 4 == 0)) {return palette_ram[index - 0x10];}
+        else {return palette_ram[index];}
     }
     else
     {
@@ -199,7 +202,9 @@ uint8_t Ppu::write(uint16_t address, uint8_t value)
     }
     else if (address >= 0x3F00 && address < 0x4000)
     {
-        palette_ram[(address - 0x3F00) % 0x20] = value;
+        int index = (address - 0x3F00) % 0x20;
+        if ((index > 0x0F) && (index % 4 == 0)) {palette_ram[index - 0x10] = value;}
+        else {palette_ram[index] = value;}
         return 0;
     }
     return 0;
@@ -376,54 +381,82 @@ int Ppu::generate_color(int index)
 }
 void Ppu::draw_pixel() // TODO 8x16 sprites
 {   
-    // Check if sprite should be rendered
-    bool sprite_found = false;
-    int sprite_index = 0;
-    int flip = 0;
-    for (int i = 0; i < 8; i++)
+    // Determine sprite color and opacity
+    bool sprite_opaque = false;
+    bool sprite_zero = false;
+    bool sprite_priority = false; // true if behind background
+    int sprite_color = 0;
+    if (sprite_rendering_enabled())
     {
-        int diff = dot - sprite_registers[i].x_pos;
-        flip = (sprite_registers[i].attributes & 0x40) ? 0b111 : 0;
-        if ((diff >= 0) && (diff < 8) && 
-            (sprite_registers[i].y_pos < 0xEF) && (sprite_registers[i].x_pos < 0xF9) &&
-            ((((sprite_registers[i].pattern_low >> (7 - (diff ^ flip))) & 0x01) == 0x01) || 
-            (((sprite_registers[i].pattern_high >> (7 - (diff ^ flip))) & 0x01) == 0x01)))
+        // Check if a sprite is in range
+        bool sprite_found = false;
+        int sprite_index = 0;
+        int flip = 0;
+        for (int i = 0; i < 8; i++)
         {
-            sprite_found = true;
-            sprite_index = i;
-            break;
+            int diff = dot - sprite_registers[i].x_pos;
+            flip = (sprite_registers[i].attributes & 0x40) ? 0b111 : 0;
+            if ((diff >= 0) && (diff < 8) && 
+                (sprite_registers[i].y_pos < 0xEF) && (sprite_registers[i].x_pos < 0xF9) &&
+                ((((sprite_registers[i].pattern_low >> (7 - (diff ^ flip))) & 0x01) == 0x01) || 
+                (((sprite_registers[i].pattern_high >> (7 - (diff ^ flip))) & 0x01) == 0x01)))
+            {
+                if ((i == 0) && sprite_zero_loaded) {sprite_zero = true;}
+                sprite_priority = ((sprite_registers[i].attributes & 0x20) == 0x20);
+                sprite_found = true;
+                sprite_index = i;
+                break;
+            }
+        }
+
+        if (sprite_found)
+        {
+            // Get sprite color value
+            int bit = dot - sprite_registers[sprite_index].x_pos;
+            int sprite_low_bit = (sprite_registers[sprite_index].pattern_low >> (7 - (bit ^ flip))) & 0x01;
+            int sprite_high_bit = (sprite_registers[sprite_index].pattern_high >> (7 - (bit ^ flip))) & 0x01;
+            int sprite_offset = sprite_low_bit | (sprite_high_bit << 1);
+            // If offset is 0, sprite is transparent
+            if (sprite_offset != 0) {sprite_opaque = true;}
+            int sprite_palette = sprite_registers[sprite_index].attributes & 0x03;
+            int sprite_color_index = read(0x3F10 + sprite_palette * 4 + sprite_offset);
+            sprite_color = generate_color(sprite_color_index);
         }
     }
-
-    int sprite_color = 0;
-    if (sprite_found)
+    
+    // Determine background color and opacity
+    bool background_opaque = false;
+    int background_color = 0;
+    if (background_rendering_enabled())
     {
-        // Get sprite color value
-        int bit = dot - sprite_registers[sprite_index].x_pos;
-        int sprite_low_bit = (sprite_registers[sprite_index].pattern_low >> (7 - (bit ^ flip))) & 0x01;
-        int sprite_high_bit = (sprite_registers[sprite_index].pattern_high >> (7 - (bit ^ flip))) & 0x01;
-        int sprite_offset = sprite_low_bit | (sprite_high_bit << 1);
-        int sprite_palette = sprite_registers[sprite_index].attributes & 0x03;
-        int sprite_color_index = read(0x3F10 + sprite_palette * 4 + sprite_offset);
-        sprite_color = generate_color(sprite_color_index);
+        // Get background color value
+        int pattern_offset = ((pattern_shift_low >> (15-x)) & 0x0001) | (((pattern_shift_high >> (15-x)) & 0x0001) << 1);
+        // If offset is 0, background is transparent
+        if (pattern_offset != 0) {background_opaque = true;}
+        int attribute_offset = ((attribute_shift_low >> (15-x)) & 0x0001) | (((attribute_shift_high >> (15-x)) & 0x0001) << 1);
+        int index = read(0x3F00 + (attribute_offset * 4) + pattern_offset);
+        background_color = generate_color(index);
     }
-    // Get background color value
-    int pattern_offset = ((pattern_shift_low >> (15-x)) & 0x0001) | (((pattern_shift_high >> (15-x)) & 0x0001) << 1);
-    int attribute_offset = ((attribute_shift_low >> (15-x)) & 0x0001) | (((attribute_shift_high >> (15-x)) & 0x0001) << 1);
-    int index = read(0x3F00 + (attribute_offset * 4) + pattern_offset);
-    int background_color = generate_color(index);
-
+    
+    // Determine between drawing background or sprite
     int buffer_index = (dot - 1) + (scanline * 256);
-    // TODO ACTUAL PRIORITY
-    if (sprite_color != 0) 
-    {
-        if ((sprite_index == 0) && sprite_zero_loaded)
+    
+    if (sprite_zero && background_opaque) // Set sprite 0 flag
         {
             PPUSTATUS |= 0x40;
         }
+    if (sprite_opaque && (!sprite_priority || !background_opaque)) // Draw sprite color
+    {
         buffer[buffer_index] = sprite_color;
     }
-    else {buffer[buffer_index] = background_color;}
+    else if (background_opaque) // Draw background color
+    {
+        buffer[buffer_index] = background_color;
+    }
+    else // Draw backdrop color
+    {
+        buffer[buffer_index] = generate_color(read(0x3F00));
+    }
 }
 
 void Ppu::clock_ppu() {
@@ -601,8 +634,17 @@ void Ppu::power_on()
     odd_frame = false;
 }
 
+bool Ppu::background_rendering_enabled()
+{
+    return (PPUMASK & 0x08) == 0x08;
+}
+
+bool Ppu::sprite_rendering_enabled()
+{
+    return (PPUMASK & 0x10) == 0x10;
+}
+
 bool Ppu::rendering_enabled()
 {
-    if ((PPUMASK & 0b00011000) == 0) {return false;}
-    return true;
+    return background_rendering_enabled() || sprite_rendering_enabled();
 }

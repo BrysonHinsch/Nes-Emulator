@@ -90,6 +90,8 @@ class Ppu {
         void power_on();
 
         // checks if rendering is enabled
+        bool background_rendering_enabled();
+        bool sprite_rendering_enabled();
         bool rendering_enabled();
 
         // Rendering Information
