@@ -4,7 +4,7 @@
 #include "emulator.h"
 
 Emulator::Emulator():
-    cartridge("roms/smb.nes"),
+    cartridge(),
     bus(&cartridge),
     renderer(title, 256, 240, 2),
     cpu(bus),
@@ -13,14 +13,39 @@ Emulator::Emulator():
 {
     bus.set_cpu(&cpu);
     bus.set_ppu(&ppu);
-
-    cpu.power_on();
-    ppu.power_on();
+    int temp[256*240] = {0};
+    renderer.update_texture(temp);
 }
 
-void Emulator::swap_cartridge(std::string filename) 
+// Handles the file select dialog menu
+void SDLCALL file_select_callback(void *userdata, const char* const*filelist, int filter)
 {
+    if (!filelist) 
+    {
+        SDL_Log("An error occured: %s", SDL_GetError());
+        return;
+    } 
+    else if (!*filelist) 
+    {
+        SDL_Log("The user did not select any file.");
+        return;
+    }
+    else
+    {
+        Emulator* emulator = static_cast<Emulator*>(userdata);
+        emulator->load_rom(*filelist);
+    }
+}
 
+// Loads a new game
+void Emulator::load_rom(std::string filepath)
+{
+    cartridge.load_rom(filepath);
+    if (cartridge.game_loaded)
+    {
+        cpu.power_on();
+        ppu.power_on();
+    }
 }
 
 void Emulator::step() 
@@ -83,11 +108,13 @@ void Emulator::start_emulator()
                     break;
             }
         }
-        // runs cpu and ppu for one frame's worth of cycles
-        run_frame();
-        // updates opened debug windows with graphics data
-        debug.update_windows();
-
+        if (cartridge.game_loaded)
+        {
+            // runs cpu and ppu for one frame's worth of cycles
+            run_frame();
+            // updates opened debug windows with graphics data
+            debug.update_windows();
+        }
         frame_time = SDL_GetTicks() - frame_start;
 
         if (frame_delay > frame_time)
@@ -123,6 +150,15 @@ void Emulator::handle_keypress(SDL_Event& event, bool pressed)
             if (pressed) {debug.open_debug_window(window_types::NAMETABLE);}
             break;
         // Program control keybinds
+        case 58: // F1
+            if (pressed) 
+            {   
+                SDL_Window* window = renderer.get_window();
+                SDL_DialogFileFilter filters[] = {
+                    {"NES ROMs", "nes"}
+                };
+                SDL_ShowOpenFileDialog(file_select_callback, this, window, filters, 1, nullptr, false);
+            }
 
         // Controller inputs
         case 26: // W = up

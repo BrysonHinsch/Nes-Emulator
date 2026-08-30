@@ -11,6 +11,7 @@ class Renderer {
         void advance_frame();
 
         SDL_WindowID get_window_id();
+        SDL_Window* get_window();
     private:
         SDL_Window* window;
         SDL_Renderer* renderer;

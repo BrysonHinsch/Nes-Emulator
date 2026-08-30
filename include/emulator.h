@@ -19,15 +19,13 @@ class Emulator
     // Member functions
 
     // Load a new game
-    void swap_cartridge(std::string filename);
-
+    void load_rom(std::string filepath);
     // Game execution
     void step(); // steps ahead one cpu cycle
     void run_scanline(); // steps ahead one scanline
     void run_frame(); // steps ahead one frame
 
     void start_emulator(); // starts the main emulator loop
-
     // Event loop handling
     void handle_window_close(SDL_Event& event); // handles closing with multiple windows
     void handle_keypress(SDL_Event& event, bool pressed);

@@ -380,7 +380,7 @@ int Ppu::generate_color(int index)
     return (value[0] << 24) | (value[1] << 16) | (value[2] << 8) | value[3];
 }
 void Ppu::draw_pixel() // TODO 8x16 sprites
-{   
+{
     // Determine sprite color and opacity
     bool sprite_opaque = false;
     bool sprite_zero = false;
@@ -632,6 +632,11 @@ void Ppu::power_on()
     PPUADDR = 0;
     PPUDATA = 0;
     odd_frame = false;
+
+    for (int i = 0; i < 0x800; i++)
+    {
+        write(0x2000+i, 0);
+    }
 }
 
 bool Ppu::background_rendering_enabled()

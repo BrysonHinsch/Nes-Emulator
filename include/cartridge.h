@@ -11,7 +11,7 @@ class Cartridge
 {
     public:
         // Constructor
-        Cartridge(std::string filename);
+        Cartridge();
         // Prints Header for Debugging
         void PrintHeader();
         // Reads from the PRG ROM
@@ -20,7 +20,11 @@ class Cartridge
         uint8_t write(uint16_t address, uint8_t value);
         // Reads from CHR ROM
         uint8_t read_ppu(uint16_t address);
-        
+        // Loads a game from a rom
+        void load_rom(std::string filepath);
+
+        bool game_loaded = false;
+
         uint8_t header[16] = {0};
         std::vector<uint8_t> trainer;
         std::vector<uint8_t> PRG_ROM;

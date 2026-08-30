@@ -5,9 +5,35 @@
 #include "cartridge.h"
 #include "mappers/mapperNROM.h"
 
-Cartridge::Cartridge(std::string filename)
+Cartridge::Cartridge() {}
+
+uint8_t Cartridge::read(uint16_t address)
 {
-    std::ifstream file(filename, std::ios::binary);
+    return mapper->read(address);
+}
+
+uint8_t Cartridge::write(uint16_t address, uint8_t value)
+{
+    return 0;
+}
+// DEBUGGING #################################################
+
+void Cartridge::PrintHeader()
+{
+    for (int i = 0; i < 16; i++)
+    { 
+        std::cout << (int)header[i] << std::endl;
+    }
+}
+
+uint8_t Cartridge::read_ppu(uint16_t address)
+{
+    return CHR_ROM[address % 0x2000];
+}
+
+void Cartridge::load_rom(std::string filepath)
+{
+    std::ifstream file(filepath, std::ios::binary);
     // read file header
     file.read(reinterpret_cast<char*>(header), sizeof(header));
     // read trainer data
@@ -38,28 +64,5 @@ Cartridge::Cartridge(std::string filename)
             mapper = new MapperNROM(PRG_ROM, CHR_ROM, header);
             break;
     }
-}
-
-uint8_t Cartridge::read(uint16_t address)
-{
-    return mapper->read(address);
-}
-
-uint8_t Cartridge::write(uint16_t address, uint8_t value)
-{
-    return 0;
-}
-// DEBUGGING #################################################
-
-void Cartridge::PrintHeader()
-{
-    for (int i = 0; i < 16; i++)
-    { 
-        std::cout << (int)header[i] << std::endl;
-    }
-}
-
-uint8_t Cartridge::read_ppu(uint16_t address)
-{
-    return CHR_ROM[address % 0x2000];
+    game_loaded = true;
 }

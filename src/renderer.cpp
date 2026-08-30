@@ -25,3 +25,7 @@ SDL_WindowID Renderer::get_window_id()
 {
     return SDL_GetWindowID(window);
 }
+
+SDL_Window* Renderer::get_window() {
+    return window;
+}
