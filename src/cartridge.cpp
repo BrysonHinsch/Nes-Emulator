@@ -43,17 +43,15 @@ void Cartridge::load_rom(std::string filepath)
         // either 0 or 512 bytes
     }
     // read PRG_ROM
-    PRG_ROM.resize(header[4] * 0x4000);
-    for (int i = 0; i < header[4]; i++)
-    {
-        file.read(reinterpret_cast<char*>(PRG_ROM.data()) + (i * 0x4000), 0x4000);
-    }
+    int prg_size = header[4] * 0x4000;
+    PRG_ROM.resize(prg_size);
+    file.read(reinterpret_cast<char*>(PRG_ROM.data()), prg_size);
+
     // read CHR_ROM
-    CHR_ROM.resize(header[5] * 0x2000);
-    for (int i = 0; i < header[5]; i++) 
-    {
-        file.read(reinterpret_cast<char*>(CHR_ROM.data()) + (i * 0x2000), 0x2000);
-    }
+    int chr_size = header[5] * 0x2000;
+    CHR_ROM.resize(chr_size);
+    file.read(reinterpret_cast<char*>(CHR_ROM.data()), chr_size);
+    
     // set mapper
     switch (((header[6] & 0xF0) >> 4) + (header[7] & 0xF0))
     {

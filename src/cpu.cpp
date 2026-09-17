@@ -188,6 +188,7 @@ void Cpu::clear_state()
 
 void Cpu::power_on()
 {
+    clear_state();
     A = 0;
     X = 0;
     Y = 0;
