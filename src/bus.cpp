@@ -185,3 +185,8 @@ std::vector<uint8_t>& Bus::get_chr_rom()
 {
     return cartridge->CHR_ROM;
 }
+
+void Bus::clear_ram()
+{
+    ram.fill(0);
+} 

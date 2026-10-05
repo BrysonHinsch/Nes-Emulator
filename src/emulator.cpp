@@ -9,7 +9,7 @@ Emulator::Emulator():
     renderer(title, 256, 240, 2),
     cpu(bus),
     ppu(bus, renderer),
-    apu(),
+    apu(bus),
     debug(bus)
 {
     bus.set_cpu(&cpu);
@@ -46,6 +46,7 @@ void Emulator::load_rom(std::string filepath)
     {
         cpu.power_on();
         ppu.power_on();
+        bus.clear_ram();
     }
 }
 

@@ -34,6 +34,9 @@ class Bus
         // Getters for debugging
         std::vector<uint8_t>& get_chr_rom();
 
+        // Reset ram contents
+        void clear_ram();
+
     private:
         // Busses
         uint8_t dataBus = 0;
