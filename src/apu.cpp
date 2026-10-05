@@ -26,9 +26,15 @@ void Apu::clock_triangle()
     {
         if (t.linear_counter != 0 && t.length_counter != 0)
         {
-            
+            sample_triangle();
         }
     }
+}
+
+void Apu::sample_triangle()
+{
+    m.s_triangle = t.sequence[t.sequence_pos];
+    t.sequence_pos = (t.sequence_pos + 1) % 32;
 }
 
 void Apu::clock_apu()
@@ -38,6 +44,12 @@ void Apu::clock_apu()
     if (apu_cycle)
     {
         clock_frame_counter();
+        // time to send a sample to SDL
+        if (sample_cycle == (sample_cycles - 1))
+        {
+            mix_audio();
+        }
+        sample_cycle = (sample_cycle + 1) % sample_cycles;
     }
     /*
     audio_buffer[audio_buffer_index++] = ((audio_buffer_index % 109) < 54) ? 0.1f : -0.1f;
@@ -103,5 +115,15 @@ void Apu::clock_frame_counter()
             clock_length_counters();
             frame_counter = 0;
         }
+    }
+}
+
+void Apu::mix_audio()
+{
+    audio_buffer[audio_buffer_index++] = (static_cast<float>(m.s_triangle) - 8) * 0.1f;
+    if (audio_buffer_index == 100)
+    {
+        audio_buffer_index = 0;
+        SDL_PutAudioStreamData(audio_stream, audio_buffer, audio_buffer_length * sizeof(audio_buffer[0]));
     }
 }

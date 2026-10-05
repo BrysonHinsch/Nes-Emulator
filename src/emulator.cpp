@@ -53,12 +53,6 @@ void Emulator::load_rom(std::string filepath)
 void Emulator::step() 
 {
     cpu.clock_cpu();
-    /*
-    if (cpu.masterClock > 70000)
-    {
-        cpu.print_state();
-    }
-    */
     poll_controller_input();
     apu.clock_apu();
     // 3 PPU clocks per CPU clock

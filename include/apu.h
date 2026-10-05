@@ -55,6 +55,8 @@ class Apu
 
         void clock_frame_counter();
 
+        void mix_audio();
+
     private:
 
         // Distinguish between cpu cycle and apu cycle (mainly for triangle wave)
@@ -65,6 +67,9 @@ class Apu
 
         // NES audio channels
         TriangleChannel t {};
+
+        // Mixer
+        Mixer m {};
 
         // data required for audio stream
         SDL_AudioDeviceID id {};
