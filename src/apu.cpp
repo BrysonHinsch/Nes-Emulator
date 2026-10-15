@@ -64,11 +64,11 @@ void Apu::clock_apu()
 
 void Apu::clock_linear_counter()
 {
-
+    if (t.linear_counter != 0) {t.linear_counter--;}
 }
 void Apu::clock_length_counters()
 {
-
+    if (t.length_counter != 0) {t.length_counter--;}
 }
 
 bool Apu::clock_timer(Timer& timer)
@@ -120,7 +120,9 @@ void Apu::clock_frame_counter()
 
 void Apu::mix_audio()
 {
-    audio_buffer[audio_buffer_index++] = (static_cast<float>(m.s_triangle) - 8) * 0.1f;
+    if (t.linear_counter != 0 && t.length_counter != 0)
+        audio_buffer[audio_buffer_index++] = (static_cast<float>(m.s_triangle) - 8) * 0.1f;
+        
     if (audio_buffer_index == 100)
     {
         audio_buffer_index = 0;

@@ -84,7 +84,7 @@ class Apu
         bool frame_interrupt {};
 
         // audio stream data buffer
-        float audio_buffer[audio_buffer_length] = {0};
+        float audio_buffer[audio_buffer_length] {};
         int audio_buffer_index {};
 
         // audio stream
