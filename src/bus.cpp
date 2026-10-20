@@ -4,6 +4,7 @@
 #include "bus.h"
 #include "cartridge.h"
 #include "cpu.h"
+#include "apu.h"
 #include "ppu.h"
 
 Bus::Bus(Cartridge* cart) : cartridge(cart) {}
@@ -89,6 +90,16 @@ uint8_t Bus::write(uint16_t address, uint8_t value)
     }
 }
 
+uint8_t Bus::read_apu(uint16_t address)
+{
+    
+}
+
+uint8_t Bus::write_apu(uint16_t address, uint8_t value)
+{
+
+}
+
 uint8_t Bus::read_ppu(uint16_t address)
 {
     if (address < 0x2000) // CHR ROM
@@ -170,7 +181,12 @@ void Bus::set_cpu(Cpu* cpu)
 {
     CPU = cpu;
 }
-        
+
+void Bus::set_apu(Apu* apu)
+{
+    APU = apu;
+}
+
 void Bus::set_ppu(Ppu* ppu)
 {
     PPU = ppu;

@@ -13,6 +13,7 @@ Emulator::Emulator():
     debug(bus)
 {
     bus.set_cpu(&cpu);
+    bus.set_apu(&apu);
     bus.set_ppu(&ppu);
     int temp[256*240] = {0};
     renderer.update_texture(temp);

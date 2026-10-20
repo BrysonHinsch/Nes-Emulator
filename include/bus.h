@@ -5,8 +5,10 @@
 
 #include "cartridge.h"
 
-class Ppu; // forward declaration
 class Cpu; // forward declaration
+class Apu; // forward declaration
+class Ppu; // forward declaration
+
 
 class Bus
 {
@@ -18,6 +20,10 @@ class Bus
         uint8_t read(uint16_t address);
         // Writes to address for cpu
         uint8_t write(uint16_t address, uint8_t value);
+        // Reads and returns value from apu registers
+        uint8_t read_apu(uint16_t address);
+        // Writes to address for apu
+        uint8_t write_apu(uint16_t address, uint8_t value);
         // Reads and returns value for ppu
         uint8_t read_ppu(uint16_t address);
         // Writes to address for ppu
@@ -26,6 +32,8 @@ class Bus
         void write_oam(uint8_t index, uint8_t value);
         // Sets CPU pointer
         void set_cpu(Cpu* cpu);
+        // sets APU pointer
+        void set_apu(Apu* apu);
         // Sets PPU pointer
         void set_ppu(Ppu* ppu);
         // sets nmi flag in cpu
@@ -49,6 +57,8 @@ class Bus
         Cartridge* cartridge;
         // CPU pointer for accessing registers
         Cpu* CPU;
+        // APU pointer for accessing registers
+        Apu* APU;
         // PPU pointer for accessing registers
         Ppu* PPU;
 };
