@@ -7,6 +7,13 @@ constexpr int audio_buffer_length = 512;
 constexpr int sample_rate = 9927;
 constexpr int sample_cycles = 1786860 / sample_rate;
 
+inline constexpr int length_table[32] = {
+    10, 254, 20, 2, 40, 4, 80, 6, 
+    160, 8, 60, 10, 14, 12, 26, 14, 
+    12, 16, 24, 18, 48, 20, 96, 22, 
+    192, 24, 72, 26, 16, 28, 32, 30
+};
+
 struct Timer
 {
     int timer {};
@@ -31,6 +38,12 @@ struct TriangleChannel
     // counters
     int length_counter {};
     int linear_counter {};
+    // enabled bit
+    bool enabled {};
+    // counter flags
+    bool length_counter_halt {};
+    bool linear_counter_reload {};
+    int linear_counter_reload_value {};
 };
 
 class Apu
@@ -56,6 +69,8 @@ class Apu
         void clock_frame_counter();
 
         void mix_audio();
+
+        void write(uint16_t address, uint8_t value);
 
     private:
 

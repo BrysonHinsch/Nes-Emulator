@@ -92,12 +92,17 @@ uint8_t Bus::write(uint16_t address, uint8_t value)
 
 uint8_t Bus::read_apu(uint16_t address)
 {
-    
+    if (address == 0x4015)
+    {
+
+    }
+
+    return 0;
 }
 
-uint8_t Bus::write_apu(uint16_t address, uint8_t value)
+void Bus::write_apu(uint16_t address, uint8_t value)
 {
-
+    APU->write(address, value);
 }
 
 uint8_t Bus::read_ppu(uint16_t address)

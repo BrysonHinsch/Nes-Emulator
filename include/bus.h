@@ -23,7 +23,7 @@ class Bus
         // Reads and returns value from apu registers
         uint8_t read_apu(uint16_t address);
         // Writes to address for apu
-        uint8_t write_apu(uint16_t address, uint8_t value);
+        void write_apu(uint16_t address, uint8_t value);
         // Reads and returns value for ppu
         uint8_t read_ppu(uint16_t address);
         // Writes to address for ppu
