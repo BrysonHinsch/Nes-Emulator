@@ -5,7 +5,7 @@
 
 constexpr int audio_buffer_length = 512;
 constexpr int sample_rate = 9927;
-constexpr int sample_cycles = 1786860 / sample_rate;
+constexpr int sample_cycles = 1786860 / 2 / sample_rate;
 
 inline constexpr int length_table[32] = {
     10, 254, 20, 2, 40, 4, 80, 6, 

@@ -51,14 +51,6 @@ void Apu::clock_apu()
         }
         sample_cycle = (sample_cycle + 1) % sample_cycles;
     }
-    /*
-    audio_buffer[audio_buffer_index++] = ((audio_buffer_index % 109) < 54) ? 0.1f : -0.1f;
-    if (audio_buffer_index == 512)
-    {
-        audio_buffer_index = 0;
-        SDL_PutAudioStreamData(audio_stream, audio_buffer, audio_buffer_length * sizeof(audio_buffer[0]));
-    }
-    */
     apu_cycle = !apu_cycle;
 }
 
@@ -66,11 +58,11 @@ void Apu::clock_linear_counter()
 {
     if (t.linear_counter_reload) {t.linear_counter = t.linear_counter_reload_value;}
     else if (t.linear_counter != 0) {t.linear_counter--;}
-    if (t.length_counter_halt == 0) {t.linear_counter_reload = false;}
+    if (t.length_counter_halt == false) {t.linear_counter_reload = false;}
 }
 void Apu::clock_length_counters()
 {
-    if (t.length_counter != 0) {t.length_counter--;}
+    if (!t.length_counter_halt && t.length_counter != 0) {t.length_counter--;}
 }
 
 bool Apu::clock_timer(Timer& timer)
@@ -122,10 +114,13 @@ void Apu::clock_frame_counter()
 
 void Apu::mix_audio()
 {
+    float out = 0.0f;
     if (t.linear_counter != 0 && t.length_counter != 0)
-        audio_buffer[audio_buffer_index++] = (static_cast<float>(m.s_triangle) - 8) * 0.1f;
+        out = (static_cast<float>(m.s_triangle) - 8) * 0.1f; 
         
-    if (audio_buffer_index == 100)
+    audio_buffer[audio_buffer_index++] = out;
+        
+    if (audio_buffer_index == audio_buffer_length)
     {
         audio_buffer_index = 0;
         SDL_PutAudioStreamData(audio_stream, audio_buffer, audio_buffer_length * sizeof(audio_buffer[0]));
@@ -184,8 +179,19 @@ void Apu::write(uint16_t address, uint8_t value)
         case 0x4013:
             break;
         case 0x4015: // APU Status Register
+            // TODO: Add pulse, noise, and dmc parts
+            if ((value & 0x04) == 0x04) { // Triangle
+                t.enabled = true;
+            }
+            else {
+                t.enabled = false;
+                t.length_counter = 0;
+            }
             break;
         case 0x4017: // Frame Counter
+            frame_counter = 0;
+            sequencer_mode = ((value & 0x80) == 0x80);
+            interrupt_inhibit = ((value & 0x40) == 0x40);
             break;
-}
+    }
 }

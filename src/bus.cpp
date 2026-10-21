@@ -78,6 +78,8 @@ uint8_t Bus::write(uint16_t address, uint8_t value)
                 CPU->controller_input_requested = true;
             }
         }
+        // $4000-$4013, $4015, $4017 for APU
+        APU->write(address, value);
         return 0;
     }
     else if (address < 0x4020) // CPU Test Mode
