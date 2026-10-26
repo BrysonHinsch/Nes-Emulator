@@ -31,10 +31,20 @@ void Apu::clock_triangle()
     }
 }
 
+void Apu::clock_pulse(int channel)
+{
+
+}
+
 void Apu::sample_triangle()
 {
     m.s_triangle = t.sequence[t.sequence_pos];
     t.sequence_pos = (t.sequence_pos + 1) % 32;
+}
+
+void Apu::sample_pulse(int channel)
+{
+
 }
 
 void Apu::clock_apu()
@@ -74,6 +84,16 @@ bool Apu::clock_timer(Timer& timer)
         return true;
     }
     return false;
+}
+
+bool Apu::clock_envelope(Envelope& envelope)
+{
+
+}
+
+bool Apu::clock_sweep(Sweep& sweep)
+{
+
 }
 
 void Apu::clock_frame_counter()

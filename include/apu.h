@@ -20,12 +20,52 @@ struct Timer
     int saved_timer {};
 };
 
+struct Envelope
+{
+    int envelope_divider {}; // controls speed which the envelope lowers and value for constant volume
+    // flags
+    bool constant_volume_flag {}; // If set, volume is constantly set to divider value
+    bool start_flag {}; // set when length counter loaded, cleared on frame counter clock
+    // internal counters
+    int divider {}; // current position for envelope divider
+    int decay_level {}; // set to 15, decrements when divider is 0
+};
+
+struct Sweep
+{
+    int shift_count {}; // number of bits the period is shifted to the right
+    // flags
+    bool negate_flag {}; // if set, shift to the left instead
+    bool enable_flag {};
+    // target period for calculating overflow silencing
+    int target_period {}; // what the period will be after addig the change
+    // sweep unit clock
+    int clock_rate {}; // saved sweep clock rate
+    int clock_current {}; // current clock rate position
+};
+
 struct Mixer
 {
     float s_triangle {};
     float s_pulse1 {};
     float s_pulse2 {};
     float s_noise {};
+};
+
+struct PulseChannel
+{    
+    // timer
+    Timer timer {};
+    // envelope unit
+    Envelope envelope {};
+    // sweep unit
+    Sweep sweep {};
+    // pulse width
+    int duty {}; // set to 0, 1, 2, 3 : 12.5%, 25%, 50%, 75% active
+    // enabled bit
+    bool enabled {};
+    // counter flags
+    bool length_counter_halt {};
 };
 
 struct TriangleChannel
@@ -53,9 +93,11 @@ class Apu
 
         // clock channels
         void clock_triangle();
+        void clock_pulse(int channel);
 
         // sample channels
         void sample_triangle();
+        void sample_pulse(int channel);
 
         // clock apu once
         void clock_apu();
@@ -65,6 +107,8 @@ class Apu
         void clock_length_counters();
 
         bool clock_timer(Timer& timer);
+        bool clock_envelope(Envelope& envelope);
+        bool clock_sweep(Sweep& sweep);
 
         void clock_frame_counter();
 
@@ -82,6 +126,8 @@ class Apu
 
         // NES audio channels
         TriangleChannel t {};
+        PulseChannel p1 {};
+        PulseChannel p2 {};
 
         // Mixer
         Mixer m {};
