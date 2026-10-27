@@ -4,8 +4,8 @@
 #include "SDL.h"
 
 constexpr int audio_buffer_length = 512;
-constexpr int sample_rate = 9927;
-constexpr int sample_cycles = 1786860 / 2 / sample_rate;
+constexpr int sample_rate = 49716;
+constexpr int sample_cycles = 18;
 
 inline constexpr int length_table[32] = {
     10, 254, 20, 2, 40, 4, 80, 6, 
@@ -29,10 +29,13 @@ struct Timer
 
 struct Envelope
 {
+    
+    int output_volume {}; // output volume used to calculate audio samples
     int envelope_divider {}; // controls speed which the envelope lowers and value for constant volume
     // flags
     bool constant_volume_flag {}; // If set, volume is constantly set to divider value
     bool start_flag {}; // set when length counter loaded, cleared on frame counter clock
+    bool loop_flag {}; // same as LC halt flag, keeps decay level set to 15
     // internal counters
     int divider {}; // current position for envelope divider
     int decay_level {}; // set to 15, decrements when divider is 0
@@ -43,9 +46,11 @@ struct Sweep
     int shift_count {}; // number of bits the period is shifted to the right
     // flags
     bool negate_flag {}; // if set, shift to the left instead
-    bool enable_flag {};
+    bool reload_flag {}; // set on write to $4001 or $4005
+    bool enable_flag {}; // enables the sweep unit
+    bool overflow_flag {}; // not in hardware, just for simplicity
     // target period for calculating overflow silencing
-    int target_period {}; // what the period will be after addig the change
+    int target_period {}; // what the period will be after adding the change
     // sweep unit clock
     int clock_rate {}; // saved sweep clock rate
     int clock_current {}; // current clock rate position
@@ -116,8 +121,8 @@ class Apu
         void clock_length_counters();
 
         bool clock_timer(Timer& timer);
-        bool clock_envelope(Envelope& envelope);
-        bool clock_sweep(Sweep& sweep);
+        void clock_envelope(Envelope& envelope);
+        void clock_pulse_sweep(PulseChannel& pulse, int channel);
 
         void clock_frame_counter();
 
