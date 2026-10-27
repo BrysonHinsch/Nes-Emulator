@@ -14,6 +14,13 @@ inline constexpr int length_table[32] = {
     192, 24, 72, 26, 16, 28, 32, 30
 };
 
+inline constexpr int duty_sequences[4][8] = {
+    0, 1, 0, 0, 0, 0, 0, 0,
+    0, 1, 1, 0, 0, 0, 0, 0,
+    0, 1, 1, 1, 1, 0, 0, 0,
+    1, 0, 0, 1, 1, 1, 1, 1
+};
+
 struct Timer
 {
     int timer {};
@@ -60,11 +67,13 @@ struct PulseChannel
     Envelope envelope {};
     // sweep unit
     Sweep sweep {};
-    // pulse width
+    // pulse variables
     int duty {}; // set to 0, 1, 2, 3 : 12.5%, 25%, 50%, 75% active
+    int pulse_cycle {}; // position in duty cycle array
     // enabled bit
     bool enabled {};
-    // counter flags
+    // length counter
+    int length_counter {};
     bool length_counter_halt {};
 };
 
@@ -111,6 +120,8 @@ class Apu
         bool clock_sweep(Sweep& sweep);
 
         void clock_frame_counter();
+
+        void calculate_target_period(PulseChannel& p, int channel);
 
         void mix_audio();
 
