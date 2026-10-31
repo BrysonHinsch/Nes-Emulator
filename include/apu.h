@@ -4,7 +4,7 @@
 #include "SDL.h"
 
 constexpr int audio_buffer_length = 512;
-constexpr int sample_rate = 49716;
+constexpr int sample_rate = 50750; // This doesnt divide equally but prevents overflow with minimal clipping (dumb solution)
 constexpr int sample_cycles = 18;
 
 inline constexpr int length_table[32] = {
